@@ -19,12 +19,12 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { Layers3 } from "lucide-react";
-import { toast, ToastContainer } from "react-toastify";
+import { toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 import { IoMdAdd } from "react-icons/io";
 import { useRouter } from "next/navigation";
 import { Iadd } from "./AddTest";
-import { FaBedPulse } from "react-icons/fa6";
+import { useToast } from "@/components/ui/use-toast";
 
 // the trigger button for adding resources in session
 const TriggerForSession = () => {
@@ -57,6 +57,7 @@ const AddResource: React.FC<Iadd> = ({
   const [loading, setLoading] = useState<boolean>(false);
   const [selectedResourceId, setselectedResourceId] = useState<string>();
   const router = useRouter();
+  const toaster = useToast();
 
   const { isLoading, isError, error, data } = useQuery({
     queryKey: ["addResource"],
@@ -72,8 +73,8 @@ const AddResource: React.FC<Iadd> = ({
 
   // Mutation to handle the addition of resource
   const addClassResources = useMutation({
+    mutationKey: ["add-class-resouces"],
     mutationFn: async () => {
-      //console.log(classId, selectedResourceId);
       const result = await fetch(`/api/class/resources`, {
         method: "POST",
         body: JSON.stringify({
@@ -102,27 +103,33 @@ const AddResource: React.FC<Iadd> = ({
   });
   // Mutation to handle the addition of resource
   const addSessionResources = useMutation({
+    mutationKey: ["add-resource-one-one-one"],
     mutationFn: async () => {
-      console.log(classId, selectedResourceId);
-      const result = await fetch(`/api/one-on-one-section/resources`, {
+      const response = await fetch(`/api/one-on-one-section/resources`, {
         method: "POST",
         body: JSON.stringify({
           sectionId: classId,
           resourceId: selectedResourceId,
         }),
       });
-      return result;
+      return response;
     },
 
-    onSuccess: async (result) => {
+    onSuccess: async (response) => {
+      const result = await response.json();
       queryClient.invalidateQueries({ queryKey: ["single-section-show"] });
       setLoading(false);
-      if (result.ok) {
+      if (response.ok) {
         setDialogOpen(false);
-        toast.success("Resource successfully added");
-      } else {
-        toast.error("Error adding resource");
+        return toaster.toast({
+          description: result.message,
+          title: "successful",
+        });
       }
+      return toaster.toast({
+        description: result.message,
+        title: "failed uploading",
+      });
     },
     onError: (error) => {
       console.error("Error adding resource:", error);

@@ -8,7 +8,12 @@ import {
   SingleRowWithArray,
 } from "./ui/admin-dashboard/sessions/SingleSessionAdmin";
 import { useConversion } from "@/data-access/conversion";
-import { useQuery, useQueries, useQueryClient, useMutation } from "@tanstack/react-query";
+import {
+  useQuery,
+  useQueries,
+  useQueryClient,
+  useMutation,
+} from "@tanstack/react-query";
 import { useToast } from "@/components/ui/use-toast";
 import { Noitem } from "./ApplicantsTable";
 import { SingleClassSkeleton } from "./SingleClassroom";
@@ -28,6 +33,7 @@ import {
 } from "@/components/ui/dialog";
 import { Trash2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import { Skeleton } from "@mui/material";
 
 interface IMeetingLink {
   link: string;
@@ -36,9 +42,16 @@ interface IMeetingLink {
 interface RemoveExamProps {
   examId: string;
   setDialogOpen: React.Dispatch<React.SetStateAction<boolean>>;
-  
 }
 
+interface IResources {
+  id: string;
+  subject: string;
+  title: string;
+  grade: string;
+  sourceLink: string;
+  type: string;
+}
 
 // interface for the session
 interface ISingleSession {
@@ -264,8 +277,7 @@ export const TopSection: React.FC<{
 };
 
 //The Dialog that deletes the exam
-const RemoveExam: React.FC<RemoveExamProps> = ({ examId,
-  setDialogOpen}) => {
+const RemoveExam: React.FC<RemoveExamProps> = ({ examId, setDialogOpen }) => {
   const [loading, setLoading] = useState<boolean>(false);
   const { toast } = useToast();
 
@@ -303,21 +315,21 @@ const RemoveExam: React.FC<RemoveExamProps> = ({ examId,
           description: "Error updating this teacher's status",
         });
       }
-    }
-      
+    },
   });
   const handleDelete = () => {
     setLoading(true);
     mutate(examId);
-    
   };
 
   return (
     <Dialog>
       <DialogTrigger asChild>
-        <p onClick={() => setDialogOpen(true)} className="inline text-[13px] cursor-pointer  font-semibold">
+        <p
+          onClick={() => setDialogOpen(true)}
+          className="inline text-[13px] cursor-pointer  font-semibold"
+        >
           <Trash2 className="inline w-4 h-4 mr-2 ml-0 text-lightGreen " />
-          
         </p>
       </DialogTrigger>
       <DialogContent className="sm:w-[500px] w-[380px] font-subtext">
@@ -355,17 +367,16 @@ const RemoveExam: React.FC<RemoveExamProps> = ({ examId,
           </Button>
         </DialogFooter>
       </DialogContent>
-      <ToastContainer/>
+      <ToastContainer />
     </Dialog>
   );
 };
 
-
-const RenderedExam: React.FC<{ exam: any; setDialogOpen: React.Dispatch<React.SetStateAction<boolean>>; dialogOpen: boolean  }> = ({
-  exam,
-  setDialogOpen,
-  dialogOpen
-}) => {
+const RenderedExam: React.FC<{
+  exam: any;
+  setDialogOpen: React.Dispatch<React.SetStateAction<boolean>>;
+  dialogOpen: boolean;
+}> = ({ exam, setDialogOpen, dialogOpen }) => {
   return (
     <div className=" w-full flex items-center text-[14px] font-semibold text-slate-500">
       <div className=" flex-1 flex items-center text-black text-[14px] gap-1 ">
@@ -386,7 +397,9 @@ const RenderedExam: React.FC<{ exam: any; setDialogOpen: React.Dispatch<React.Se
           <p>{exam.grade}</p>
         </div>
         <div className=" flex-1 flex text-[11px] items-center justify-center">
-          <p><RemoveExam  examId={exam.id} setDialogOpen={setDialogOpen}/></p>
+          <p>
+            <RemoveExam examId={exam.id} setDialogOpen={setDialogOpen} />
+          </p>
         </div>
       </div>
     </div>
@@ -399,9 +412,10 @@ const Exams: React.FC<{
 }> = ({ exams, isTeacher, sessionId }) => {
   // state to toggle exam submission for this particular session
   const [dialogueOpen, setDialogOpen] = useState<boolean>(false);
-  const [removeExamDialogOpen, setRemoveExamDialogOpen] = useState<boolean>(false);
+  const [removeExamDialogOpen, setRemoveExamDialogOpen] =
+    useState<boolean>(false);
   return (
-    <div className=" flex-6 bg-white px-3 py-6 flex flex-col gap-3 h-fit">
+    <div className="  w-full bg-white px-3 py-6 flex flex-col gap-3 h-fit">
       <div className=" w-full flex items-center justify-between">
         <p className=" font-semibold">Assessment </p>
         {isTeacher && (
@@ -437,63 +451,129 @@ const Exams: React.FC<{
       ) : (
         <div className=" flex flex-col gap-2">
           {exams.map((exam, index) => (
-            <RenderedExam 
-            key={index} 
-            exam={exam} 
-            setDialogOpen={setRemoveExamDialogOpen} 
-            dialogOpen={removeExamDialogOpen}
-             />
-         ))}
-          
+            <RenderedExam
+              key={index}
+              exam={exam}
+              setDialogOpen={setRemoveExamDialogOpen}
+              dialogOpen={removeExamDialogOpen}
+            />
+          ))}
         </div>
       )}
     </div>
   );
 };
 
-const EachResources: React.FC<{ resources: any; setDialogOpen: React.Dispatch<React.SetStateAction<boolean>>; dialogOpen: boolean  }> = ({
-  resources,
-  setDialogOpen,
-  dialogOpen
-}) => {
+const EachResources: React.FC<{
+  resource: IResources;
+  setDialogOpen: React.Dispatch<React.SetStateAction<boolean>>;
+  dialogOpen: boolean;
+  isTeacher: boolean;
+}> = ({ resource, setDialogOpen, dialogOpen, isTeacher }) => {
+  const { makeSubstring } = useConversion();
+  const queryClient = useQueryClient();
+  const { id } = useParams();
+  // navigate to the resource link
+  const handleViewLink = (link: string) => {
+    return (window.location.href = link);
+  };
+  // handle the delete resouce
+  const mutation = useMutation({
+    mutationKey: ["delete-resources"],
+    mutationFn: async (resourceId: string) => {
+      const response = await fetch("/api/one-on-one-section/resources", {
+        method: "DELETE",
+        body: JSON.stringify({
+          resourceId,
+          sectionId: id,
+        }),
+      });
+      return response;
+    },
+    onSuccess: async (response) => {
+      if (response.ok) {
+        return queryClient.invalidateQueries({
+          queryKey: ["resource-session"],
+        });
+      }
+    },
+  });
   return (
-    <div className=" w-full flex items-center text-[14px] font-semibold text-slate-500">
-      <div className=" flex-1 flex items-center text-black text-[14px] gap-1 ">
-        {/* <Image
-          src={`/${exam?.subject.toLowerCase()}.png`}
-          alt="subject"
-          width={200}
-          height={200}
-          className=" w-[25px] aspect-square"
-        />
-        <p>{exam.subject}</p> */}
+    <div className=" flex items-center text-[14px] font-semibold text-slate-500 ">
+      <div className=" flex-8 flex items-center">
+        <div className=" flex-3">
+          <Image
+            src={`/${resource?.subject.toLowerCase()}.png`}
+            alt="subject"
+            width={200}
+            height={200}
+            className=" w-[25px] aspect-square"
+          />
+        </div>
+        <div className=" flex-7">
+          <p>{makeSubstring(resource.title, 30)}</p>
+        </div>
       </div>
-      <div className=" flex-1 flex items-center">
-        <div className=" flex-1 flex text-[11px] items-center justify-center">
-          {/* <p>{exam.title}</p> */}
-        </div>
-        <div className=" flex-1 flex text-[11px] items-center justify-center">
-          {/* <p>{exam.grade}</p> */}
-        </div>
-        <div className=" flex-1 flex text-[11px] items-center justify-center">
-          {/* <p><RemoveExam  examId={exam.id} setDialogOpen={setDialogOpen}/></p> */}
-        </div>
+      <div className=" flex-2 flex items-center gap-2">
+        <button
+          className=" text-white text-[10px] bg-green-700 cursor-pointer px-2 py-1 rounded-md"
+          onClick={() => handleViewLink(resource.sourceLink)}
+        >
+          view
+        </button>
+        {isTeacher && (
+          <Trash2
+            onClick={() => mutation.mutate(resource.id)}
+            className=" cursor-pointer nline w-4 h-4 mr-2 ml-0 text-red-700 "
+          />
+        )}
       </div>
     </div>
   );
 };
 
-
 const Resources: React.FC<{
-  resources: any[];
   isTeacher: boolean;
   sessionId: string;
-}> = ({ resources, isTeacher, sessionId }) => {
+  resources: string[];
+}> = ({ isTeacher, sessionId, resources }) => {
+  console.log("resource list", resources);
   // state to toggle resource submission for this particular session
   const [dialogueOpen, setDialogOpen] = useState<boolean>(false);
-  const [removeResourceDialogOpen, setRemoveResourceDialogOpen] = useState<boolean>(false);
+  const [removeResourceDialogOpen, setRemoveResourceDialogOpen] =
+    useState<boolean>(false);
+  /// Always ensure `validResourceIds` is a stable array
+  const validResourceIds = Array.isArray(resources) ? resources : [];
+
+  // Use useQueries to fetch resources in parallel
+  const queries = useQueries({
+    queries: validResourceIds.map((resourceId) => ({
+      queryKey: ["resource-session", resourceId],
+      queryFn: async () => {
+        const response = await fetch(`/api/get-single-resources/${resourceId}`);
+        const result = await response.json();
+        return result;
+      },
+    })),
+  });
+
+  // Handle loading state for queries
+  const checkFetching = queries.some((item) => item.isLoading);
+  if (checkFetching) {
+    return (
+      <Skeleton
+        variant="rectangular"
+        animation="wave"
+        height={300}
+        className=" w-full"
+      />
+    );
+  }
+
+  const arrayOfResource: IResources[] = queries.map((item) => item.data);
+  console.log(arrayOfResource);
   return (
-    <div className=" flex-4  bg-white px-3 py-4">
+    <div className=" w-full bg-white px-3 py-4">
       <div className=" w-full flex items-center justify-between">
         <p className=" font-semibold">Resources </p>
         {isTeacher && (
@@ -522,52 +602,58 @@ const Resources: React.FC<{
         </div>
       </div>
       {/* render the resources below here */}
-      {resources.length === 0 ? (
-  <Noitem desc={`No Resources yet, ${isTeacher && "Add"}`} />
-) : (
-  <div className=" flex flex-col gap-2">
-    {resources.map((resource, index) => (
-      <EachResources
-        key={index}
-        resources={resource}
-        setDialogOpen={setRemoveResourceDialogOpen}
-        dialogOpen={removeResourceDialogOpen}
-      />
-    ))}
-  </div>
-)}
+      {arrayOfResource.length === 0 ? (
+        <Noitem desc={`No Resources yet, ${isTeacher && "Add"}`} />
+      ) : (
+        <div className=" flex flex-col gap-2">
+          {arrayOfResource.map((resource, index) => (
+            <EachResources
+              isTeacher={isTeacher}
+              key={index}
+              resource={resource}
+              setDialogOpen={setRemoveResourceDialogOpen}
+              dialogOpen={removeResourceDialogOpen}
+            />
+          ))}
+        </div>
+      )}
     </div>
   );
 };
 const DownSection: React.FC<{
   exams: any[];
-  resources: string[];
   isTeacher: boolean;
   sessionId: string;
-}> = ({ exams, resources, isTeacher, sessionId }) => {
+  resources: string[];
+}> = ({ exams, isTeacher, sessionId, resources }) => {
   return (
     <div className=" flex mt-4 flex-col md:flex-row gap-2">
-      <Exams sessionId={sessionId} isTeacher={isTeacher} exams={exams} />
-      <Resources
-        sessionId={sessionId}
-        isTeacher={isTeacher}
-        resources={resources}
-      />
+      <div className=" flex-6">
+        <Exams sessionId={sessionId} isTeacher={isTeacher} exams={exams} />
+      </div>
+      <div className=" flex-4">
+        <Resources
+          sessionId={sessionId}
+          isTeacher={isTeacher}
+          resources={resources}
+        />
+      </div>
     </div>
   );
 };
 
-
-
-
-
-const SingleSessionShow: React.FC<{isTeacher: boolean; resources?: string[] }> = ({ isTeacher, resources = [] }) => {
-  
- 
+const SingleSessionShow: React.FC<{
+  isTeacher: boolean;
+  resources?: string[];
+}> = ({ isTeacher, resources = [] }) => {
   const { id } = useParams();
 
-  
-  const {data: sessionData, isLoading: sessionLoading, isError: sessionError, error: sessionErrorDetails } = useQuery<ISingleSession>({
+  const {
+    data: sessionData,
+    isLoading: sessionLoading,
+    isError: sessionError,
+    error: sessionErrorDetails,
+  } = useQuery<ISingleSession>({
     queryKey: ["single-section-show"],
     queryFn: async () => {
       const response = await fetch(`/api/one-on-one-section/session/${id}`);
@@ -590,31 +676,6 @@ const SingleSessionShow: React.FC<{isTeacher: boolean; resources?: string[] }> =
     );
   }
 
-  
-  /// Always ensure `validResourceIds` is a stable array
-  const validResourceIds = Array.isArray(resources) ? resources : [];
-
-  // Use useQueries to fetch resources in parallel
-  const queries = useQueries({
-    queries: validResourceIds.map((resourceId) => ({
-      queryKey: ["resource", resourceId],
-      queryFn: async () => {
-        const response = await fetch(`/api/get-single-resources/${resourceId}`);
-        const result = await response.json();
-        return result;
-      },
-    })),
-  });
-
-  // Handle loading state for queries
-  const checkFetching = queries.some((item) => item.isLoading);
-  if (checkFetching) {
-    return <div>Loading resources...</div>;
-  }
-
-  const arrayOfResource = queries.map((item) => item.data);
-
-  
   return (
     <div className=" w-full flex flex-col gap-3">
       <div className="flex justify-between my-12">
@@ -640,8 +701,8 @@ const SingleSessionShow: React.FC<{isTeacher: boolean; resources?: string[] }> =
       <DownSection
         isTeacher={isTeacher}
         exams={sessionData!.StudentExam}
-        resources={arrayOfResource}
         sessionId={sessionData!.id}
+        resources={sessionData?.resources!}
       />
       <ToastContainer />
     </div>
