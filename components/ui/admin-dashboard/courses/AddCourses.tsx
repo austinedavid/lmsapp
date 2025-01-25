@@ -18,6 +18,7 @@ import "react-toastify/dist/ReactToastify.css";
 import { MdOutlineClass } from "react-icons/md";
 import { useImageSizeChecker } from "@/data-access/multimedia";
 import { subjectList, gradeList } from "@/constants/completeReg";
+import { useToast } from "../../use-toast";
 
 const CourseMedia: React.FC<{
   setBannerImg: React.Dispatch<React.SetStateAction<Blob | undefined | null>>;
@@ -157,7 +158,6 @@ const AddCourses: React.FC<{
   >(null);
   const [price, setPrice] = useState<string | undefined>(undefined);
   const { videoUpload, imageUpload } = useCloudinary();
-
   // react hook form instance below here
   //   instance of client
   ///api/courses-teacher
@@ -191,6 +191,7 @@ const AddCourses: React.FC<{
     },
     onSuccess: async () => {
       queryClient.invalidateQueries({ queryKey: ["getCourse"] });
+      toast.success("Course created successfully");
       setIsLoading(false);
       setSubject(undefined);
       setTitle(undefined);
