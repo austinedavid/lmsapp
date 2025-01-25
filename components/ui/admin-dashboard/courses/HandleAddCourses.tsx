@@ -5,8 +5,10 @@ import AddCourses from "./AddCourses";
 const HandleAddCourses = () => {
   const [showModel, setShowmodel] = useState<boolean>(false);
   return (
-    <div onClick={() => setShowmodel(true)}>
-      <AddCourses showModel={showModel} setShowmodel={setShowmodel} />
+    <div>
+      <div onClick={() => setShowmodel(true)}>
+        <AddCourses showModel={showModel} setShowmodel={setShowmodel} />
+      </div>
     </div>
   );
 };

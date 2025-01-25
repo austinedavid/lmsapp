@@ -25,6 +25,7 @@ import { toast, useToast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 import { useCloudinary } from "@/data-access/cloudinary";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
+import useCheckLink from "@/data-access/links";
 
 // here we handle upload resouces
 interface IdialogUpload {
@@ -41,6 +42,7 @@ export const TestUploadResource: React.FC<IdialogUpload> = ({
   const [linkb, setLinkb] = useState<Blob | undefined>(undefined);
   const [grade, setGrade] = useState<string>();
   const [isLoading, setIsLoading] = useState<boolean>(false);
+  const { isHttp } = useCheckLink();
   const { imageUpload } = useCloudinary();
   const queryclient = useQueryClient();
   const mutation = useMutation({
@@ -76,7 +78,7 @@ export const TestUploadResource: React.FC<IdialogUpload> = ({
   // here we validate the form and handle any other things
   const handleSubmit = async (e: FormEvent<HTMLFormElement>) => {
     e.preventDefault();
-    const verifyUrl = urlRegex.test(linka as string);
+    const verifyUrl = isHttp(linka as string);
     // check if there is nothing in the two main fields
     if (!subject || !title || !grade) {
       return alert("both subject, grade and title are required");
@@ -87,7 +89,7 @@ export const TestUploadResource: React.FC<IdialogUpload> = ({
     }
     if (linka) {
       if (!verifyUrl) {
-        return alert("invalid url");
+        return alert("enter valid url starting with http or https");
       }
     }
     // get image link is image was passed

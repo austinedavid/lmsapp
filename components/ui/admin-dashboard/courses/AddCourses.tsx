@@ -143,7 +143,7 @@ const AddCourses: React.FC<{
   showModel: boolean;
   setShowmodel: React.Dispatch<React.SetStateAction<boolean>>;
 }> = ({ showModel, setShowmodel }) => {
-  const [loading, setloading] = useState<boolean>(false);
+  const [loading, setIsLoading] = useState<boolean>(false);
   const [title, setTitle] = useState<string | undefined>(undefined);
   const [subject, setSubject] = useState<string | undefined>(undefined);
   const [grade, setGrade] = useState<string | undefined>(undefined);
@@ -156,6 +156,7 @@ const AddCourses: React.FC<{
     Blob | undefined | null
   >(null);
   const [price, setPrice] = useState<string | undefined>(undefined);
+  const { videoUpload, imageUpload } = useCloudinary();
 
   // react hook form instance below here
   //   instance of client
@@ -164,16 +165,33 @@ const AddCourses: React.FC<{
   //   creating a post using mutation to the backend
   const mutation = useMutation({
     mutationKey: ["postCourse"],
-    mutationFn: async (formData: FormData) => {
+    mutationFn: async ({
+      previewPixUrl,
+      previewVideoUrl,
+      mainVideoUrl,
+    }: {
+      previewPixUrl: string | undefined;
+      previewVideoUrl: string | undefined;
+      mainVideoUrl: string | undefined;
+    }) => {
       const result = await fetch("/api/courses-teacher", {
         method: "POST",
-        body: formData,
+        body: JSON.stringify({
+          title,
+          subject,
+          grade,
+          desc,
+          price,
+          previewPixUrl,
+          previewVideoUrl,
+          mainVideoUrl,
+        }),
       });
       return result;
     },
     onSuccess: async () => {
       queryClient.invalidateQueries({ queryKey: ["getCourse"] });
-      setloading(false);
+      setIsLoading(false);
       setSubject(undefined);
       setTitle(undefined);
       setGrade(undefined);
@@ -185,7 +203,7 @@ const AddCourses: React.FC<{
     },
   });
   // function to handle uploading files
-  const handleSubmit = () => {
+  const handleSubmit = async () => {
     // check for basic fields
     if (!title || !subject || !grade || !desc) {
       return toast.error("please enter all fields");
@@ -197,19 +215,13 @@ const AddCourses: React.FC<{
     if (!courseMainVideo) setCourseMainVideo(undefined);
     // dont execute further if any of the above condition is actually true,
     if (!bannerImg || !coursePreviewVideo || !courseMainVideo) return;
-    // now we can call our mutation function
-    const formData = new FormData();
-    formData.append("title", title);
-    formData.append("subject", subject);
-    formData.append("grade", grade);
-    formData.append("desc", desc);
-    formData.append("price", price as string);
-    formData.append("bannerImg", bannerImg);
-    formData.append("coursePreviewVideo", coursePreviewVideo);
-    formData.append("courseMainVideo", courseMainVideo);
-
-    setloading(true);
-    mutation.mutate(formData);
+    // lets upload both the previewPix, previewVideo and mainVideo
+    // to cloudinary and use the url we get from there to work.
+    setIsLoading(true);
+    const previewPixUrl = await imageUpload(bannerImg);
+    const previewVideoUrl = await videoUpload(coursePreviewVideo);
+    const mainVideoUrl = await videoUpload(courseMainVideo);
+    mutation.mutate({ previewPixUrl, previewVideoUrl, mainVideoUrl });
   };
 
   return (

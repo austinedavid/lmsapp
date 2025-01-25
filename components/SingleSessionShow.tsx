@@ -493,7 +493,7 @@ const EachResources: React.FC<{
     onSuccess: async (response) => {
       if (response.ok) {
         return queryClient.invalidateQueries({
-          queryKey: ["resource-session"],
+          queryKey: ["single-section-show"],
         });
       }
     },
