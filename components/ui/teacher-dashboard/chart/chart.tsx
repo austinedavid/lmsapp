@@ -5,6 +5,7 @@ import { useQuery } from "@tanstack/react-query";
 import { TiArrowSortedDown } from "react-icons/ti";
 import Link from "next/link";
 import { useConversion } from "@/data-access/conversion";
+import { Skeleton } from "@mui/material";
 
 interface ScheduleBlockProps {
   classTime?: string;
@@ -76,7 +77,7 @@ const Chart = () => {
 
   // Loading and Error Handling
   if (loadingClasses || loadingPrivateSessions || loadingSpecialRequests) {
-    return <div></div>;
+    return <Skeleton className=" mt-2" variant="rectangular" height={400} />;
   }
 
   // Extract last item from each session
@@ -110,7 +111,10 @@ const Chart = () => {
       <div className="bg-white  rounded-md flex-2 py-6 px-4 ">
         <div className="flex justify-between">
           <p className="text-slate-500 text-[14px] font-semibold">Job Board</p>
-          <Link href="/teacher-dashboard/open-offers" className="text-[11.5px] text-lightGreen ">
+          <Link
+            href="/teacher-dashboard/open-offers"
+            className="text-[11.5px] text-lightGreen "
+          >
             View More
           </Link>
         </div>
@@ -128,7 +132,10 @@ const Chart = () => {
       <div className="bg-white  rounded-md flex-2 py-6 px-4 ">
         <div className="flex justify-between">
           <p className="text-slate-500 text-[14px] font-semibold">Schedule</p>
-          <Link href="/teacher-dashboard/sessions" className="text-[11.5px] text-lightGreen ">
+          <Link
+            href="/teacher-dashboard/sessions"
+            className="text-[11.5px] text-lightGreen "
+          >
             View More
           </Link>
         </div>

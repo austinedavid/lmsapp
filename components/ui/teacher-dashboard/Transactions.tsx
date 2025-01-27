@@ -1,11 +1,11 @@
-'use client'
+"use client";
 import React from "react";
 import { useQuery } from "@tanstack/react-query";
 import { Skeleton } from "@mui/material";
 import { useConversion } from "@/data-access/conversion";
-import TransactionTable from '@/components/TransactionTable'
-import Image from 'next/image'
-import { MdVerified } from 'react-icons/md'
+import TransactionTable from "@/components/TransactionTable";
+import Image from "next/image";
+import { MdVerified } from "react-icons/md";
 
 const Transactions = () => {
   const { getTimeAgo, handleDate, handleTime } = useConversion();
@@ -20,11 +20,9 @@ const Transactions = () => {
     },
   });
 
-  
-
   // Display loading state
   if (isFetching) {
-    return <Skeleton variant="rectangular" height={400} />;
+    return <Skeleton className=" mt-2" variant="rectangular" height={400} />;
   }
 
   // Display error state
@@ -33,7 +31,8 @@ const Transactions = () => {
   }
 
   // Get the last resource in the data array
-  const lastResource = Array.isArray(data) && data.length > 0 ? data[data.length - 1] : null;
+  const lastResource =
+    Array.isArray(data) && data.length > 0 ? data[data.length - 1] : null;
 
   return (
     <div className="md:flex md:flex-row grid grid-cols-1 items-center mb-6 mx-auto text-[15px] gap-3 md:gap-2 rounded-md">
@@ -48,31 +47,52 @@ const Transactions = () => {
           {lastResource ? (
             <div className="space-y-4 mx-auto mt-4">
               <div className="flex space-x-2">
-                <Image src="/green-book.png" alt="" width={30} height={30} className="w-[30px] h-[30px]" />
+                <Image
+                  src="/green-book.png"
+                  alt=""
+                  width={30}
+                  height={30}
+                  className="w-[30px] h-[30px]"
+                />
                 <div className="flex flex-col">
-                  <p className="font-bold">{lastResource.title || "Unknown Title"}</p>
-                  <p className="font-semibold pt-2 text-[13px] inline">Subject: {lastResource.subject || "Unknown"}
-                    <Image src={`/${lastResource?.subject.toLowerCase()}.png`} alt="subject icon" width={50} height={50} className="w-[20px] h-[20px] inline-block" />
+                  <p className="font-bold">
+                    {lastResource.title || "Unknown Title"}
+                  </p>
+                  <p className="font-semibold pt-2 text-[13px] inline">
+                    Subject: {lastResource.subject || "Unknown"}
+                    <Image
+                      src={`/${lastResource?.subject.toLowerCase()}.png`}
+                      alt="subject icon"
+                      width={50}
+                      height={50}
+                      className="w-[20px] h-[20px] inline-block"
+                    />
                   </p>
                 </div>
               </div>
-              
-              <hr className="my-3" />
-              
-              <div className="mt-2 flex items-center md:space-x-6 py-3 space-x-4">
-                
 
+              <hr className="my-3" />
+
+              <div className="mt-2 flex items-center md:space-x-6 py-3 space-x-4">
                 <div className="flex flex-col space-y-2">
-                  <p className="text-slate-500 text-[13px] font-semibold">Time</p>
+                  <p className="text-slate-500 text-[13px] font-semibold">
+                    Time
+                  </p>
                   <div className="flex space-x-2">
-                    <p className="text-[12px] font-semibold">{handleTime(lastResource.createdAt)}</p>
+                    <p className="text-[12px] font-semibold">
+                      {handleTime(lastResource.createdAt)}
+                    </p>
                   </div>
                 </div>
 
                 <div className="flex flex-col space-y-2">
-                  <p className="text-slate-500 text-[13px] font-semibold">Date</p>
+                  <p className="text-slate-500 text-[13px] font-semibold">
+                    Date
+                  </p>
                   <div className="flex space-x-2">
-                    <p className="text-[12px] font-semibold">{handleDate(lastResource.createdAt)}</p>
+                    <p className="text-[12px] font-semibold">
+                      {handleDate(lastResource.createdAt)}
+                    </p>
                   </div>
                 </div>
               </div>

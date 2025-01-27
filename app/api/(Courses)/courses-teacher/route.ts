@@ -17,7 +17,53 @@ import {
 // } from "@/prisma/utils/cloudinaryBackend";
 
 export async function POST(req: Request) {
+  const {
+    title,
+    subject,
+    grade,
+    desc,
+    price,
+    previewPixUrl,
+    previewVideoUrl,
+    mainVideoUrl,
+  } = await req.json();
+  const userId = await serverSessionId();
+  const role = await serverSessionRole();
+  //   check if the kyc is already approved
+  const donekyc = await checkKyc(userId!);
+  if (!userId) return notAuthenticated();
+  if (role !== "Admin" && (!donekyc || donekyc !== "APPROVED")) {
+    return new Response(
+      JSON.stringify({ message: "Please complete your kyc to proceed" }),
+      { status: 400 }
+    );
+  }
+  // then lets check if the user is in paid plan or if the user is an admin before allowing to proceed with creating courses
+  const teachersPlan = await checkPlans(userId!);
+  if (role !== "Admin" && teachersPlan === "FREE") {
+    return new Response(
+      JSON.stringify({
+        message: "Please upgrade to paid plans to create a course",
+      }),
+      { status: 401 }
+    );
+  }
+
   try {
+    await prisma.courses.create({
+      data: {
+        byAdmin: role == "Admin" ? true : false,
+        teacherId: userId,
+        banner: previewPixUrl,
+        previewVideo: previewVideoUrl,
+        mainVideo: mainVideoUrl,
+        title,
+        grade,
+        details: desc,
+        price: Number(price),
+        subject,
+      },
+    });
     return new Response(JSON.stringify({ message: "successfully uploaded " }), {
       status: 200,
     });

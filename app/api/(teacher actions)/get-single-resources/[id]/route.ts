@@ -9,7 +9,7 @@ export async function GET(
   { params }: { params: { id: string } }
 ) {
   const userId = await serverSessionId();
-  if (userId) return notAuthenticated();
+  if (!userId) return notAuthenticated();
   try {
     const resource = await prisma.teachersArticle.findUnique({
       where: { id: params.id },

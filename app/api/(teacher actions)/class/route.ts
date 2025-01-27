@@ -68,8 +68,7 @@ export async function POST(req: Request) {
       { status: 200 }
     );
   } catch (error) {
-    console.log(error);
-    throw new Error(JSON.stringify({ message: "something went wrong" }));
+    return serverError();
   }
 }
 

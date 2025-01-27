@@ -248,7 +248,7 @@ model Classes {
   id                         String                       @id @default(auto()) @map("_id") @db.ObjectId
   subject                    Subjects
   className                  String
-  grade                      Grade
+  grade                      String
   duration                   String
   classStarts                DateTime
   classEnds                  DateTime
@@ -277,6 +277,7 @@ model Classes {
   AnnouncementByTeacherClass AnnouncementByTeacherClass[]
   // the link between classes and zoom links
   ClassLink                  ClassLink?
+  ClasssMeetingLink          ClasssMeetingLink?
 
   @@index([teacherId], name: "teachers_class_index")
 }
@@ -358,6 +359,16 @@ model SingleMeeting {
   appliedSectionId String         @unique @db.ObjectId
   createdAt        DateTime       @default(now())
   updatedAt        DateTime       @default(now())
+}
+
+// creating the relation model for the class meeting link
+model ClasssMeetingLink {
+  id        String   @id @default(auto()) @map("_id") @db.ObjectId
+  link      String
+  class     Classes  @relation(fields: [classesId], references: [id])
+  classesId String   @unique @db.ObjectId
+  createdAt DateTime @default(now())
+  updatedAt DateTime @default(now())
 }
 
 // model for adding meeting link for the special request
@@ -720,6 +731,7 @@ model SpecialRequestAttendance {
 // this is enum for grades
 // TODO: check how many grade system we have
 enum Grade {
+  KG
   Grade1
   Grade2
   Grade3
