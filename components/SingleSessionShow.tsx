@@ -637,12 +637,12 @@ const SingleSessionShow: React.FC<{isTeacher: boolean; resources?: string[] }> =
         </Link>
       </div>
       <TopSection isTeacher={isTeacher} infos={sessionData!} />
-      <DownSection
+      {/* <DownSection
         isTeacher={isTeacher}
         exams={sessionData!.StudentExam}
         resources={arrayOfResource}
         sessionId={sessionData!.id}
-      />
+      /> */}
       <ToastContainer />
     </div>
   );

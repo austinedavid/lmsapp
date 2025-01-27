@@ -126,7 +126,7 @@ export const StudentNavbar: SchoolNavType[] = [
   {
     title: "Test & Resources",
     description: "Your Test and Worksheet.",
-    path: "test-and-resources",
+    path: "tests",
   },
   {
     title: "Settings",

@@ -33,6 +33,8 @@ export interface IExam {
   test: ITest[];
 }
 
+
+
 interface IclassLink {
   joinUrl: string;
   stillValid: boolean;
@@ -133,6 +135,8 @@ export const Exams: React.FC<{ exams: IExam[] }> = ({ exams }) => {
     </div>
   );
 };
+
+
 
 // information about the class
 export const ClassInfo: React.FC<{
@@ -267,6 +271,7 @@ const StudentGroupClass = () => {
       return result;
     },
   });
+  //console.log(data)
 
   // State to manage expanded state of announcements
   const [isExpanded, setIsExpanded] = useState(false);
@@ -330,7 +335,7 @@ const StudentGroupClass = () => {
       </div>
       <div className=" w-full flex flex-col md:flex-row gap-3">
         <Exams exams={classInfo.ClassExams} />
-        <Resources resources={classInfo.resourcesIds} />
+        <Resources resourcesIds={classInfo.resourcesIds} />
       </div>
     </div>
   );

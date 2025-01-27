@@ -228,17 +228,18 @@ const Apply = () => {
             </div>
           </div>
 
-          <div className="hidden  pb-8 md:flex items-end justify-center md:w-[340px]  w-1/3    aspect-square bg-[tomato] overflow-y-auto rounded-full absolute md:left-3 md:top-6 top-72  left-52 lg:translate-x-1/2">
-            <div className="absolute ">
-              <Image
-                className=" w-[240px]  ml-6"
-                src={"/bukola.png"}
-                alt="heroboy"
-                width={100}
-                height={100}
-              />
+          <div className="hidden pb-8 md:flex items-end justify-center md:w-[340px] w-1/3 aspect-square bg-[tomato] overflow-hidden rounded-full absolute md:left-3 md:top-4 top-72 left-52 lg:translate-x-1/2">
+              <div className="relative z-[1000px] w-full h-full">
+                <Image
+                  className="object-cover z-[1000px] w-[340px] ml-6 h-[340px]"
+                  src="/founder.png"
+                  alt="founder"
+                  width={500}
+                  height={500}
+                />
+              </div>
             </div>
-          </div>
+
         </div>
       </section>
 

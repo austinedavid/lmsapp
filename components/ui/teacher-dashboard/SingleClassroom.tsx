@@ -33,6 +33,7 @@ import { FaEllipsisH, FaRegEdit } from "react-icons/fa";
 import { Iadd } from "./AddTest";
 import { Input } from "../input";
 import { Trash2 } from "lucide-react";
+import { Button } from "../button";
 
 interface studentProps {
   studentIds: string[];
