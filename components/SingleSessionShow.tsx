@@ -698,12 +698,11 @@ const SingleSessionShow: React.FC<{
         </Link>
       </div>
       <TopSection isTeacher={isTeacher} infos={sessionData!} />
-      <DownSection
+      {/* <DownSection
         isTeacher={isTeacher}
         exams={sessionData!.StudentExam}
         sessionId={sessionData!.id}
-        resources={sessionData?.resources!}
-      />
+      /> */}
       <ToastContainer />
     </div>
   );

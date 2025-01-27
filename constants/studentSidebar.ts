@@ -26,8 +26,8 @@ export const StudentSideBar: StudentSideBarType[] = [
   { path: "classroom", name: "Classroom", icon: SiGoogleclassroom },
   { path: "sessions", name: "Sessions", icon: GoChecklist },
   {
-    path: "test-and-resources",
-    name: "test & Resources",
+    path: "tests",
+    name: "Tests & Exams",
     icon: LiaClipboardListSolid,
   },
   { path: "courses", name: "Courses", icon: PiCirclesFour },
