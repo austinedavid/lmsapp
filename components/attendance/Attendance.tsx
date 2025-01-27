@@ -79,6 +79,14 @@ const ChangeDate: React.FC<{
   );
 };
 
+export const FullCircleLoad = () => {
+  return (
+    <div className=" fixed top-0 left-0 w-full h-full flex items-center justify-center bg-white bg-opacity-50 z-50">
+      <CircularProgress size={80} color="success" />
+    </div>
+  );
+};
+
 // component to render the Attendance table below
 const AttendanceTable: React.FC<{
   selectedMonth: ImonthInfo;
@@ -142,11 +150,7 @@ const AttendanceTable: React.FC<{
     return total;
   };
   if (isLoading) {
-    return (
-      <div className=" fixed top-0 left-0 w-full h-full flex items-center justify-center bg-white bg-opacity-50 z-50">
-        <CircularProgress size={80} color="success" />
-      </div>
-    );
+    return <FullCircleLoad />;
   }
 
   return (

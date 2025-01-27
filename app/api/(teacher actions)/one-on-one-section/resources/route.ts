@@ -53,9 +53,17 @@ export async function POST(req: Request) {
       JSON.stringify({ message: "you can't add resources to this section" }),
       { status: 404 }
     );
+  // lets check if the resources is already existing first
+  const itExist = getSection.resources.find((item) => item == resourceId);
+  if (itExist) {
+    return new Response(
+      JSON.stringify({ message: "resource already exists" }),
+      { status: 400 }
+    );
+  }
   // here we then add
   try {
-    await prisma.appliedSection.update({
+    const all = await prisma.appliedSection.update({
       where: { id: sectionId },
       data: { resources: [...getSection?.resources, resourceId] },
     });

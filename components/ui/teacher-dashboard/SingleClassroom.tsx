@@ -54,7 +54,7 @@ interface IndividualAnnouncementProps {
 
 interface EditAnnouncementProps {
   dataId: string;
-  title: string; 
+  title: string;
   content: string;
   setDialogOpen: React.Dispatch<React.SetStateAction<boolean>>;
   dialogueOpen: boolean;
@@ -149,8 +149,6 @@ export const AnnouncementsList: React.FC<AnnouncementsListProps> = ({
   );
 };
 
-
-
 // Dialog that updates the announcement
 const EditAnnouncement: React.FC<EditAnnouncementProps> = ({
   dataId,
@@ -169,11 +167,11 @@ const EditAnnouncement: React.FC<EditAnnouncementProps> = ({
 
   useEffect(() => {
     if (dialogueOpen) {
-      setTitle(title);   // Use passed title
+      setTitle(title); // Use passed title
       setContent(content); // Use passed content
     }
   }, [dialogueOpen, title, content]);
-  
+
   const mutation = useMutation({
     mutationFn: async () => {
       const result = await fetch(`/api/class/announcement`, {
@@ -187,7 +185,7 @@ const EditAnnouncement: React.FC<EditAnnouncementProps> = ({
       });
       return result;
     },
-  
+
     onSuccess: async (result) => {
       queryClient.invalidateQueries({ queryKey: ["get-single-class-teacher"] });
       if (result.ok) {
@@ -210,7 +208,7 @@ const EditAnnouncement: React.FC<EditAnnouncementProps> = ({
       }
     },
   });
-  
+
   // Handle submit
   const handleSubmit = (e: React.MouseEvent<HTMLButtonElement>) => {
     e.stopPropagation(); // Prevent event propagation
@@ -230,7 +228,7 @@ const EditAnnouncement: React.FC<EditAnnouncementProps> = ({
       <DialogTrigger asChild>
         <p className="inline text-[13px] cursor-pointer  font-semibold">
           <FaRegEdit className="inline w-4 h-4 mr-2 ml-0 text-lightGreen " />
-          Edit 
+          Edit
         </p>
       </DialogTrigger>
       <DialogContent className="sm:w-[600px] w-[380px] font-subtext">
@@ -290,9 +288,11 @@ const EditAnnouncement: React.FC<EditAnnouncementProps> = ({
 };
 
 //The Dialog that deletes the announcement
-const RemoveAnnouncement: React.FC<RemoveAnnouncementProps> = ({ dataId,
+const RemoveAnnouncement: React.FC<RemoveAnnouncementProps> = ({
+  dataId,
   setDialogOpen,
-  dialogueOpen}) => {
+  dialogueOpen,
+}) => {
   const [loading, setLoading] = useState<boolean>(false);
   const { toast } = useToast();
 
@@ -330,13 +330,11 @@ const RemoveAnnouncement: React.FC<RemoveAnnouncementProps> = ({ dataId,
           description: "Error updating this teacher's status",
         });
       }
-    }
-      
+    },
   });
   const handleDelete = () => {
     setLoading(true);
     mutate(dataId);
-    
   };
 
   return (
@@ -344,12 +342,14 @@ const RemoveAnnouncement: React.FC<RemoveAnnouncementProps> = ({ dataId,
       <DialogTrigger asChild>
         <p className="inline text-[13px] cursor-pointer  font-semibold">
           <Trash2 className="inline w-4 h-4 mr-2 ml-0 text-lightGreen " />
-          Delete 
+          Delete
         </p>
       </DialogTrigger>
       <DialogContent className="sm:w-[500px] w-[380px] font-subtext">
         <DialogHeader>
-          <DialogTitle className="text-3xl font-bold">Delete Announcement</DialogTitle>
+          <DialogTitle className="text-3xl font-bold">
+            Delete Announcement
+          </DialogTitle>
         </DialogHeader>
         <div className="grid gap-4 font-header py-4">
           <div className="flex flex-1 items-center justify-center mx-auto gap-2">
@@ -382,13 +382,17 @@ const RemoveAnnouncement: React.FC<RemoveAnnouncementProps> = ({ dataId,
           </Button>
         </DialogFooter>
       </DialogContent>
-      <ToastContainer/>
+      <ToastContainer />
     </Dialog>
   );
 };
 
 // The Update and Delete Announcement options popover
-const IndividualAnnouncement = ({ dataId, title, content }: IndividualAnnouncementProps) => {
+const IndividualAnnouncement = ({
+  dataId,
+  title,
+  content,
+}: IndividualAnnouncementProps) => {
   const [editDialogOpen, setEditDialogOpen] = useState<boolean>(false);
   const [deleteDialogOpen, setDeleteDialogOpen] = useState<boolean>(false);
 
@@ -410,7 +414,7 @@ const IndividualAnnouncement = ({ dataId, title, content }: IndividualAnnounceme
                 setDialogOpen={setEditDialogOpen}
                 dialogueOpen={editDialogOpen}
                 dataId={dataId}
-                title={title}         
+                title={title}
                 content={content}
               />
             </div>
@@ -423,12 +427,10 @@ const IndividualAnnouncement = ({ dataId, title, content }: IndividualAnnounceme
                 setDialogOpen={setDeleteDialogOpen}
                 dialogueOpen={deleteDialogOpen}
                 dataId={dataId}
-                
               />
             </div>
 
             <hr className="bg-black" />
-           
           </div>
         </div>
       </PopoverContent>
@@ -503,7 +505,7 @@ const CheckZoomUser = () => {
   );
 };
 
-const SingleClassroom : React.FC<{ isTeacher: boolean }> = ({ isTeacher }) => {
+const SingleClassroom: React.FC<{ isTeacher: boolean }> = ({ isTeacher }) => {
   const { id } = useParams();
   const [visibleItems, setVisibleItems] = useState(2); // State to manage visible items
   const [isExpanded, setIsExpanded] = useState(false); // To toggle between show more/less

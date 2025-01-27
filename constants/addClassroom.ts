@@ -58,25 +58,7 @@ const ACCEPTED_IMAGE_TYPES = [
 export const addingClassroomSchema = z.object({
   subject: z.string().min(3, { message: "field is required" }),
   className: z.string().min(3, { message: "field is required" }),
-  grade: z.enum(
-    [
-      "Grade1",
-      "Grade2",
-      "Grade3",
-      "Grade4",
-      "Grade5",
-      "Grade6",
-      "Grade7",
-      "Grade8",
-      "Grade9",
-      "Grade10",
-      "Grade11",
-      "Grade12",
-    ],
-    {
-      message: "you can only enter Grade1 format",
-    }
-  ),
+  grade: z.string().min(2, { message: "grade is required" }),
   duration: z.string().min(3, { message: "field is required" }),
   classStarts: z.date(),
   classEnds: z.date(),
