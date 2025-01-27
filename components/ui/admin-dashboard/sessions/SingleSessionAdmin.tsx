@@ -357,7 +357,7 @@ export const SingleRowPayment: React.FC<{
 // single row with array
 export const SingleRowWithArray: React.FC<{
   name: string;
-  value: string[];
+  value: string[] ;
   payment?: boolean;
 }> = ({ name, value, payment }) => {
   const joined = value?.join(",");

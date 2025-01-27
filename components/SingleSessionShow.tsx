@@ -500,6 +500,8 @@ const EachResources: React.FC<{
   });
   return (
     <div className=" flex items-center text-[14px] font-semibold text-slate-500 ">
+      {resource?.title && (
+    <>
       <div className=" flex-8 flex items-center">
         <div className=" flex-3">
           <Image
@@ -511,7 +513,7 @@ const EachResources: React.FC<{
           />
         </div>
         <div className=" flex-7">
-          <p>{makeSubstring(resource.title, 30)}</p>
+        <p>{resource?.title ? makeSubstring(resource.title, 30) : "No Title Available"}</p>
         </div>
       </div>
       <div className=" flex-2 flex items-center gap-2">
@@ -528,6 +530,8 @@ const EachResources: React.FC<{
           />
         )}
       </div>
+      </>
+  )}
     </div>
   );
 };
@@ -698,11 +702,12 @@ const SingleSessionShow: React.FC<{
         </Link>
       </div>
       <TopSection isTeacher={isTeacher} infos={sessionData!} />
-      {/* <DownSection
+      <DownSection
         isTeacher={isTeacher}
         exams={sessionData!.StudentExam}
         sessionId={sessionData!.id}
-      /> */}
+        resources={sessionData?.resources!}
+      />
       <ToastContainer />
     </div>
   );
