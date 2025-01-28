@@ -92,6 +92,7 @@
     "zod": "^3.23.8"
   },
   "devDependencies": {
+    "@sentry/cli": "^2.41.1",
     "@types/bcryptjs": "^2.4.6",
     "@types/country-list": "^2.1.4",
     "@types/js-cookie": "^3.0.6",
