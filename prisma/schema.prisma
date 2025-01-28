@@ -609,6 +609,26 @@ model StudentExam {
   @@index([appliedSectionId, completed], name: "section_exam_for_students")
 }
 
+// the model for exam for the special request from 
+// this will show the relationship between the special request and the exams
+model SpecialStudentExam {
+  id                     String               @id @default(auto()) @map("_id") @db.ObjectId
+  completed              Boolean              @default(false)
+  score                  Int?
+  percentage             String?
+  questions              ExamQuestions[]
+  title                  String
+  grade                  Grade
+  subject                String
+  // for one to many relationship between this model and appliedSection
+  specialRequest         SpecialTeacherMerged @relation(fields: [specialTeacherMergedId], references: [id])
+  specialTeacherMergedId String               @db.ObjectId
+  createdAt              DateTime             @default(now())
+  updatedAt              DateTime             @default(now())
+
+  @@index([specialTeacherMergedId, completed], name: "section_exam_for_students_in_special_request")
+}
+
 // this model is model for classes examms
 // here this exams are not answered yet and its formed immediately the teacher links his exam to the class
 // there will be a one to many relationship betweeen this model and the class medels
@@ -684,10 +704,12 @@ model SpecialTeacherMerged {
   grade                    String
   time                     String
   merged                   Boolean                    @default(true)
-  createdAt                DateTime                   @default(now())
-  updatedAt                DateTime                   @default(now())
   SpecialRequestAttendance SpecialRequestAttendance[]
   SpecialRequestMeeting    SpecialRequestMeeting?
+  SpecialStudentExam       SpecialStudentExam[]
+  resources                String[]                   @db.ObjectId
+  createdAt                DateTime                   @default(now())
+  updatedAt                DateTime                   @default(now())
 }
 
 // here we will create attendance model
