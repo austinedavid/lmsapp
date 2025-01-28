@@ -30,6 +30,7 @@ export interface Iadd {
   setDialogOpen: React.Dispatch<React.SetStateAction<boolean>>;
   dialogueOpen: boolean;
   isClass: boolean;
+  specialRequest?: boolean;
 }
 // trigger button for the dialogue box
 const TriggerForSession = () => {
@@ -55,6 +56,7 @@ const AddTest: React.FC<Iadd> = ({
   dialogueOpen,
   setDialogOpen,
   isClass,
+  specialRequest,
 }) => {
   const [loading, setLoading] = useState<boolean>(false);
   const [selectedExamId, setselectedExamId] = useState<string>();
@@ -103,21 +105,29 @@ const AddTest: React.FC<Iadd> = ({
     },
   });
   // upload exam to a particular one on one session
-  const addOneonOneExam = useMutation({
+
+  const addSessionExam = useMutation({
     mutationFn: async () => {
-      console.log(classId, selectedExamId);
-      const result = await fetch(`/api/exam-for-students`, {
-        method: "POST",
-        body: JSON.stringify({
-          appliedSectionId: classId,
-          examId: selectedExamId,
-        }),
-      });
+      const result = await fetch(
+        specialRequest
+          ? "/api/teacher-special-request/add-test"
+          : "/api/exam-for-students",
+        {
+          method: "POST",
+          body: JSON.stringify({
+            sectionId: classId,
+            examId: selectedExamId,
+          }),
+        }
+      );
       return result;
     },
 
     onSuccess: async (result) => {
       queryClient.invalidateQueries({ queryKey: ["single-section-show"] });
+      queryClient.invalidateQueries({
+        queryKey: ["single-special-section-show"],
+      });
       setLoading(false);
       setDialogOpen(false);
       if (result.ok) {
@@ -142,7 +152,7 @@ const AddTest: React.FC<Iadd> = ({
     if (isClass) {
       addClassExam.mutate();
     } else {
-      addOneonOneExam.mutate();
+      addSessionExam.mutate();
     }
   };
   const handlePush = () => {

@@ -1,6 +1,4 @@
-// in this route, we link the teachers exam to the one-on-one session between student and teacher
-// the appliedsection is the model that handles this relationship
-// this route is just about creating this exam and get this exams for students
+// here we add exam to the special request
 import prisma from "@/prisma/prismaConnect";
 import {
   notAuthenticated,
@@ -31,9 +29,9 @@ export async function POST(req: Request) {
     );
   // lets go ahead and add the exam for this student in the appliedsection
   try {
-    await prisma.studentExam.create({
+    await prisma.specialStudentExam.create({
       data: {
-        appliedSectionId: sectionId,
+        specialTeacherMergedId: sectionId,
         questions: exam.test,
         title: exam.title,
         grade: exam.grade,
@@ -55,7 +53,7 @@ export async function DELETE(req: Request) {
   const userId = await serverSessionId();
   if (!userId) return notAuthenticated();
   try {
-    await prisma.studentExam.delete({ where: { id: examId } });
+    await prisma.specialStudentExam.delete({ where: { id: examId } });
     return new Response(
       JSON.stringify({ message: "exam deleted successfully" }),
       { status: 200 }
