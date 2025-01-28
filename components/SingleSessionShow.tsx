@@ -33,7 +33,7 @@ import {
 } from "@/components/ui/dialog";
 import { Trash2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import { Skeleton } from "@mui/material";
+import { CircularProgress, Skeleton } from "@mui/material";
 
 interface IMeetingLink {
   link: string;
@@ -42,6 +42,7 @@ interface IMeetingLink {
 interface RemoveExamProps {
   examId: string;
   setDialogOpen: React.Dispatch<React.SetStateAction<boolean>>;
+  specialRequest: boolean;
 }
 
 interface IResources {
@@ -277,7 +278,11 @@ export const TopSection: React.FC<{
 };
 
 //The Dialog that deletes the exam
-const RemoveExam: React.FC<RemoveExamProps> = ({ examId, setDialogOpen }) => {
+const RemoveExam: React.FC<RemoveExamProps> = ({
+  examId,
+  setDialogOpen,
+  specialRequest,
+}) => {
   const [loading, setLoading] = useState<boolean>(false);
   const { toast } = useToast();
 
@@ -286,17 +291,25 @@ const RemoveExam: React.FC<RemoveExamProps> = ({ examId, setDialogOpen }) => {
   //   creating a delete using mutation to the backend
   const { mutate } = useMutation({
     mutationFn: async (examId: string) => {
-      const result = await fetch(`/api/exam-for-students`, {
-        method: "DELETE",
-        body: JSON.stringify({
-          examId: examId,
-        }),
-      });
+      const result = await fetch(
+        specialRequest
+          ? "/api/teacher-special-request/add-test"
+          : "/api/exam-for-students",
+        {
+          method: "DELETE",
+          body: JSON.stringify({
+            examId: examId,
+          }),
+        }
+      );
       return result;
     },
 
     onSuccess: async (result) => {
       queryClient.invalidateQueries({ queryKey: ["get-single-class-teacher"] });
+      queryClient.invalidateQueries({
+        queryKey: ["single-special-section-show"],
+      });
       if (result.ok) {
         const body = await result.json();
         setLoading(false);
@@ -376,7 +389,8 @@ const RenderedExam: React.FC<{
   exam: any;
   setDialogOpen: React.Dispatch<React.SetStateAction<boolean>>;
   dialogOpen: boolean;
-}> = ({ exam, setDialogOpen, dialogOpen }) => {
+  specialRequest: boolean;
+}> = ({ exam, setDialogOpen, dialogOpen, specialRequest }) => {
   return (
     <div className=" w-full flex items-center text-[14px] font-semibold text-slate-500">
       <div className=" flex-1 flex items-center text-black text-[14px] gap-1 ">
@@ -398,7 +412,11 @@ const RenderedExam: React.FC<{
         </div>
         <div className=" flex-1 flex text-[11px] items-center justify-center">
           <p>
-            <RemoveExam examId={exam.id} setDialogOpen={setDialogOpen} />
+            <RemoveExam
+              specialRequest={specialRequest}
+              examId={exam.id}
+              setDialogOpen={setDialogOpen}
+            />
           </p>
         </div>
       </div>
@@ -409,7 +427,8 @@ const Exams: React.FC<{
   exams: any[];
   isTeacher: boolean;
   sessionId: string;
-}> = ({ exams, isTeacher, sessionId }) => {
+  specialRequest: boolean;
+}> = ({ exams, isTeacher, sessionId, specialRequest }) => {
   // state to toggle exam submission for this particular session
   const [dialogueOpen, setDialogOpen] = useState<boolean>(false);
   const [removeExamDialogOpen, setRemoveExamDialogOpen] =
@@ -425,6 +444,7 @@ const Exams: React.FC<{
               setDialogOpen={setDialogOpen}
               classId={sessionId}
               isClass={false}
+              specialRequest={specialRequest}
             />
           </div>
         )}
@@ -456,6 +476,7 @@ const Exams: React.FC<{
               exam={exam}
               setDialogOpen={setRemoveExamDialogOpen}
               dialogOpen={removeExamDialogOpen}
+              specialRequest={specialRequest}
             />
           ))}
         </div>
@@ -469,8 +490,10 @@ const EachResources: React.FC<{
   setDialogOpen: React.Dispatch<React.SetStateAction<boolean>>;
   dialogOpen: boolean;
   isTeacher: boolean;
-}> = ({ resource, setDialogOpen, dialogOpen, isTeacher }) => {
+  specialRequest: boolean;
+}> = ({ resource, setDialogOpen, dialogOpen, isTeacher, specialRequest }) => {
   const { makeSubstring } = useConversion();
+  const [deleting, setDeleting] = useState<boolean>(false);
   const queryClient = useQueryClient();
   const { id } = useParams();
   // navigate to the resource link
@@ -481,19 +504,28 @@ const EachResources: React.FC<{
   const mutation = useMutation({
     mutationKey: ["delete-resources"],
     mutationFn: async (resourceId: string) => {
-      const response = await fetch("/api/one-on-one-section/resources", {
-        method: "DELETE",
-        body: JSON.stringify({
-          resourceId,
-          sectionId: id,
-        }),
-      });
+      const response = await fetch(
+        specialRequest
+          ? "/api/teacher-special-request/resources"
+          : "/api/one-on-one-section/resources",
+        {
+          method: "DELETE",
+          body: JSON.stringify({
+            resourceId,
+            sectionId: id,
+          }),
+        }
+      );
       return response;
     },
     onSuccess: async (response) => {
+      setDeleting(false);
       if (response.ok) {
-        return queryClient.invalidateQueries({
+        queryClient.invalidateQueries({
           queryKey: ["single-section-show"],
+        });
+        queryClient.invalidateQueries({
+          queryKey: ["single-special-section-show"],
         });
       }
     },
@@ -501,37 +533,50 @@ const EachResources: React.FC<{
   return (
     <div className=" flex items-center text-[14px] font-semibold text-slate-500 ">
       {resource?.title && (
-    <>
-      <div className=" flex-8 flex items-center">
-        <div className=" flex-3">
-          <Image
-            src={`/${resource?.subject.toLowerCase()}.png`}
-            alt="subject"
-            width={200}
-            height={200}
-            className=" w-[25px] aspect-square"
-          />
-        </div>
-        <div className=" flex-7">
-        <p>{resource?.title ? makeSubstring(resource.title, 30) : "No Title Available"}</p>
-        </div>
-      </div>
-      <div className=" flex-2 flex items-center gap-2">
-        <button
-          className=" text-white text-[10px] bg-green-700 cursor-pointer px-2 py-1 rounded-md"
-          onClick={() => handleViewLink(resource.sourceLink)}
-        >
-          view
-        </button>
-        {isTeacher && (
-          <Trash2
-            onClick={() => mutation.mutate(resource.id)}
-            className=" cursor-pointer nline w-4 h-4 mr-2 ml-0 text-red-700 "
-          />
-        )}
-      </div>
-      </>
-  )}
+        <>
+          <div className=" flex-8 flex items-center">
+            <div className=" flex-3">
+              <Image
+                src={`/${resource?.subject.toLowerCase()}.png`}
+                alt="subject"
+                width={200}
+                height={200}
+                className=" w-[25px] aspect-square"
+              />
+            </div>
+            <div className=" flex-7">
+              <p>
+                {resource?.title
+                  ? makeSubstring(resource.title, 30)
+                  : "No Title Available"}
+              </p>
+            </div>
+          </div>
+          <div className=" flex-2 flex items-center gap-2">
+            <button
+              className=" text-white text-[10px] bg-green-700 cursor-pointer px-2 py-1 rounded-md"
+              onClick={() => handleViewLink(resource.sourceLink)}
+            >
+              view
+            </button>
+            {isTeacher && (
+              <div>
+                {deleting ? (
+                  <CircularProgress color="success" size="20px" />
+                ) : (
+                  <Trash2
+                    onClick={() => {
+                      setDeleting(true);
+                      mutation.mutate(resource.id);
+                    }}
+                    className=" cursor-pointer nline w-4 h-4 mr-2 ml-0 text-red-700 "
+                  />
+                )}
+              </div>
+            )}
+          </div>
+        </>
+      )}
     </div>
   );
 };
@@ -540,8 +585,8 @@ const Resources: React.FC<{
   isTeacher: boolean;
   sessionId: string;
   resources: string[];
-}> = ({ isTeacher, sessionId, resources }) => {
-  console.log("resource list", resources);
+  specialRequest: boolean;
+}> = ({ isTeacher, sessionId, resources, specialRequest }) => {
   // state to toggle resource submission for this particular session
   const [dialogueOpen, setDialogOpen] = useState<boolean>(false);
   const [removeResourceDialogOpen, setRemoveResourceDialogOpen] =
@@ -575,7 +620,6 @@ const Resources: React.FC<{
   }
 
   const arrayOfResource: IResources[] = queries.map((item) => item.data);
-  console.log(arrayOfResource);
   return (
     <div className=" w-full bg-white px-3 py-4">
       <div className=" w-full flex items-center justify-between">
@@ -587,6 +631,7 @@ const Resources: React.FC<{
               setDialogOpen={setDialogOpen}
               dialogueOpen={dialogueOpen}
               isClass={false}
+              specialRequest={specialRequest}
             />
           </div>
         )}
@@ -617,6 +662,7 @@ const Resources: React.FC<{
               resource={resource}
               setDialogOpen={setRemoveResourceDialogOpen}
               dialogOpen={removeResourceDialogOpen}
+              specialRequest={specialRequest}
             />
           ))}
         </div>
@@ -624,22 +670,29 @@ const Resources: React.FC<{
     </div>
   );
 };
-const DownSection: React.FC<{
+export const DownSection: React.FC<{
   exams: any[];
   isTeacher: boolean;
   sessionId: string;
   resources: string[];
-}> = ({ exams, isTeacher, sessionId, resources }) => {
+  specialRequest: boolean;
+}> = ({ exams, isTeacher, sessionId, resources, specialRequest }) => {
   return (
     <div className=" flex mt-4 flex-col md:flex-row gap-2">
       <div className=" flex-6">
-        <Exams sessionId={sessionId} isTeacher={isTeacher} exams={exams} />
+        <Exams
+          specialRequest={specialRequest}
+          sessionId={sessionId}
+          isTeacher={isTeacher}
+          exams={exams}
+        />
       </div>
       <div className=" flex-4">
         <Resources
           sessionId={sessionId}
           isTeacher={isTeacher}
           resources={resources}
+          specialRequest={specialRequest}
         />
       </div>
     </div>
@@ -707,6 +760,7 @@ const SingleSessionShow: React.FC<{
         exams={sessionData!.StudentExam}
         sessionId={sessionData!.id}
         resources={sessionData?.resources!}
+        specialRequest={false}
       />
       <ToastContainer />
     </div>

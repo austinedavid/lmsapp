@@ -53,6 +53,7 @@ const AddResource: React.FC<Iadd> = ({
   setDialogOpen,
   isClass,
   dialogueOpen,
+  specialRequest,
 }) => {
   const [loading, setLoading] = useState<boolean>(false);
   const [selectedResourceId, setselectedResourceId] = useState<string>();
@@ -102,22 +103,31 @@ const AddResource: React.FC<Iadd> = ({
     },
   });
   // Mutation to handle the addition of resource
+
   const addSessionResources = useMutation({
     mutationKey: ["add-resource-one-one-one"],
     mutationFn: async () => {
-      const response = await fetch(`/api/one-on-one-section/resources`, {
-        method: "POST",
-        body: JSON.stringify({
-          sectionId: classId,
-          resourceId: selectedResourceId,
-        }),
-      });
+      const response = await fetch(
+        specialRequest
+          ? "/api/teacher-special-request/resources"
+          : "/api/one-on-one-section/resources",
+        {
+          method: "POST",
+          body: JSON.stringify({
+            sectionId: classId,
+            resourceId: selectedResourceId,
+          }),
+        }
+      );
       return response;
     },
 
     onSuccess: async (response) => {
       const result = await response.json();
       queryClient.invalidateQueries({ queryKey: ["single-section-show"] });
+      queryClient.invalidateQueries({
+        queryKey: ["single-special-section-show"],
+      });
       setLoading(false);
       if (response.ok) {
         setDialogOpen(false);

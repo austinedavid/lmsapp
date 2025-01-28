@@ -28,6 +28,8 @@ import {
 } from "@/components/ui/dialog";
 import { Trash2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import { Noprofile } from "./ui/admin-dashboard/sessions/Sessions";
+import { DownSection } from "./SingleSessionShow";
 
 interface IMeetingLink {
   link: string;
@@ -36,7 +38,6 @@ interface IMeetingLink {
 interface RemoveExamProps {
   sessionId: string;
   setDialogOpen: React.Dispatch<React.SetStateAction<boolean>>;
-  
 }
 // interface for the session
 interface ISingleSession {
@@ -50,12 +51,11 @@ interface ISingleSession {
   createdAt: string;
   updatedAt: string;
   teacher: {
-      name: string;
-      email: string;
-      profilePhoto: string;
-      phoneNo: string;
+    name: string;
+    email: string;
+    profilePhoto: string;
+    phoneNo: string;
   };
-  
   student: {
     name: string;
     email: string;
@@ -65,7 +65,7 @@ interface ISingleSession {
     phoneNo: string | null;
     disable: string;
   };
-  // StudentExam: [];
+  StudentExam: any[];
   SingleMeeting: IMeetingLink;
 }
 
@@ -84,14 +84,20 @@ export const TopLeftSession: React.FC<{
   return (
     <div className=" flex flex-col gap-3">
       <div className=" px-4 py-3 rounded-md bg-white flex gap-4">
-        <Image
-          src={dp}
-          alt="dp"
-          width={200}
-          height={200}
-          priority
-          className=" w-[100px] aspect-square rounded-md"
-        />
+        {dp ? (
+          <Image
+            src={dp}
+            alt="dp"
+            width={200}
+            height={200}
+            priority
+            className=" w-[100px] aspect-square rounded-md"
+          />
+        ) : (
+          <div>
+            <Noprofile />
+          </div>
+        )}
         <div className=" flex flex-col gap-2">
           <p className=" text-black font-semibold text-[12px]">{name}</p>
           <p className="  text-slate-700 font-semibold text-[12px] ">{grade}</p>
@@ -99,7 +105,6 @@ export const TopLeftSession: React.FC<{
             <FaPhoneAlt />
             <p>{contact}</p>
           </div>
-         
         </div>
       </div>
       {/* {!isTeacher && (
@@ -137,14 +142,11 @@ export const TopMiddleSession: React.FC<{
   const { handleDate } = useConversion();
   return (
     <div className=" h-fit bg-white px-4 py-2 rounded-md flex flex-col gap-3">
-      
       <div className=" flex flex-col gap-1">
-       
         <SingleRowNoArray name="Grade" value={grade} />
         <SingleRowNoArray name="Duration" value={time} />
         <SingleRowNoArray name="AMT" value={"$" + amt} />
         <SingleRowNoArray name="Merged day" value={handleDate(mergedday)} />
-       
       </div>
     </div>
   );
@@ -185,14 +187,11 @@ export const TopRightSession: React.FC<{
       {/* subject div */}
       <div>
         <p className="  font-bold underline text-green-700">Subject:</p>
-        <div className=" flex flex-col gap-1">
-          {subject}
-        </div>
+        <div className=" flex flex-col gap-1">{subject}</div>
       </div>
       {/* specialNeed div */}
       <div className=" flex flex-col gap-1 bg-green-300 px-1 overflow-x-hidden py-2 rounded-md">
         <p>{disable ? disable : "No Special Need(s)"}</p>
-        
       </div>
     </div>
   );
@@ -206,18 +205,10 @@ export const TopSection: React.FC<{
   return (
     <div className=" grid gap-2 grid-cols-1 sm:grid-cols-2 md:grid-cols-3">
       <TopLeftSession
-        dp={
-          isTeacher
-            ? infos.student.profilePhoto
-            : infos.teacher.profilePhoto
-        }
+        dp={isTeacher ? infos.student.profilePhoto : infos.teacher.profilePhoto}
         name={isTeacher ? infos.student.name : infos.teacher.name}
         grade={infos.grade}
-        contact={
-          isTeacher
-            ? infos.student.phoneNo!
-            : infos.teacher.phoneNo!
-        }
+        contact={isTeacher ? infos.student.phoneNo! : infos.teacher.phoneNo!}
         isTeacher={isTeacher}
         link={infos.SingleMeeting}
       />
@@ -236,8 +227,10 @@ export const TopSection: React.FC<{
 };
 
 //The Dialog that deletes the exam
-const RemoveExam: React.FC<RemoveExamProps> = ({ sessionId,
-  setDialogOpen}) => {
+const RemoveExam: React.FC<RemoveExamProps> = ({
+  sessionId,
+  setDialogOpen,
+}) => {
   const [loading, setLoading] = useState<boolean>(false);
   const { toast } = useToast();
 
@@ -275,21 +268,21 @@ const RemoveExam: React.FC<RemoveExamProps> = ({ sessionId,
           description: "Error updating this teacher's status",
         });
       }
-    }
-      
+    },
   });
   const handleDelete = () => {
     setLoading(true);
     mutate(sessionId);
-    
   };
 
   return (
     <Dialog>
       <DialogTrigger asChild>
-        <p onClick={() => setDialogOpen(true)} className="inline text-[13px] cursor-pointer  font-semibold">
+        <p
+          onClick={() => setDialogOpen(true)}
+          className="inline text-[13px] cursor-pointer  font-semibold"
+        >
           <Trash2 className="inline w-4 h-4 mr-2 ml-0 text-lightGreen " />
-          
         </p>
       </DialogTrigger>
       <DialogContent className="sm:w-[500px] w-[380px] font-subtext">
@@ -327,17 +320,16 @@ const RemoveExam: React.FC<RemoveExamProps> = ({ sessionId,
           </Button>
         </DialogFooter>
       </DialogContent>
-      <ToastContainer/>
+      <ToastContainer />
     </Dialog>
   );
 };
 
-
-const RenderedExam: React.FC<{ exam: any; setDialogOpen: React.Dispatch<React.SetStateAction<boolean>>; dialogOpen: boolean  }> = ({
-  exam,
-  setDialogOpen,
-  dialogOpen
-}) => {
+const RenderedExam: React.FC<{
+  exam: any;
+  setDialogOpen: React.Dispatch<React.SetStateAction<boolean>>;
+  dialogOpen: boolean;
+}> = ({ exam, setDialogOpen, dialogOpen }) => {
   return (
     <div className=" w-full flex items-center text-[14px] font-semibold text-slate-500">
       <div className=" flex-1 flex items-center text-black text-[14px] gap-1 ">
@@ -358,7 +350,9 @@ const RenderedExam: React.FC<{ exam: any; setDialogOpen: React.Dispatch<React.Se
           <p>{exam.grade}</p>
         </div>
         <div className=" flex-1 flex text-[11px] items-center justify-center">
-          <p><RemoveExam  sessionId={exam.id} setDialogOpen={setDialogOpen}/></p>
+          <p>
+            <RemoveExam sessionId={exam.id} setDialogOpen={setDialogOpen} />
+          </p>
         </div>
       </div>
     </div>
@@ -371,7 +365,8 @@ const Exams: React.FC<{
 }> = ({ exams, isTeacher, sessionId }) => {
   // state to toggle exam submission for this particular session
   const [dialogueOpen, setDialogOpen] = useState<boolean>(false);
-  const [removeExamDialogOpen, setRemoveExamDialogOpen] = useState<boolean>(false);
+  const [removeExamDialogOpen, setRemoveExamDialogOpen] =
+    useState<boolean>(false);
   return (
     <div className=" flex-6 bg-white px-3 py-6 flex flex-col gap-3 h-fit">
       <div className=" w-full flex items-center justify-between">
@@ -409,14 +404,13 @@ const Exams: React.FC<{
       ) : (
         <div className=" flex flex-col gap-2">
           {exams.map((exam, index) => (
-            <RenderedExam 
-            key={index} 
-            exam={exam} 
-            setDialogOpen={setRemoveExamDialogOpen} 
-            dialogOpen={removeExamDialogOpen}
-             />
-         ))}
-          
+            <RenderedExam
+              key={index}
+              exam={exam}
+              setDialogOpen={setRemoveExamDialogOpen}
+              dialogOpen={removeExamDialogOpen}
+            />
+          ))}
         </div>
       )}
     </div>
@@ -471,36 +465,22 @@ const Resources: React.FC<{
     </div>
   );
 };
-const DownSection: React.FC<{
-  // exams: any[];
-  // resources: string[];
-  isTeacher: boolean;
-  sessionId: string;
-}> = ({ isTeacher, sessionId }) => {
-  return (
-    <div className=" flex mt-4 flex-col md:flex-row gap-2">
-      {/* <Exams sessionId={sessionId} isTeacher={isTeacher} exams={exams} />
-      <Resources
-        sessionId={sessionId}
-        isTeacher={isTeacher}
-        resources={resources}
-      /> */}
-    </div>
-  );
-};
 
-const SingleSpecialSessionShow: React.FC<{ isTeacher: boolean }> = ({ isTeacher }) => {
+const SingleSpecialSessionShow: React.FC<{ isTeacher: boolean }> = ({
+  isTeacher,
+}) => {
   const { id } = useParams();
   const { data, isLoading, isError, error } = useQuery<ISingleSession>({
     queryKey: ["single-special-section-show"],
     queryFn: async () => {
-      const response = await fetch(`/api/teacher-special-request/single-special-request/${id}`);
+      const response = await fetch(
+        `/api/teacher-special-request/single-special-request/${id}`
+      );
       const result = await response.json();
       return result;
     },
   });
 
-  console.log(data)
   // return loading while component is still loading
   if (isLoading) {
     return <SingleClassSkeleton />;
@@ -538,9 +518,10 @@ const SingleSpecialSessionShow: React.FC<{ isTeacher: boolean }> = ({ isTeacher 
       <TopSection isTeacher={isTeacher} infos={data!} />
       <DownSection
         isTeacher={isTeacher}
-        // exams={data!.StudentExam}
-        // resources={data!.resources}
-        sessionId={data!.id}
+        exams={data?.StudentExam!}
+        sessionId={data?.id!}
+        resources={data?.resources!}
+        specialRequest={true}
       />
       <ToastContainer />
     </div>

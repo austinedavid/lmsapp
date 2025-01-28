@@ -179,7 +179,7 @@ model Parents {
 // this article id can be pushed into the array inclasses so that students can actually access it
 model TeachersArticle {
   id         String       @id @default(auto()) @map("_id") @db.ObjectId
-  subject    Subjects
+  subject    String
   title      String
   sourceLink String
   type       ResourceType
@@ -211,7 +211,7 @@ model Ratting {
 // there is many to many relationship between students and the teachersSubject
 model TeachersSubject {
   id        String    @id @default(auto()) @map("_id") @db.ObjectId
-  subject   Subjects //Subjects enum are defined below
+  subject   String //Subjects enum are defined below
   teacher   Teacher   @relation(fields: [teacherId], references: [id], onDelete: Cascade)
   teacherId String    @db.ObjectId
   Session   Session[]
@@ -246,7 +246,7 @@ model Session {
 // since students can have many classes and classes can have many students
 model Classes {
   id                         String                       @id @default(auto()) @map("_id") @db.ObjectId
-  subject                    Subjects
+  subject                    String
   className                  String
   grade                      String
   duration                   String
@@ -305,7 +305,7 @@ model OneOnOneSection {
   teacher          Teacher            @relation(fields: [teacherId], references: [id], onDelete: Cascade)
   teacherId        String             @unique @db.ObjectId
   aboutTutor       String
-  subjects         Subjects[]         @default([ENGLISH, MATHEMATICS])
+  subjects         String[]           @default(["ENGLISH", "MATHEMATICS"])
   grade            Grade[]
   preference       String[]           @default([])
   sessionId        String?
@@ -581,7 +581,7 @@ model Exams {
   test      ExamQuestions[]
   duration  String
   grade     Grade
-  subject   Subjects
+  subject   String
   createdAt DateTime        @default(now())
   updatedAt DateTime        @default(now())
 
@@ -607,6 +607,26 @@ model StudentExam {
   updatedAt        DateTime        @default(now())
 
   @@index([appliedSectionId, completed], name: "section_exam_for_students")
+}
+
+// the model for exam for the special request from 
+// this will show the relationship between the special request and the exams
+model SpecialStudentExam {
+  id                     String               @id @default(auto()) @map("_id") @db.ObjectId
+  completed              Boolean              @default(false)
+  score                  Int?
+  percentage             String?
+  questions              ExamQuestions[]
+  title                  String
+  grade                  Grade
+  subject                String
+  // for one to many relationship between this model and appliedSection
+  specialRequest         SpecialTeacherMerged @relation(fields: [specialTeacherMergedId], references: [id])
+  specialTeacherMergedId String               @db.ObjectId
+  createdAt              DateTime             @default(now())
+  updatedAt              DateTime             @default(now())
+
+  @@index([specialTeacherMergedId, completed], name: "section_exam_for_students_in_special_request")
 }
 
 // this model is model for classes examms
@@ -684,10 +704,12 @@ model SpecialTeacherMerged {
   grade                    String
   time                     String
   merged                   Boolean                    @default(true)
-  createdAt                DateTime                   @default(now())
-  updatedAt                DateTime                   @default(now())
   SpecialRequestAttendance SpecialRequestAttendance[]
   SpecialRequestMeeting    SpecialRequestMeeting?
+  SpecialStudentExam       SpecialStudentExam[]
+  resources                String[]                   @db.ObjectId
+  createdAt                DateTime                   @default(now())
+  updatedAt                DateTime                   @default(now())
 }
 
 // here we will create attendance model
@@ -773,16 +795,16 @@ enum TeachersRole {
 }
 
 // below is the enum for the subjects the app offers
-enum Subjects {
-  CHEMISTRY
-  PHYSICS
-  BIOLOGY
-  GOVERNMENT
-  ENGLISH
-  LITERATURE
-  CRS
-  MATHEMATICS
-}
+// enum Subjects {
+//   CHEMISTRY
+//   PHYSICS
+//   BIOLOGY
+//   GOVERNMENT
+//   ENGLISH
+//   LITERATURE
+//   CRS
+//   MATHEMATICS
+// }
 
 // creating enums for the days of the week
 enum ClassDay {
