@@ -6,7 +6,7 @@ import {
   ShowAllSessionProfile,
   StudentInfos,
 } from "./SingleSessionAdmin";
-import { useParams } from "next/navigation";
+import { useParams, useSearchParams } from "next/navigation";
 import { ToastContainer } from "react-toastify";
 
 interface ISpecialRequest {
@@ -30,6 +30,7 @@ interface ISpecialRequest {
 
 const SingleSpecialRequest = () => {
   const { id } = useParams();
+  const query = useSearchParams();
   const { isLoading, data, isError, error } = useQuery<ISpecialRequest>({
     queryKey: ["single-special-request"],
     queryFn: async () => {
@@ -55,7 +56,8 @@ const SingleSpecialRequest = () => {
     <div>
       <div className=" w-full flex items-center justify-center">
         <p className=" mb-4 text-black font-bold text-[24px]">
-          Single unmerged session
+          Single {query.get("merged") === "true" ? "merged" : "unmerged"}{" "}
+          session
         </p>
       </div>
       <div className=" w-full md:px-20">

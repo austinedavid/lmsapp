@@ -17,22 +17,24 @@ export async function POST(req: Request) {
   if (role !== "Teacher") return onlyTeacher();
   // first, lets check if the applied session actually exist
   // return error if it does not exist
-  const checkSession = await prisma.appliedSection.findUnique({
+  const theClass = await prisma.classes.findUnique({
     where: {
       id,
     },
+    select: {
+      teacherId: true,
+    },
   });
-  if (!checkSession) {
-    return new Response(JSON.stringify({ message: "session does not exist" }), {
+  if (theClass?.teacherId !== teacherId)
+    return new Response(JSON.stringify({ message: "illegal path!!!" }), {
       status: 400,
     });
-  }
   // now we can proceed to create the link here
   try {
-    await prisma.singleMeeting.create({
+    await prisma.classsMeetingLink.create({
       data: {
         link,
-        appliedSectionId: id,
+        classesId: id,
       },
     });
     return new Response(
@@ -52,23 +54,20 @@ export async function PUT(req: Request) {
 
   if (!userId) return notAuthenticated();
   if (role !== "Teacher") return onlyTeacher();
-
-  // check if the meeting exist first,
-  // if not throw an error
-  const checkMeeting = await prisma.singleMeeting.findFirst({
-    where: { appliedSectionId: id },
-    select: { id: true },
+  const getTheLink = await prisma.classsMeetingLink.findFirst({
+    where: {
+      classesId: id,
+    },
   });
-  if (!checkMeeting) {
+
+  if (!getTheLink)
     return new Response(
-      JSON.stringify({ message: "create meeting before updating it" }),
+      JSON.stringify({ message: "this meeting does not exist" }),
       { status: 400 }
     );
-  }
-
   try {
-    await prisma.singleMeeting.update({
-      where: { id: checkMeeting.id },
+    await prisma.classsMeetingLink.update({
+      where: { id: getTheLink?.id },
       data: { link },
     });
     return new Response(

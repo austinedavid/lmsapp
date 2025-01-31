@@ -1,7 +1,7 @@
 "use client";
 import React, { useState } from "react";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
-import { useParams } from "next/navigation";
+import { useParams, useSearchParams } from "next/navigation";
 import { IOffers, StudentTeacherInfo } from "./Sessions";
 import Image from "next/image";
 import { useConversion } from "@/data-access/conversion";
@@ -357,7 +357,7 @@ export const SingleRowPayment: React.FC<{
 // single row with array
 export const SingleRowWithArray: React.FC<{
   name: string;
-  value: string[] ;
+  value: string[];
   payment?: boolean;
 }> = ({ name, value, payment }) => {
   const joined = value?.join(",");
@@ -516,7 +516,8 @@ export const LoadingSkeleton: React.FC<{ title: string }> = ({ title }) => {
 // the main component for this single session page
 const SingleSessionAdmin = () => {
   const { id } = useParams();
-  const { data, isFetching, isError, error } = useQuery({
+  const query = useSearchParams();
+  const { data, isLoading, isError, error } = useQuery({
     queryKey: ["session-single"],
     queryFn: async () => {
       const response = await fetch(
@@ -527,7 +528,7 @@ const SingleSessionAdmin = () => {
     },
   });
   // return loading if is loading
-  if (isFetching) {
+  if (isLoading) {
     return <LoadingSkeleton title="Single unmerged session" />;
   }
   // return error if is error
@@ -539,7 +540,8 @@ const SingleSessionAdmin = () => {
     <div>
       <div className=" w-full flex items-center justify-center">
         <p className=" mb-4 text-black font-bold text-[24px]">
-          Single unmerged session
+          Single {query.get("merged") === "true" ? "merged" : "unmerged"}{" "}
+          session
         </p>
       </div>
       <div className=" w-full md:px-20">

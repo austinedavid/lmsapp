@@ -5,13 +5,14 @@ import prisma from "@/prisma/prismaConnect";
 import { notAuthenticated, onlyAdmin, serverError } from "@/prisma/utils/error";
 import {
   checkKyc,
+  getQuery,
   serverSessionId,
   serverSessionRole,
 } from "@/prisma/utils/utils";
 
 // here we get all the adminsessionview
 export async function GET(req: Request) {
-  console.log("entered sessions");
+  const merged = getQuery(req.url, "merged");
   const id = await serverSessionId();
   const role = await serverSessionRole();
   // restriction if the user is not admin
@@ -19,7 +20,7 @@ export async function GET(req: Request) {
   if (role !== "Admin") return onlyAdmin();
   try {
     const allSessions = await prisma.adminSectionView.findMany({
-      where: { merged: false },
+      where: { merged: merged === "true" ? true : false },
       include: {
         sectionInfo: {
           select: {

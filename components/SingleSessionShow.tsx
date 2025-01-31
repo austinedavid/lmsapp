@@ -139,10 +139,10 @@ export const TopLeftSession: React.FC<{
             Edit class Link
           </button>
           <AddMettingModel
-            sessionId={id as string}
+            id={id as string}
             showModel={showModel}
             setShowmodel={setShowmodel}
-            specialRequest={false}
+            uploadType="one-on-one"
             isCreate={false}
           />
         </div>
