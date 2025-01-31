@@ -90,13 +90,9 @@ const ViewDetails: React.FC<{
   const router = useRouter();
   const navigateLink = () => {
     if (isTeacher) {
-      router.push(
-        `/teacher-dashboard/sessions/special-request/${sessionId}`
-      );
+      router.push(`/teacher-dashboard/sessions/special-request/${sessionId}`);
     } else {
-      router.push(
-        `/student-dashboard/sessions/special-request/${sessionId}`
-      );
+      router.push(`/student-dashboard/sessions/special-request/${sessionId}`);
     }
   };
   return (
@@ -111,11 +107,10 @@ const ViewDetails: React.FC<{
         <SharedAddLink
           link={link}
           isTeacher={isTeacher}
-          specialRequest={true}
+          uploadType="specialReques"
           sessionId={sessionId}
         />
       </div>
-      
     </div>
   );
 };
@@ -151,13 +146,13 @@ const EachSession: React.FC<{ item: ISpecialRequest; isTeacher: boolean }> = ({
       <StartMeetingDiv subject={item.subject} language={item.language} />
       <TimeShow time={item.time} />
       <div className="flex flex-col gap-1">
-      <ViewDetails
-         isTeacher={isTeacher}
-         name={item.student?.name}
-         link={item.SpecialRequestMeeting}
-         sessionId={item.id}
-      />
-        
+        <ViewDetails
+          isTeacher={isTeacher}
+          name={item.student?.name}
+          link={item.SpecialRequestMeeting}
+          sessionId={item.id}
+        />
+
         <HandleAttendance sessionId={item.id} name={item.student?.name} />
       </div>
     </div>
