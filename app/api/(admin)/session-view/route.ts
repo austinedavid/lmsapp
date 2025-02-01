@@ -41,8 +41,24 @@ export async function GET(req: Request) {
             email: true,
           },
         },
+        AppliedSection: {
+          select: {
+            sectionOwner: {
+              select: {
+                teacher: {
+                  select: {
+                    name: true,
+                    email: true,
+                    profilePhoto: true,
+                  },
+                },
+              },
+            },
+          },
+        },
       },
     });
+    console.log(allSessions);
     return new Response(JSON.stringify(allSessions), { status: 200 });
   } catch (error) {
     return serverError();
@@ -107,6 +123,7 @@ export async function PUT(req: Request) {
         duration: adminSessionView.duration,
         startTime: adminSessionView.startTime,
         amt: Number(amt),
+        adminSectionViewId: adminSessionId,
       },
     });
     // now we can proceed to making the field merge in the adminsessionView to true,
