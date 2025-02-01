@@ -321,31 +321,33 @@ model OneOnOneSection {
 // there will be one to many relationship between this model and oneoneoneSection model
 // there will also be one to many relationship between students model and this model
 model AppliedSection {
-  id                String              @id @default(auto()) @map("_id") @db.ObjectId
-  sectionOwner      OneOnOneSection     @relation(fields: [oneOnOneSectionId], references: [id])
-  oneOnOneSectionId String              @db.ObjectId
-  student           Student             @relation(fields: [studentId], references: [id])
-  studentId         String              @db.ObjectId
-  subject           String[]
-  grade             String
-  sectionType       String
-  classStart        DateTime
-  specialNeed       String[]
-  learningGoal      String?
-  learningDays      String[]
-  hoursperday       Int
+  id                 String              @id @default(auto()) @map("_id") @db.ObjectId
+  sectionOwner       OneOnOneSection     @relation(fields: [oneOnOneSectionId], references: [id])
+  oneOnOneSectionId  String              @db.ObjectId
+  student            Student             @relation(fields: [studentId], references: [id])
+  studentId          String              @db.ObjectId
+  subject            String[]
+  grade              String
+  sectionType        String
+  classStart         DateTime
+  specialNeed        String[]
+  learningGoal       String?
+  learningDays       String[]
+  hoursperday        Int
   // duration like monthly or yearly
-  duration          String
+  duration           String
   // time to start or proposed time
-  startTime         DateTime
+  startTime          DateTime
   // this will contain the id of the resources that the teacher will push here
-  resources         String[]            @default([]) @db.ObjectId
-  StudentExam       StudentExam[]
-  amt               Int
-  createdAt         DateTime            @default(now())
-  updatedAt         DateTime            @default(now())
-  SessionAttendance SessionAttendance[]
-  SingleMeeting     SingleMeeting?
+  resources          String[]            @default([]) @db.ObjectId
+  StudentExam        StudentExam[]
+  amt                Int
+  createdAt          DateTime            @default(now())
+  updatedAt          DateTime            @default(now())
+  SessionAttendance  SessionAttendance[]
+  SingleMeeting      SingleMeeting?
+  AdminView          AdminSectionView    @relation(fields: [adminSectionViewId], references: [id])
+  adminSectionViewId String              @unique @db.ObjectId
 
   @@index([oneOnOneSectionId, studentId], name: "applied_section")
 }
@@ -405,8 +407,10 @@ model AdminSectionView {
   // time to start or proposed time
   startTime         DateTime
   grade             String
-  createdAt         DateTime        @default(now())
-  updatedAt         DateTime        @default(now())
+
+  createdAt      DateTime        @default(now())
+  updatedAt      DateTime        @default(now())
+  AppliedSection AppliedSection?
 }
 
 // below is the model for get in touch

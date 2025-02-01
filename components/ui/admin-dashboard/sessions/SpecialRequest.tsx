@@ -13,6 +13,7 @@ interface ISession {
   language: string;
   subject: string;
   grade: string;
+  merged: boolean;
   student: {
     profilePhoto: string;
     name: string;
@@ -23,7 +24,9 @@ interface ISession {
 const OfferCard: React.FC<{ item: ISession }> = ({ item }) => {
   const router = useRouter();
   const handleClick = () => {
-    router.push(`/admin-dashboard/sessions/special-request/${item.id}`);
+    router.push(
+      `/admin-dashboard/sessions/special-request/${item.id}?merged=${item.merged}`
+    );
   };
   return (
     <div className=" bg-white p-3 flex flex-col gap-5 shadow-md">
@@ -79,11 +82,11 @@ const OfferCard: React.FC<{ item: ISession }> = ({ item }) => {
   );
 };
 
-const SpecialRequest = () => {
+const SpecialRequest = ({ merged }: { merged: boolean }) => {
   const { data, isLoading, isError, error } = useQuery({
-    queryKey: ["get-special-request-all"],
+    queryKey: ["get-special-request-all", merged],
     queryFn: async () => {
-      const response = await fetch("/api/special-request");
+      const response = await fetch(`/api/special-request?merged=${merged}`);
       const result = await response.json();
       return result;
     },
@@ -98,13 +101,12 @@ const SpecialRequest = () => {
       </div>
     );
   }
-  console.log(data);
   return (
     <section>
       <div className="max-w-full">
         <div className=" w-full flex items-center justify-center">
           <p className="  mb-4 text-black font-bold text-[16px] md:text-[24px]">
-            List of unmerged Special Request
+            List of {merged ? "merged" : "unmerged"} Special Request
           </p>
         </div>
         {Array.isArray(data) && (

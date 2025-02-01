@@ -34,6 +34,11 @@ import { Iadd } from "./AddTest";
 import { Input } from "../input";
 import { Trash2 } from "lucide-react";
 import { Button } from "../button";
+import {
+  AddClassLink,
+  AddMettingModel,
+  JoinClassLink,
+} from "../student-dashboard/sessions/OneOnOneSession";
 
 interface studentProps {
   studentIds: string[];
@@ -74,6 +79,35 @@ interface AnnouncementsListProps {
   isExpanded: boolean;
   visibleItems: number;
   handleDate: (date: string) => string;
+}
+
+interface SingleClassInterface {
+  id: string;
+  subject: string;
+  className: string;
+  grade: string;
+  duration: string;
+  classStarts: string;
+  classEnds: string;
+  schedules: string[];
+  price: number;
+  classBanner: string;
+  classTime: string;
+  teacherId: string;
+  studentIDs: string[];
+  maxCapacity: number;
+  currentCapacity: number;
+  resourcesIds: string[];
+  createdAt: string;
+  updatedAt: string;
+  students: [];
+  AnnouncementByTeacherClass: Announcement[];
+  ClasssMeetingLink: {
+    id: string;
+    link: string;
+    classesId: string;
+    createdAt: string;
+  };
 }
 
 export const AnnouncementsList: React.FC<AnnouncementsListProps> = ({
@@ -382,7 +416,6 @@ const RemoveAnnouncement: React.FC<RemoveAnnouncementProps> = ({
           </Button>
         </DialogFooter>
       </DialogContent>
-      <ToastContainer />
     </Dialog>
   );
 };
@@ -438,80 +471,81 @@ const IndividualAnnouncement = ({
   );
 };
 
-const CheckZoomUser = () => {
-  const { id } = useParams();
-  const [creating, setCreating] = useState<boolean>(false);
-  const mutation = useMutation({
-    mutationKey: ["create-meeting-link"],
-    mutationFn: async () => {
-      const response = await fetch("/api/zoom/get-access-code", {
-        method: "POST",
-        body: JSON.stringify({
-          type: "class",
-          id,
-        }),
-      });
-      return response;
-    },
-    onSuccess: async (response) => {
-      setCreating(false);
-      const result = await response.json();
-      window.location.href = result.link;
-    },
-  });
-  const { data, isLoading } = useQuery({
-    queryKey: ["checkzoom"],
-    queryFn: async () => {
-      const response = await fetch("/api/zoom/isconnected");
-      const result = await response.json();
-      return result;
-    },
-  });
-  if (isLoading) {
-    return <div>loading...</div>;
-  }
-  const handleConnectZoom = () => {
-    const url = `https://zoom.us/oauth/authorize?response_type=code&client_id=${process.env.NEXT_PUBLIC_ZOOM_CLIENT_ID}&redirect_uri=${process.env.NEXT_PUBLIC_ZOOM_REDIRECT_URL}`;
-    window.location.href = url;
-  };
-  const handleMakeZoom = () => {
-    setCreating(true);
-    mutation.mutate();
-  };
-  return (
-    <div>
-      {data === null ? (
-        <div
-          onClick={handleConnectZoom}
-          className=" flex items-center px-3 py-3 rounded-md bg-dimOrange w-fit cursor-pointer text-white gap-1"
-        >
-          <BsBroadcast />
-          <p className=" text-[12px]">Connect Zoom</p>
-        </div>
-      ) : (
-        <div>
-          <div
-            onClick={handleMakeZoom}
-            className=" flex items-center px-3 py-3 rounded-md bg-dimOrange w-fit cursor-pointer text-white gap-1"
-          >
-            <BsBroadcast />
-            <p className=" text-[12px]">
-              {creating ? "Starting" : "Start"} Session {creating && "..."}
-            </p>
-          </div>
-        </div>
-      )}
-    </div>
-  );
-};
+// const CheckZoomUser = () => {
+//   const { id } = useParams();
+//   const [creating, setCreating] = useState<boolean>(false);
+//   const mutation = useMutation({
+//     mutationKey: ["create-meeting-link"],
+//     mutationFn: async () => {
+//       const response = await fetch("/api/zoom/get-access-code", {
+//         method: "POST",
+//         body: JSON.stringify({
+//           type: "class",
+//           id,
+//         }),
+//       });
+//       return response;
+//     },
+//     onSuccess: async (response) => {
+//       setCreating(false);
+//       const result = await response.json();
+//       window.location.href = result.link;
+//     },
+//   });
+//   const { data, isLoading } = useQuery({
+//     queryKey: ["checkzoom"],
+//     queryFn: async () => {
+//       const response = await fetch("/api/zoom/isconnected");
+//       const result = await response.json();
+//       return result;
+//     },
+//   });
+//   if (isLoading) {
+//     return <div>loading...</div>;
+//   }
+//   const handleConnectZoom = () => {
+//     const url = `https://zoom.us/oauth/authorize?response_type=code&client_id=${process.env.NEXT_PUBLIC_ZOOM_CLIENT_ID}&redirect_uri=${process.env.NEXT_PUBLIC_ZOOM_REDIRECT_URL}`;
+//     window.location.href = url;
+//   };
+//   const handleMakeZoom = () => {
+//     setCreating(true);
+//     mutation.mutate();
+//   };
+//   return (
+//     <div>
+//       {data === null ? (
+//         <div
+//           onClick={handleConnectZoom}
+//           className=" flex items-center px-3 py-3 rounded-md bg-dimOrange w-fit cursor-pointer text-white gap-1"
+//         >
+//           <BsBroadcast />
+//           <p className=" text-[12px]">Connect Zoom</p>
+//         </div>
+//       ) : (
+//         <div>
+//           <div
+//             onClick={handleMakeZoom}
+//             className=" flex items-center px-3 py-3 rounded-md bg-dimOrange w-fit cursor-pointer text-white gap-1"
+//           >
+//             <BsBroadcast />
+//             <p className=" text-[12px]">
+//               {creating ? "Starting" : "Start"} Session {creating && "..."}
+//             </p>
+//           </div>
+//         </div>
+//       )}
+//     </div>
+//   );
+// };
 
 const SingleClassroom: React.FC<{ isTeacher: boolean }> = ({ isTeacher }) => {
   const { id } = useParams();
   const [visibleItems, setVisibleItems] = useState(2); // State to manage visible items
   const [isExpanded, setIsExpanded] = useState(false); // To toggle between show more/less
   const { handleDate } = useConversion();
+  const [showModel, setshowModel] = useState<boolean>(false);
 
-  const { isLoading, isError, error, data } = useQuery({
+  const { isLoading, isError, error, data } = useQuery<SingleClassInterface>({
     queryKey: ["get-single-class-teacher"],
     queryFn: async () => {
       const response = await fetch(`/api/class/specific/${id}`);
@@ -542,6 +576,12 @@ const SingleClassroom: React.FC<{ isTeacher: boolean }> = ({ isTeacher }) => {
     setVisibleItems(2); // Show only the initial 3 items
     setIsExpanded(false); // Toggle expanded state to false
   };
+  // copy class link below
+  const handleCopy = (link: string) => {
+    window.navigator.clipboard.writeText(link);
+    toast.success("Link copied to clipboard");
+  };
+
   return (
     <div>
       {data && (
@@ -562,7 +602,7 @@ const SingleClassroom: React.FC<{ isTeacher: boolean }> = ({ isTeacher }) => {
             </Link>
           </div>
 
-          <div className="grid font-subtext md:grid-cols-3 sm:grid-cols-2 grid-cols-1 gap-3 mt-6 mb-2">
+          <div className="grid font-subtext md:grid-cols-3 h-fit sm:grid-cols-2 grid-cols-1 gap-3 mt-6 mb-2">
             <div className="bg-white py-6 rounded-md">
               <div className="flex justify-between px-6 py-2  pb-1">
                 <p className="text-slate-500 text-[14px] mb-3 font-semibold">
@@ -593,7 +633,39 @@ const SingleClassroom: React.FC<{ isTeacher: boolean }> = ({ isTeacher }) => {
                 <p className="text-[13px] my-3 font-semibold">
                   Date Created : {handleDate(data?.createdAt)}
                 </p>
-                <CheckZoomUser />
+              </div>
+              <div className=" flex max-sm:flex-col px-3 gap-2">
+                <div className=" flex-1">
+                  {data.ClasssMeetingLink ? (
+                    <JoinClassLink
+                      isTeacher={isTeacher}
+                      link={data.ClasssMeetingLink.classesId}
+                    />
+                  ) : (
+                    <AddClassLink
+                      isTeacher={isTeacher}
+                      id={id as string}
+                      uploadType="class"
+                    />
+                  )}
+                </div>
+                {data.ClasssMeetingLink && isTeacher && (
+                  <div className=" flex-1">
+                    <div
+                      onClick={() => setshowModel(true)}
+                      className=" w-full text-green-700 cursor-pointer text-[14px] flex items-center justify-center py-3 border border-green-900 rounded-md hover:bg-green-700 hover:text-white transition-all ease-in-out duration-700"
+                    >
+                      <p>Edit class Link</p>
+                    </div>
+                    <AddMettingModel
+                      id={id as string}
+                      showModel={showModel}
+                      setShowmodel={setshowModel}
+                      uploadType="class"
+                      isCreate={false}
+                    />
+                  </div>
+                )}
               </div>
             </div>
             {/* Announcements Div */}
@@ -606,27 +678,31 @@ const SingleClassroom: React.FC<{ isTeacher: boolean }> = ({ isTeacher }) => {
               visibleItems={visibleItems}
               handleDate={handleDate}
             />
-            <div className="bg-white rounded-md py-6 px-6">
+            <div className="bg-white rounded-md py-6 px-6 h-fit">
               <p className="text-slate-500 text-[14px] mb-3 font-semibold">
-                Invite students
+                Join via link
               </p>
               <p className="my-3 text-[14px] font-semibold">
-                Use this link to invite students to join your live class.
+                Copy the link below, paste in your browser to connect with the
+                classroom.
               </p>
-              <p className="text-blue-400 text-[14px] font-semibold underline">
-                http://web.schooledafrika09=ab/live
-              </p>
-              <p className="text-[16px] font-semibold my-3">
-                Login ID for students:
-              </p>
-              <p className="text-[20px] font-semibold text-lightGreen my-3">
-                209112
-              </p>
+              {!isTeacher && (
+                <p>You are seeing this because you paid for the class</p>
+              )}
+              {data.ClasssMeetingLink ? (
+                <p className=" text-blue-700 underline">
+                  {data.ClasssMeetingLink.link}
+                </p>
+              ) : (
+                <p>class link will appear here</p>
+              )}
+              <p className="text-[16px] font-semibold my-3">{data.className}</p>
               <Button
+                onClick={() => handleCopy(data.ClasssMeetingLink.link)}
                 variant="outline"
                 className="w-full font-bold border-lightGreen text-lightGreen hover:text-lightGreen"
               >
-                Invite Student
+                Copy class link
               </Button>
             </div>
           </div>
@@ -634,6 +710,7 @@ const SingleClassroom: React.FC<{ isTeacher: boolean }> = ({ isTeacher }) => {
           <SingleClassTable dataId={data?.id} studentIds={data?.studentIDs} />
         </div>
       )}
+      <ToastContainer />
     </div>
   );
 };

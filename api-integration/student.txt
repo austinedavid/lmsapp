@@ -24,3 +24,20 @@ payload ==>{
 
 comment: in the payload, examId is the id of the exam, answeredExam is an array containing the answered question
 NB: this only field that is different from this answeredExam and the normal exams before answering is the studentAnswer field
+
+
+NEW endpoint
+01/02/25
+================================================================================================================
+endpoint for student to get all the answered special request exams
+================================================================================================================
+route ==> /api/get-all-exams/special-request?studentId=string
+method ==> GET
+commen ==> pass the studenId in the query 
+
+================================================================================================================
+endpoint for student to get all the answered one-on-one exams
+================================================================================================================
+route ==> /api/get-all-exams/one-on-one?studentId=string
+method ==> GET
+commen ==> pass the studenId in the query
