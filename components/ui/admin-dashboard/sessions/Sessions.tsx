@@ -1,13 +1,8 @@
 "use client";
 import Image from "next/image";
-import { Button } from "@/components/ui/button";
-import Link from "next/link";
-import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
+import { useQuery } from "@tanstack/react-query";
 import React, { useState } from "react";
-import { useConversion } from "@/data-access/conversion";
-import { Dialog, DialogContent, DialogTrigger } from "@/components/ui/dialog";
-import { IoWarning } from "react-icons/io5";
-import { toast, ToastContainer } from "react-toastify";
+import { ToastContainer } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 import { Skeleton } from "@mui/material";
 import { Noitem } from "@/components/ApplicantsTable";

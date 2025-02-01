@@ -39,6 +39,22 @@ export async function GET(req: Request) {
             email: true,
           },
         },
+        AppliedSection: {
+          select: {
+            sectionOwner: {
+              select: {
+                teacher: {
+                  select: {
+                    name: true,
+                    email: true,
+                    profilePhoto: true,
+                    rating: true,
+                  },
+                },
+              },
+            },
+          },
+        },
       },
     });
 

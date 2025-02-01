@@ -2,7 +2,7 @@
 import React, { useState } from "react";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { useParams, useSearchParams } from "next/navigation";
-import { IOffers, StudentTeacherInfo } from "./Sessions";
+import { StudentTeacherInfo } from "./Sessions";
 import Image from "next/image";
 import { useConversion } from "@/data-access/conversion";
 import { MdStarRate } from "react-icons/md";
@@ -17,7 +17,7 @@ import { CgProfile } from "react-icons/cg";
 
 interface ITeacherInfo {
   teacher: StudentTeacherInfo;
-  sesionId: string;
+  sessionId: string;
 }
 
 interface IAllViews {
@@ -30,6 +30,43 @@ interface IAllViews {
     ratting?: number;
   };
 }
+interface ITeacher {
+  name: string;
+  email: string;
+  profilePhoto: string;
+  rating: number;
+}
+interface IAppliedSession {
+  sectionOwner: {
+    teacher: ITeacher;
+  };
+}
+
+interface SingleSessionType {
+  id: string;
+  studentId: string;
+  oneOnOneSectionId: string;
+  merged: boolean;
+  amt: number;
+  sectionType: string;
+  hoursperday: number;
+  duration: string;
+  subject: string[];
+  curriculum: string;
+  specialNeed: string[];
+  learningGoal: string;
+  learningDays: string[];
+  startTime: string;
+  grade: string;
+  createdAt: string;
+  updatedAt: string;
+  sectionInfo: {
+    sessionId: string;
+    teacher: StudentTeacherInfo;
+  };
+  student: StudentTeacherInfo;
+  AppliedSection: IAppliedSession;
+}
 
 // the dialog box which will handle merging of teacher to student
 // this dailog handles confirmation
@@ -39,7 +76,8 @@ export const Approval: React.FC<{
   dialogOpen: boolean;
   selectedId: string;
   url: string;
-}> = ({ auto, setDialogOpen, dialogOpen, selectedId, url }) => {
+  isMerged?: boolean;
+}> = ({ auto, setDialogOpen, dialogOpen, selectedId, url, isMerged }) => {
   const [submitting, setSubmitting] = useState<boolean>(false);
   const [amt, setAmt] = useState<string | null>(null);
   const { id } = useParams();
@@ -48,7 +86,7 @@ export const Approval: React.FC<{
     mutationKey: ["merge-session"],
     mutationFn: async () => {
       const response = await fetch(`${url}`, {
-        method: "PUT",
+        method: isMerged ? "POST" : "PUT",
         body: JSON.stringify({
           amt,
           adminSessionId: id,
@@ -96,7 +134,9 @@ export const Approval: React.FC<{
           <div className=" flex items-center flex-col">
             <TiWarning className=" text-[60px] text-[tomato]" />
             <p className=" font-semibold text-[18px] text-slate-600">
-              Are you sure about merging this session
+              {isMerged
+                ? "You are about to reassign this session"
+                : "Are you sure about merging this session"}
             </p>
           </div>
           <div className=" flex items-center justify-center flex-col">
@@ -112,7 +152,11 @@ export const Approval: React.FC<{
               onClick={handleApprove}
               className=" w-full py-3 flex items-center justify-center bg-green-700 text-white rounded-md cursor-pointer transition-all duration-700 ease-in-out hover:bg-green-600 "
             >
-              {submitting ? <p>Merging now...</p> : <p>Aprrove Merge</p>}
+              {submitting ? (
+                <p>{isMerged ? "Reassigning..." : "Merging now..."}</p>
+              ) : (
+                <p>{isMerged ? "Reassign" : "Aprrove Merge"}</p>
+              )}
             </div>
             <div
               onClick={() => setDialogOpen(false)}
@@ -128,52 +172,61 @@ export const Approval: React.FC<{
 };
 
 // component to render teacher basic info
-const ShowTeacher: React.FC<{ details: ITeacherInfo }> = ({ details }) => {
+const ShowTeacher: React.FC<{
+  profilePhoto: string | null;
+  email: string;
+  name: string;
+  rating?: number;
+  sessionId?: string;
+  autoBtn: boolean;
+}> = ({ profilePhoto, email, name, rating, sessionId, autoBtn }) => {
   const [dialogOpen, setDialogOpen] = useState<boolean>(false);
-  console.log(details.teacher.rating);
   return (
     <div>
       <div className=" w-full flex items-center justify-center mt-3">
         <p className=" text-[14px]">
-          Session profile that was selected during booking
+          {autoBtn
+            ? "Session profile that was selected during booking"
+            : "Profile of merged teacher"}
         </p>
       </div>
       <div className=" w-full mt-5 flex flex-col items-center justify-center">
         <Image
-          src={details?.teacher.profilePhoto!}
+          src={profilePhoto!}
           alt="teacherDP"
           width={200}
           height={200}
           className=" w-[80px] aspect-square rounded-full"
         />
-        <p className=" text-black font-bold">{details?.teacher.email}</p>
-        <p className=" text-black font-bold">{details?.teacher.name}</p>
+        <p className=" text-black font-bold">{email}</p>
+        <p className=" text-black font-bold">{name}</p>
         <div className=" flex items-center">
           <MdStarRate className=" text-[tomato]" />
-          {details.teacher.rating === null ? (
-            <p>0</p>
-          ) : (
-            <p>{details?.teacher.rating}</p>
-          )}
+          {rating === null ? <p>0</p> : <p>{rating}</p>}
         </div>
-        <div className=" mt-4">
-          <div onClick={() => setDialogOpen(true)}>
-            <Approval
-              selectedId={details.sesionId}
-              setDialogOpen={setDialogOpen}
-              dialogOpen={dialogOpen}
-              auto={true}
-              url="/api/session-view"
-            />
+        {autoBtn && (
+          <div className=" mt-4">
+            <div onClick={() => setDialogOpen(true)}>
+              <Approval
+                selectedId={sessionId!}
+                setDialogOpen={setDialogOpen}
+                dialogOpen={dialogOpen}
+                auto={true}
+                url="/api/session-view"
+              />
+            </div>
           </div>
-        </div>
+        )}
       </div>
     </div>
   );
 };
 
 // list of all the session profile that can be merged
-export const ShowAllSessionProfile: React.FC<{ url: string }> = ({ url }) => {
+export const ShowAllSessionProfile: React.FC<{
+  url: string;
+  isMerged: boolean;
+}> = ({ url, isMerged }) => {
   const [filterStr, setFilterStr] = useState<string>("");
   const [selectedId, setSelectedId] = useState<string>("");
   const [dialogOpen, setDialogOpen] = useState<boolean>(false);
@@ -185,7 +238,7 @@ export const ShowAllSessionProfile: React.FC<{ url: string }> = ({ url }) => {
     );
     return filtered;
   };
-  const { data, isFetching, isError, error } = useQuery({
+  const { data, isLoading, isError, error } = useQuery({
     queryKey: ["get-all-session-profile"],
     queryFn: async () => {
       const response = await fetch("/api/session-view/all-session-profiles");
@@ -194,7 +247,7 @@ export const ShowAllSessionProfile: React.FC<{ url: string }> = ({ url }) => {
     },
   });
 
-  if (isFetching) {
+  if (isLoading) {
     return (
       <div className=" w-full h-[450px] flex items-center justify-center">
         <CircularProgress color="success" size={50} />
@@ -209,7 +262,7 @@ export const ShowAllSessionProfile: React.FC<{ url: string }> = ({ url }) => {
   return (
     <div className=" mt-4 max-h-[400px] overflow-y-auto w-full">
       <div className=" w-full flex items-center justify-center text-[14px]">
-        <p>Merge from list of Session Profiles</p>
+        <p>{isMerged ? "Reassign" : "Merge"} from list of Session Profiles</p>
       </div>
       <div className=" w-[70%] px-2 py-2 flex items-center border rounded-md bg-white">
         <div className=" flex-1 text-[22px] text-gray-400">
@@ -267,6 +320,7 @@ export const ShowAllSessionProfile: React.FC<{ url: string }> = ({ url }) => {
                             dialogOpen={dialogOpen}
                             setDialogOpen={setDialogOpen}
                             auto={false}
+                            isMerged={isMerged}
                           />
                         </div>
                       )}
@@ -283,7 +337,10 @@ export const ShowAllSessionProfile: React.FC<{ url: string }> = ({ url }) => {
 };
 
 // componet for teachers to merge
-const TeachersToMerge: React.FC<{ infos: ITeacherInfo }> = ({ infos }) => {
+const TeachersToMerge: React.FC<{
+  infos: ITeacherInfo;
+  AppliedSection: IAppliedSession;
+}> = ({ infos, AppliedSection }) => {
   const [sessionTeacher, setSessionTeacher] = useState<boolean>(true);
   return (
     <div>
@@ -297,7 +354,7 @@ const TeachersToMerge: React.FC<{ infos: ITeacherInfo }> = ({ infos }) => {
               : "bg-gray-200 text-gray-500"
           }`}
         >
-          <p>Auto Merge</p>
+          <p>{AppliedSection ? "Merged Teacher" : "Auto Merge"}</p>
         </div>
         <div
           onClick={() => setSessionTeacher(false)}
@@ -307,14 +364,38 @@ const TeachersToMerge: React.FC<{ infos: ITeacherInfo }> = ({ infos }) => {
               : "bg-green-700 text-white"
           }`}
         >
-          <p>Merge From List</p>
+          <p>{AppliedSection ? "Reassign tutor" : "Merge From List"}</p>
         </div>
       </div>
       {/* display component based on the selected */}
       {sessionTeacher ? (
-        <ShowTeacher details={infos} />
+        <div>
+          {/* conditionally renders the merged or unmerged teacher info */}
+          {AppliedSection ? (
+            <ShowTeacher
+              email={AppliedSection.sectionOwner.teacher.email}
+              name={AppliedSection.sectionOwner.teacher.name}
+              profilePhoto={AppliedSection.sectionOwner.teacher.profilePhoto}
+              rating={AppliedSection.sectionOwner.teacher.rating}
+              sessionId={infos.sessionId}
+              autoBtn={false}
+            />
+          ) : (
+            <ShowTeacher
+              email={infos.teacher.email}
+              name={infos.teacher.name}
+              profilePhoto={infos.teacher.profilePhoto}
+              rating={infos.teacher.rating}
+              sessionId={infos.sessionId}
+              autoBtn={true}
+            />
+          )}
+        </div>
       ) : (
-        <ShowAllSessionProfile url="/api/session-view" />
+        <ShowAllSessionProfile
+          isMerged={AppliedSection ? true : false}
+          url="/api/session-view"
+        />
       )}
     </div>
   );
@@ -517,7 +598,7 @@ export const LoadingSkeleton: React.FC<{ title: string }> = ({ title }) => {
 const SingleSessionAdmin = () => {
   const { id } = useParams();
   const query = useSearchParams();
-  const { data, isLoading, isError, error } = useQuery({
+  const { data, isLoading, isError, error } = useQuery<SingleSessionType>({
     queryKey: ["session-single"],
     queryFn: async () => {
       const response = await fetch(
@@ -535,7 +616,7 @@ const SingleSessionAdmin = () => {
   if (isError) {
     return <p>{error.message}</p>;
   }
-  const singleSession: IOffers = data;
+  console.log(data);
   return (
     <div>
       <div className=" w-full flex items-center justify-center">
@@ -547,24 +628,27 @@ const SingleSessionAdmin = () => {
       <div className=" w-full md:px-20">
         <div className=" w-full grid grid-cols-1 md:grid-cols-2 gap-3 border-2 px-4 py-2 rounded-md shadow-md ">
           <StudentInfos
-            email={singleSession.student.email}
-            name={singleSession.student.name}
-            profilePhoto={singleSession.student.profilePhoto!}
-            sectionType={singleSession.sectionType}
-            curriculum={singleSession.curriculum}
-            grade={singleSession.grade}
-            hoursperday={singleSession.hoursperday}
-            createdAt={singleSession.createdAt}
-            startTime={singleSession.startTime}
-            learningGoal={singleSession.learningGoal}
-            amt={singleSession.amt}
-            merged={singleSession.merged}
-            duration={singleSession.duration}
-            learningDays={singleSession.learningDays}
-            specialNeed={singleSession.specialNeed}
+            email={data?.student.email!}
+            name={data?.student.name!}
+            profilePhoto={data?.student.profilePhoto!}
+            sectionType={data?.sectionType!}
+            curriculum={data?.curriculum}
+            grade={data?.grade!}
+            hoursperday={data?.hoursperday}
+            createdAt={data?.createdAt!}
+            startTime={data?.startTime}
+            learningGoal={data?.learningGoal}
+            amt={data?.amt!}
+            merged={data?.merged!}
+            duration={data?.duration}
+            learningDays={data?.learningDays}
+            specialNeed={data?.specialNeed}
             specialRequest={false}
           />
-          <TeachersToMerge infos={singleSession.sectionInfo} />
+          <TeachersToMerge
+            AppliedSection={data?.AppliedSection!}
+            infos={data?.sectionInfo!}
+          />
         </div>
       </div>
       <ToastContainer />

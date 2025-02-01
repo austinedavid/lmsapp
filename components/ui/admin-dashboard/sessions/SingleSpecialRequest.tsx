@@ -75,7 +75,7 @@ const SingleSpecialRequest = () => {
             kindofteacher={data?.kindOfTeacher!}
             specialRequest={true}
           />
-          <ShowAllSessionProfile url="/api/special-request" />
+          <ShowAllSessionProfile isMerged={false} url="/api/special-request" />
         </div>
       </div>
       <ToastContainer />

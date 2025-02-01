@@ -27,7 +27,7 @@ NB: this only field that is different from this answeredExam and the normal exam
 
 
 NEW endpoint
-29/01/25
+01/02/25
 ================================================================================================================
 endpoint for student to get all the answered special request exams
 ================================================================================================================
