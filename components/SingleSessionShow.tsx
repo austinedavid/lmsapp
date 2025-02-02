@@ -387,10 +387,11 @@ const RemoveExam: React.FC<RemoveExamProps> = ({
 
 const RenderedExam: React.FC<{
   exam: any;
+  isTeacher: boolean;
   setDialogOpen: React.Dispatch<React.SetStateAction<boolean>>;
   dialogOpen: boolean;
   specialRequest: boolean;
-}> = ({ exam, setDialogOpen, dialogOpen, specialRequest }) => {
+}> = ({ exam, isTeacher, setDialogOpen, dialogOpen, specialRequest }) => {
   return (
     <div className=" w-full flex items-center text-[14px] font-semibold text-slate-500">
       <div className=" flex-1 flex items-center text-black text-[14px] gap-1 ">
@@ -410,6 +411,7 @@ const RenderedExam: React.FC<{
         <div className=" flex-1 flex text-[11px] items-center justify-center">
           <p>{exam.grade}</p>
         </div>
+        { isTeacher && (
         <div className=" flex-1 flex text-[11px] items-center justify-center">
           <p>
             <RemoveExam
@@ -419,6 +421,8 @@ const RenderedExam: React.FC<{
             />
           </p>
         </div>
+        )
+       }
       </div>
     </div>
   );
@@ -460,9 +464,12 @@ const Exams: React.FC<{
           <div className=" flex-1 flex items-center justify-center">
             <p>Grade</p>
           </div>
+          { isTeacher && (
           <div className=" flex-1 flex items-center justify-center">
             <p>Delete</p>
           </div>
+          )
+          }
         </div>
       </div>
       {/* render all the exams below here */}
@@ -474,6 +481,7 @@ const Exams: React.FC<{
             <RenderedExam
               key={index}
               exam={exam}
+              isTeacher={isTeacher}
               setDialogOpen={setRemoveExamDialogOpen}
               dialogOpen={removeExamDialogOpen}
               specialRequest={specialRequest}
@@ -500,7 +508,7 @@ const EachResources: React.FC<{
   const handleViewLink = (link: string) => {
     return (window.location.href = link);
   };
-  // handle the delete resouce
+  // handle the delete resource
   const mutation = useMutation({
     mutationKey: ["delete-resources"],
     mutationFn: async (resourceId: string) => {
