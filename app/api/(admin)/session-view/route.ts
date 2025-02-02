@@ -5,13 +5,14 @@ import prisma from "@/prisma/prismaConnect";
 import { notAuthenticated, onlyAdmin, serverError } from "@/prisma/utils/error";
 import {
   checkKyc,
+  getQuery,
   serverSessionId,
   serverSessionRole,
 } from "@/prisma/utils/utils";
 
 // here we get all the adminsessionview
 export async function GET(req: Request) {
-  console.log("entered sessions");
+  const merged = getQuery(req.url, "merged");
   const id = await serverSessionId();
   const role = await serverSessionRole();
   // restriction if the user is not admin
@@ -19,7 +20,7 @@ export async function GET(req: Request) {
   if (role !== "Admin") return onlyAdmin();
   try {
     const allSessions = await prisma.adminSectionView.findMany({
-      where: { merged: false },
+      where: { merged: merged === "true" ? true : false },
       include: {
         sectionInfo: {
           select: {
@@ -42,6 +43,7 @@ export async function GET(req: Request) {
         },
       },
     });
+
     return new Response(JSON.stringify(allSessions), { status: 200 });
   } catch (error) {
     return serverError();
@@ -106,6 +108,7 @@ export async function PUT(req: Request) {
         duration: adminSessionView.duration,
         startTime: adminSessionView.startTime,
         amt: Number(amt),
+        adminSectionViewId: adminSessionId,
       },
     });
     // now we can proceed to making the field merge in the adminsessionView to true,
@@ -121,6 +124,61 @@ export async function PUT(req: Request) {
     return new Response(JSON.stringify({ message: "Merged successfully" }), {
       status: 200,
     });
+  } catch (error) {
+    return serverError();
+  }
+}
+
+// here, we make use of this endpoint to reassign a teacher to a particular student
+// this will help retain the information of the uploaded resources of the former teacher
+// and also their test
+export async function POST(req: Request) {
+  console.log("entered here now ooooo");
+  const id = await serverSessionId();
+  const role = await serverSessionRole();
+  if (!id) return notAuthenticated();
+  if (role !== "Admin") return onlyAdmin();
+  const { amt, adminSessionId, teacherSessionId } = await req.json();
+  // first, lets get the applied session model using the adminSessionId provided
+  const getAppliedSession = await prisma.appliedSection.findFirst({
+    where: { adminSectionViewId: adminSessionId },
+    select: {
+      id: true,
+    },
+  });
+  if (!getAppliedSession) {
+    return new Response(
+      JSON.stringify({ message: "this session was not merged before" }),
+      { status: 400 }
+    );
+  }
+  // now we update the applied session to have the information of the teacher we passed
+  try {
+    // get the teachers one-on-one-session id using the teacherSessionId provided
+    const selectedTeacher = await prisma.oneOnOneSection.findFirst({
+      where: { sessionId: teacherSessionId },
+      select: {
+        id: true,
+      },
+    });
+    if (!selectedTeacher) {
+      return new Response(
+        JSON.stringify({ message: "this teacher does not exist" }),
+        { status: 404 }
+      );
+    }
+    // now, we move to modify the session with the new teacher
+    await prisma.appliedSection.update({
+      where: { id: getAppliedSession.id },
+      data: {
+        oneOnOneSectionId: selectedTeacher.id,
+        amt: Number(amt),
+      },
+    });
+    return new Response(
+      JSON.stringify({ message: "tutor successfully changed" }),
+      { status: 200 }
+    );
   } catch (error) {
     return serverError();
   }

@@ -3,10 +3,15 @@
 import prisma from "@/prisma/prismaConnect";
 import { notAuthenticated, onlyAdmin, serverError } from "@/prisma/utils/error";
 import { specialRequest } from "@/prisma/utils/payment";
-import { serverSessionId, serverSessionRole } from "@/prisma/utils/utils";
+import {
+  getQuery,
+  serverSessionId,
+  serverSessionRole,
+} from "@/prisma/utils/utils";
 
 // getting all the special requests
 export async function GET(req: Request) {
+  const merged = getQuery(req.url, "merged");
   // check for authentication
   // and only admin can be able to access this
   const userId = await serverSessionId();
@@ -15,7 +20,7 @@ export async function GET(req: Request) {
   if (role !== "Admin") return onlyAdmin();
   try {
     const allSession = await prisma.specialTeacherUnmerged.findMany({
-      where: { merged: false },
+      where: { merged: merged === "true" ? true : false },
       orderBy: {
         createdAt: "desc",
       },

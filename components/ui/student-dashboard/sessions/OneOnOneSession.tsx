@@ -181,14 +181,15 @@ const TimeShow: React.FC<{
 
 // /api/teacher-special-request/class-link
 // /api/one-on-one-section/class-link
+// /api/class/add-class-link
 
 export const AddMettingModel: React.FC<{
   showModel: boolean;
   setShowmodel: React.Dispatch<React.SetStateAction<boolean>>;
-  sessionId: string;
-  specialRequest: boolean;
+  id: string;
+  uploadType: "class" | "specialReques" | "one-on-one";
   isCreate: boolean;
-}> = ({ showModel, setShowmodel, sessionId, specialRequest, isCreate }) => {
+}> = ({ showModel, setShowmodel, id, uploadType, isCreate }) => {
   const [link, setLink] = useState<string | undefined>(undefined);
   const [loading, setLoading] = useState<boolean>(false);
   const queryClient = useQueryClient();
@@ -196,12 +197,14 @@ export const AddMettingModel: React.FC<{
     mutationKey: ["add-class-link"],
     mutationFn: async () => {
       const response = await fetch(
-        specialRequest
+        uploadType == "specialReques"
           ? "/api/teacher-special-request/class-link"
-          : "/api/one-on-one-section/class-link",
+          : uploadType == "one-on-one"
+          ? "/api/one-on-one-section/class-link"
+          : "/api/class/add-class-link",
         {
           method: isCreate ? "POST" : "PUT",
-          body: JSON.stringify({ link, sessionId }),
+          body: JSON.stringify({ link, id }),
         }
       );
       return response;
@@ -211,6 +214,9 @@ export const AddMettingModel: React.FC<{
       if (response.ok) {
         queryClient.invalidateQueries({ queryKey: ["getSession"] });
         queryClient.invalidateQueries({ queryKey: ["getSpecialRequest"] });
+        queryClient.invalidateQueries({
+          queryKey: ["get-single-class-teacher"],
+        });
         setLink(undefined);
         setLoading(false);
         setShowmodel(false);
@@ -260,11 +266,11 @@ export const AddMettingModel: React.FC<{
 };
 
 // this div render for teachers to add the class link if not existing yet
-const AddClassLink: React.FC<{
+export const AddClassLink: React.FC<{
   isTeacher: boolean;
-  sessionId: string;
-  specialRequest: boolean;
-}> = ({ isTeacher, sessionId, specialRequest }) => {
+  id: string;
+  uploadType: "class" | "specialReques" | "one-on-one";
+}> = ({ isTeacher, id, uploadType }) => {
   const [showModel, setShowmodel] = useState<boolean>(false);
   return (
     <div className="flex-1 py-3 px-2 flex items-center justify-center border border-green-800 rounded-md text-[14px] text-green-900 cursor-pointer hover:bg-green-800 hover:text-white transition-all ease-in-out duration-700 ">
@@ -277,10 +283,10 @@ const AddClassLink: React.FC<{
       )}
       {showModel && (
         <AddMettingModel
-          sessionId={sessionId}
+          id={id}
           showModel={showModel}
           setShowmodel={setShowmodel}
-          specialRequest={specialRequest}
+          uploadType={uploadType}
           isCreate={true}
         />
       )}
@@ -288,7 +294,7 @@ const AddClassLink: React.FC<{
   );
 };
 // join class link component below here
-const JoinClassLink: React.FC<{ isTeacher: boolean; link: string }> = ({
+export const JoinClassLink: React.FC<{ isTeacher: boolean; link: string }> = ({
   isTeacher,
   link,
 }) => {
@@ -307,20 +313,20 @@ const JoinClassLink: React.FC<{ isTeacher: boolean; link: string }> = ({
 };
 // the btn below will be reusuable for both special request and normal one on one session
 export const SharedAddLink: React.FC<{
-  specialRequest: boolean;
+  uploadType: "class" | "specialReques" | "one-on-one";
   isTeacher: boolean;
   sessionId: string;
   link: Imeeting;
-}> = ({ link, isTeacher, sessionId, specialRequest }) => {
+}> = ({ link, isTeacher, sessionId, uploadType }) => {
   return (
     <div>
       {link !== null ? (
         <JoinClassLink link={link.link} isTeacher={isTeacher} />
       ) : (
         <AddClassLink
-          specialRequest={specialRequest}
+          uploadType={uploadType}
           isTeacher={isTeacher}
-          sessionId={sessionId}
+          id={sessionId}
         />
       )}
     </div>
@@ -357,7 +363,7 @@ const ViewDetails: React.FC<{
         <SharedAddLink
           link={link}
           isTeacher={isTeacher}
-          specialRequest={false}
+          uploadType="one-on-one"
           sessionId={sessionId}
         />
       </div>

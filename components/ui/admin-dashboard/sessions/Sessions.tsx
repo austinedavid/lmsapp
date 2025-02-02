@@ -1,13 +1,8 @@
 "use client";
 import Image from "next/image";
-import { Button } from "@/components/ui/button";
-import Link from "next/link";
-import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
+import { useQuery } from "@tanstack/react-query";
 import React, { useState } from "react";
-import { useConversion } from "@/data-access/conversion";
-import { Dialog, DialogContent, DialogTrigger } from "@/components/ui/dialog";
-import { IoWarning } from "react-icons/io5";
-import { toast, ToastContainer } from "react-toastify";
+import { ToastContainer } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 import { Skeleton } from "@mui/material";
 import { Noitem } from "@/components/ApplicantsTable";
@@ -97,7 +92,9 @@ export const ModifiedNoProfile: React.FC<{ userImage: string | null }> = ({
 const OfferCard: React.FC<{ item: IOffers }> = ({ item }) => {
   const router = useRouter();
   const handleClick = () => {
-    router.push(`/admin-dashboard/sessions/single-sessions/${item.id}`);
+    router.push(
+      `/admin-dashboard/sessions/single-sessions/${item.id}?merged=${item.merged}`
+    );
   };
   return (
     <div className=" bg-white p-3 flex flex-col gap-5 shadow-md">
@@ -155,17 +152,16 @@ export const ShowSkeleton = () => {
   );
 };
 
-const Sessions = () => {
+const Sessions = ({ merged }: { merged: boolean }) => {
   // making use of react query to get all the offers
   const { data, isLoading, isError, error } = useQuery({
-    queryKey: ["get-sessions"],
+    queryKey: ["get-sessions", merged],
     queryFn: async () => {
-      const response = await fetch("/api/session-view");
+      const response = await fetch(`/api/session-view?merged=${merged}`);
       const result = await response.json();
       return result;
     },
   });
-  console.log(data);
 
   if (isLoading) {
     return <ShowSkeleton />;
@@ -179,7 +175,7 @@ const Sessions = () => {
       <div className="max-w-full">
         <div className=" w-full flex items-center justify-center">
           <p className=" mb-4 text-black font-bold text-[16px] md:text-[24px]">
-            List of unmerged sessions
+            List of {merged ? "merged" : "unmerged"} sessions
           </p>
         </div>
         {Array.isArray(data) && (

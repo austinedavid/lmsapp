@@ -39,9 +39,25 @@ export async function GET(req: Request) {
             email: true,
           },
         },
+        AppliedSection: {
+          select: {
+            sectionOwner: {
+              select: {
+                teacher: {
+                  select: {
+                    name: true,
+                    email: true,
+                    profilePhoto: true,
+                    rating: true,
+                  },
+                },
+              },
+            },
+          },
+        },
       },
     });
-    console.log(singleSession);
+
     return new Response(JSON.stringify(singleSession), { status: 200 });
   } catch (error) {
     console.log(error);
