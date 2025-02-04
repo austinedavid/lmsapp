@@ -297,6 +297,78 @@ const EachVacancy: React.FC<{
   );
 };
 
+const VacancySearchPath = () => {
+  return (
+    <div className="bg-stone-100 font-subtext">
+      <h2 className="font-bold font-subtext my-20 text-2xl text-center">
+        Job Listing
+      </h2>
+      <div className=" md:w-[90%] w-[90%] mt-16 md:mt-6 mx-auto  cursor-pointer font-header  h-[100px] md:mx-auto bg-white rounded-[50px] flex items-center justify-center p-6 shadow-md">
+        <div className="relative   overflow-hidden flex md:w-1/3 w-full  flex-col   mr-2 justify-center items-start md:border-r-2 leading-[90px]">
+          <label className="ml-3 font-bold  absolute -top-4   ">SEARCH</label>
+
+          <input
+            placeholder="By class, Course, School"
+            className="bg-transparent    ml-2 mt-3   focus:outline-none"
+          />
+        </div>
+
+        <div className="relative hidden    overflow-hidden md:flex w-1/4  flex-col   mr-2 justify-center items-start border-r-2 leading-[90px]">
+          <label className="ml-3 font-bold  absolute -top-4   ">
+            EXPERIENCE LEVEL
+          </label>
+
+          <input
+            placeholder="Years of Experience"
+            className="bg-transparent   ml-2 mt-3   focus:outline-none"
+          />
+        </div>
+        <div className="relative hidden   overflow-hidden md:flex w-1/4  flex-col   mr-2 justify-center items-start border-r-2 leading-[90px]">
+          <label className="ml-3 font-bold  absolute -top-4   ">LOCATION</label>
+
+          <input
+            placeholder="Search by Location"
+            className="bg-transparent   ml-2 mt-3   focus:outline-none"
+          />
+        </div>
+        <div className="relative hidden   overflow-hidden md:flex w-1/3  flex-col   mr-2 justify-center items-start leading-[100px]">
+          <label className="ml-3 font-bold  absolute -top-4   ">
+            PRICE RANGE
+          </label>
+
+          <input
+            placeholder="0-100,000"
+            className="bg-transparent   ml-2 mt-3   focus:outline-none"
+          />
+        </div>
+
+        <div className=" md:w-[80px] w-[60px] font-bold aspect-square rounded-full flex items-center md:justify-center justify-end bg-lightGreen text-white">
+          <IoIosSearch className="font-bold text-2xl md:mr-0 md:text-xl mr-3" />
+        </div>
+      </div>
+    </div>
+  );
+};
+
+export const NoItemSecond: React.FC<{ desc: string }> = ({ desc }) => {
+  return (
+    <div className=" w-full flex items-center flex-col justify-center">
+      <div className=" w-3/4 md:w-2/5">
+        <Image
+          src="/vacancyempty.webp"
+          alt="noitem"
+          width={200}
+          height={200}
+          className=" w-full"
+        />
+      </div>
+      <div className=" w-fit px-2 py-3 rounded-md border-2 border-green-700">
+        <p>{desc}</p>
+      </div>
+    </div>
+  );
+};
+
 const Vacancies = () => {
   const [viewDeatil, setViewDetail] = useState<Ivacancy | undefined>(undefined);
   const [mobileDetails, setMobileDetails] = useState<boolean>(false);
@@ -354,70 +426,9 @@ const Vacancies = () => {
     <div>
       <Container>
         {/* Searchbar */}
-        <div className="bg-stone-100 font-subtext">
-          <h2 className="font-bold font-subtext my-20 text-2xl text-center">
-            Job Listing
-          </h2>
-          <div className=" md:w-[90%] w-[90%] mt-16 md:mt-6 mx-auto  cursor-pointer font-header  h-[100px] md:mx-auto bg-white rounded-[50px] flex items-center justify-center p-6 shadow-md">
-            <div className="relative   overflow-hidden flex md:w-1/3 w-full  flex-col   mr-2 justify-center items-start md:border-r-2 leading-[90px]">
-              <label className="ml-3 font-bold  absolute -top-4   ">
-                SEARCH
-              </label>
-
-              <input
-                placeholder="By class, Course, School"
-                className="bg-transparent    ml-2 mt-3   focus:outline-none"
-              />
-            </div>
-
-            <div className="relative hidden    overflow-hidden md:flex w-1/4  flex-col   mr-2 justify-center items-start border-r-2 leading-[90px]">
-              <label className="ml-3 font-bold  absolute -top-4   ">
-                EXPERIENCE LEVEL
-              </label>
-
-              <input
-                placeholder="Years of Experience"
-                className="bg-transparent   ml-2 mt-3   focus:outline-none"
-              />
-            </div>
-            <div className="relative hidden   overflow-hidden md:flex w-1/4  flex-col   mr-2 justify-center items-start border-r-2 leading-[90px]">
-              <label className="ml-3 font-bold  absolute -top-4   ">
-                LOCATION
-              </label>
-
-              <input
-                placeholder="Search by Location"
-                className="bg-transparent   ml-2 mt-3   focus:outline-none"
-              />
-            </div>
-            <div className="relative hidden   overflow-hidden md:flex w-1/3  flex-col   mr-2 justify-center items-start leading-[100px]">
-              <label className="ml-3 font-bold  absolute -top-4   ">
-                PRICE RANGE
-              </label>
-
-              <input
-                placeholder="0-100,000"
-                className="bg-transparent   ml-2 mt-3   focus:outline-none"
-              />
-            </div>
-
-            <div className=" md:w-[80px] w-[60px] font-bold aspect-square rounded-full flex items-center md:justify-center justify-end bg-lightGreen text-white">
-              <IoIosSearch className="font-bold text-2xl md:mr-0 md:text-xl mr-3" />
-            </div>
-          </div>
-        </div>
+        <VacancySearchPath />
         {queryData.length === 0 ? (
-          <div className=" w-full flex items-center justify-center">
-            <div className=" w-3/4 md:w-2/5">
-              <Image
-                src="/vacancyempty.webp"
-                alt="noitem"
-                width={200}
-                height={200}
-                className=" w-full"
-              />
-            </div>
-          </div>
+          <NoItemSecond desc="Vacancy adverts coming soon!!!" />
         ) : (
           <div className=" flex w-full gap-3 mt-8">
             <div className=" flex-1 sm:flex-2 flex flex-col gap-2">

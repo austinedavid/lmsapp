@@ -17,6 +17,7 @@ import { closePaymentModal, FlutterWaveButton } from "flutterwave-react-v3";
 import { GetClassLoader } from "./loaders/skeleton";
 import { CircularProgress } from "@mui/material";
 import { useInView } from "react-intersection-observer";
+import { Noitem } from "./ApplicantsTable";
 
 interface Iteacher {
   name: string;
@@ -363,12 +364,18 @@ const PopularClasses = () => {
   return (
     <Container>
       <div className="w-full  mx-auto px-4 pt-16 pb-6">
-        <div className="grid  grid-cols-1 sm:grid-cols-2 md:grid-cols-3 items-center xl:grid-cols-3 gap-6  lgl:px-10">
-          {Array.isArray(queryData) &&
-            queryData.map((item: Iclass, index) => (
-              <PopularClassesCard key={index} item={item} />
-            ))}
-        </div>
+        {queryData.length < 1 ? (
+          <div>
+            <Noitem desc="wait has we upload classes" />
+          </div>
+        ) : (
+          <div className="grid  grid-cols-1 sm:grid-cols-2 md:grid-cols-3 items-center xl:grid-cols-3 gap-6  lgl:px-10">
+            {Array.isArray(queryData) &&
+              queryData.map((item: Iclass, index) => (
+                <PopularClassesCard key={index} item={item} />
+              ))}
+          </div>
+        )}
       </div>
       <div className=" w-full flex items-center justify-center">
         {hasNextPage && (

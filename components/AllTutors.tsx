@@ -12,6 +12,7 @@ import { IoIosStar } from "react-icons/io";
 import BookSession from "./BookSession";
 import { ToastContainer } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
+import { Noitem } from "./ApplicantsTable";
 
 export interface Iratter {
   comment: string;
@@ -313,11 +314,17 @@ const AllTutors = () => {
   const queryData: ISessionShow[] = data?.pages.flat();
   return (
     <Container>
-      <div className=" w-full flex flex-col gap-3 mt-5">
-        {queryData.map((item, index) => (
-          <SingleSession key={index} item={item} />
-        ))}
-      </div>
+      {queryData.length < 1 ? (
+        <div>
+          <Noitem desc="Wait has we update tutors" />
+        </div>
+      ) : (
+        <div className=" w-full flex flex-col gap-3 mt-5">
+          {queryData.map((item, index) => (
+            <SingleSession key={index} item={item} />
+          ))}
+        </div>
+      )}
       <ToastContainer />
     </Container>
   );
