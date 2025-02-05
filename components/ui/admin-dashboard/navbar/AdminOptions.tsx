@@ -1,7 +1,6 @@
 "use client";
 import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
+import { useContext } from "react";
 import {
   Popover,
   PopoverContent,
@@ -14,10 +13,12 @@ import { PiSignOutBold } from "react-icons/pi";
 import Link from "next/link";
 import { useSession } from "next-auth/react";
 import { useConversion } from "@/data-access/conversion";
+import { CommonDashboardContext } from "@/providers/Statecontext";
 
 export function AdminOptions() {
   const { data } = useSession();
   const { makeSubstring } = useConversion();
+  const { setConfirmLogout } = useContext(CommonDashboardContext);
   return (
     <Popover>
       <PopoverTrigger asChild>
@@ -84,11 +85,12 @@ export function AdminOptions() {
             </div>
             <hr />
             <div className="grid gap-2">
-              <div className="flex space-x-3 items-center pt-2">
+              <div
+                onClick={() => setConfirmLogout(true)}
+                className="flex space-x-3 items-center pt-2 cursor-pointer"
+              >
                 <PiSignOutBold className="w-[20px] h-[20px] font-semibold" />
-                <Link href="" className="text-[14px] font-semibold">
-                  Log Out
-                </Link>
+                <p className="text-[14px] font-semibold">Log Out</p>
               </div>
             </div>
           </div>

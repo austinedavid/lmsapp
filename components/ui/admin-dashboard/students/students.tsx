@@ -12,7 +12,6 @@ const students = () => {
       </div>
       <MailComponent group="Students" />
       <StudentTable />
-      <DashboardPagination />
     </div>
   );
 };

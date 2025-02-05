@@ -217,9 +217,7 @@ const SingleTeacher = () => {
                     classes={data.Classes}
                   />
                 </CardContent>
-                <CardFooter>
-                  <DashboardPagination />
-                </CardFooter>
+                <CardFooter></CardFooter>
               </Card>
             </TabsContent>
           </Tabs>

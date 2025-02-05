@@ -1,5 +1,4 @@
 import React from "react";
-import DashboardPagination from "@/components/DashboardPagination";
 import CoursesAdmin from "@/components/ui/admin-dashboard/courses/courses";
 import HandleAddCourses from "@/components/ui/admin-dashboard/courses/HandleAddCourses";
 
@@ -10,7 +9,6 @@ const page = () => {
         <HandleAddCourses />
       </div>
       <CoursesAdmin />
-      <DashboardPagination />
     </div>
   );
 };
