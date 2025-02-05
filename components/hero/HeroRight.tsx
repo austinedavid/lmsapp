@@ -17,7 +17,7 @@ const HeroRight = () => {
     return () => clearInterval(setTimer);
   }, []);
   return (
-    <div className=" pl-20   lg:pl-0 flex-1 relative w-full h-full overflow-hidden ">
+    <div className=" pl-20   lg:pl-0 flex-1 relative  max-md:flex max-md:items-center max-md:justify-center w-full h-full overflow-hidden ">
       <motion.div
         animate={{ translateY: [-10, 0, -10] }}
         transition={{

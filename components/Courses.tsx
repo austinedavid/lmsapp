@@ -20,6 +20,7 @@ import { Button } from "@/components/ui/button";
 import Container from "./Container";
 import SingleCourses from "./SingleCourses";
 import { useRouter } from "next/navigation";
+import { NoItemSecond } from "./Vacancies";
 export interface TeacherInfo {
   id: string;
   name: string;
@@ -419,8 +420,6 @@ const Courses = () => {
       fetchNextPage();
     }
   }, [inView, fetchNextPage]);
-
-  console.log(data);
   // checking if it is loading
   if (status === "pending") {
     return (
@@ -435,16 +434,19 @@ const Courses = () => {
   }
   // flaten the data gotten here
   const queryData = data?.pages.flat();
-  console.log(queryData);
   return (
     <Container>
       <div className="w-full  mx-auto px-4 pt-16 pb-6">
-        <div className="grid  grid-cols-1 sm:grid-cols-2 md:grid-cols-3 items-center xl:grid-cols-3 gap-6  lgl:px-10">
-          {Array.isArray(queryData) &&
-            queryData.map((item: ICourses, index) => (
-              <CourseCard key={index} item={item} />
-            ))}
-        </div>
+        {queryData.length < 1 ? (
+          <NoItemSecond desc="Please wait as we upload courses" />
+        ) : (
+          <div className="grid  grid-cols-1 sm:grid-cols-2 md:grid-cols-3 items-center xl:grid-cols-3 gap-6  lgl:px-10">
+            {Array.isArray(queryData) &&
+              queryData.map((item: ICourses, index) => (
+                <CourseCard key={index} item={item} />
+              ))}
+          </div>
+        )}
       </div>
       <div className=" w-full flex items-center justify-center">
         {hasNextPage && (
