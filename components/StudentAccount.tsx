@@ -54,7 +54,7 @@ const StudentAccount = () => {
       }),
     });
     if (response.ok) {
-      update({ CompletedProfile: true });
+      update({ CompletedProfile: true, name: data.name });
       router.push("/student-dashboard");
       router.refresh();
     } else {

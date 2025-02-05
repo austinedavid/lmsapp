@@ -11,13 +11,33 @@ import TransactionTable from "@/components/TransactionTable";
 import { MdOutlineContactSupport } from "react-icons/md";
 import KycCard from "./KycCard";
 
-const Card = () => {
-  const { verified, setVerified } = useContext(CommonDashboardContext);
-
+export const HandleContactSupport = () => {
   const handleSendMail = () => {
     return (window.location.href =
       "mailto:info@schooledafrika.com?subject=I need a support&body=hello and good day...");
   };
+  return (
+    <div className="space-y-2 font-header">
+      <h3 className="font-bold">Need Help ?</h3>
+      <p className="text-[13px]">Send us a message, we are one click away!</p>
+      <Button
+        asChild
+        variant="outline"
+        className="border cursor-pointer font-bold border-lightGreen text-lightGreen hover:text-lightGreen"
+        onClick={handleSendMail}
+      >
+        <div>
+          {" "}
+          <MdOutlineContactSupport className="mr-2 text-[18px]" /> Contact
+          Support
+        </div>
+      </Button>
+    </div>
+  );
+};
+
+const Card = () => {
+  const { verified, setVerified } = useContext(CommonDashboardContext);
 
   return (
     <div className="w-full bg-stone-100">
@@ -49,24 +69,7 @@ const Card = () => {
         </div>
 
         {/* Transaction */}
-        <div className="space-y-2 font-header">
-          <h3 className="font-bold">Need Help ?</h3>
-          <p className="text-[13px]">
-            Send us a message, we are one click away!
-          </p>
-          <Button
-            asChild
-            variant="outline"
-            className="border cursor-pointer font-bold border-lightGreen text-lightGreen hover:text-lightGreen"
-            onClick={handleSendMail}
-          >
-            <div>
-              {" "}
-              <MdOutlineContactSupport className="mr-2 text-[18px]" /> Contact
-              Support
-            </div>
-          </Button>
-        </div>
+        <HandleContactSupport />
       </div>
     </div>
   );
