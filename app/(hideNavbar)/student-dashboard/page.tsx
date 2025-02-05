@@ -4,11 +4,13 @@ import UnderCard from "@/components/ui/student-dashboard/under-card/under-card";
 import React from "react";
 
 const page = () => {
-  return <div className="mt-[80px]  md:mt-6">
-        <Card/>
-        <UnderCard/>
-        <Recents/>
-    </div>;
+  return (
+    <div className="mt-[80px] flex flex-col gap-2  md:mt-6">
+      <Card />
+      <UnderCard />
+      <Recents />
+    </div>
+  );
 };
 
 export default page;

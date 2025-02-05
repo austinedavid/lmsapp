@@ -41,3 +41,44 @@ endpoint for student to get all the answered one-on-one exams
 route ==> /api/get-all-exams/one-on-one?studentId=string
 method ==> GET
 commen ==> pass the studenId in the query
+
+
+New endpoint
+05/02/25
+================================================================================================================
+endpoint for student to answer exams in one on one session
+================================================================================================================
+route ==> /api/session-exam
+method ==>PUT
+payload==>{
+    studentExamId:string,
+    answeredTest: [
+        {
+            question:String,
+            answer:String,
+            studentAnswer:String,
+            option:string[]
+        }
+    ]
+}
+comment ==> studentExamId is the id of the exam he is writing, the answeredTest
+array containing the answered object. make reference with what your did before in class test.
+
+================================================================================================================
+endpoint for student to answer exams in special Request
+================================================================================================================
+route ==> /api/student-special-request/exams
+method ==>PUT
+payload==>{
+    studentExamId:string,
+    answeredTest: [
+        {
+            question:String,
+            answer:String,
+            studentAnswer:String,
+            option:string[]
+        }
+    ]
+}
+comment ==> studentExamId is the id of the exam he is writing, the answeredTest
+array containing the answered object.

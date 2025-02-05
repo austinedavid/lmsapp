@@ -11,6 +11,7 @@ import {
 } from "@/components/ui/table";
 import { TableSkeleton } from "@/components/TableSkeleton";
 import ParentOptions from "./ParentOptions";
+import { Noitem } from "@/components/ApplicantsTable";
 
 const Parents = () => {
   const { isLoading, isError, error, data } = useQuery({
@@ -21,7 +22,6 @@ const Parents = () => {
       return result;
     },
   });
-  
 
   // If loading
   if (isLoading) {
@@ -40,49 +40,55 @@ const Parents = () => {
 
   return (
     <div className="w-full font-header">
-      <Table className="bg-white overflow-x-auto rounded-md mt-2">
-        <TableHeader>
-          <TableRow>
-            <TableHead className="text-[12px] w-[100px] text-left p-2">
-              Name
-            </TableHead>
-            <TableHead className="text-[12px] text-left p-2">Email</TableHead>
-            <TableHead className="text-[12px] text-left p-2">Status</TableHead>
-            <TableHead className="text-[12px] text-left p-2">Wards</TableHead>
-            <TableHead className="text-[12px] text-left p-2">Plan</TableHead>
-            <TableHead className="text-[12px] text-right p-2">
-              Options
-            </TableHead>
-          </TableRow>
-        </TableHeader>
-        <TableBody>
-          {Array.isArray(data) &&
-            data.map((item: any) => (
-              <TableRow key={item.id}>
-                <TableCell className="text-[13px] md:w-[250px]  w-[150px] font-bold  flex items-center gap-2">
-                  {item.name}
-                </TableCell>
+      {Array.isArray(data) && data.length < 1 ? (
+        <Noitem desc="No registered parents yet" />
+      ) : (
+        <Table className="bg-white overflow-x-auto rounded-md mt-2">
+          <TableHeader>
+            <TableRow>
+              <TableHead className="text-[12px] w-[100px] text-left p-2">
+                Name
+              </TableHead>
+              <TableHead className="text-[12px] text-left p-2">Email</TableHead>
+              <TableHead className="text-[12px] text-left p-2">
+                Status
+              </TableHead>
+              <TableHead className="text-[12px] text-left p-2">Wards</TableHead>
+              <TableHead className="text-[12px] text-left p-2">Plan</TableHead>
+              <TableHead className="text-[12px] text-right p-2">
+                Options
+              </TableHead>
+            </TableRow>
+          </TableHeader>
+          <TableBody>
+            {Array.isArray(data) &&
+              data.map((item: any) => (
+                <TableRow key={item.id}>
+                  <TableCell className="text-[13px] md:w-[250px]  w-[150px] font-bold  flex items-center gap-2">
+                    {item.name}
+                  </TableCell>
 
-                <TableCell className="text-[12px] font-semibold p-2">
-                  {item.email}
-                </TableCell>
-                <TableCell className="text-[12px] font-semibold p-2">
-                  {item.status}
-                </TableCell>
-                <TableCell className="text-[12px] font-semibold p-2">
-                  {item.wards.length}
-                </TableCell>
+                  <TableCell className="text-[12px] font-semibold p-2">
+                    {item.email}
+                  </TableCell>
+                  <TableCell className="text-[12px] font-semibold p-2">
+                    {item.status}
+                  </TableCell>
+                  <TableCell className="text-[12px] font-semibold p-2">
+                    {item.wards.length}
+                  </TableCell>
 
-                <TableCell className="text-[13px]  font-semibold p-2">
-                  {item.PaymentPlans ? item.PaymentPlans : "Basic"}
-                </TableCell>
-                <TableCell className="text-right text-[16px] text-lightGreen cursor-pointer p-2">
-                  <ParentOptions email={item.email} dataId={item.id} />
-                </TableCell>
-              </TableRow>
-            ))}
-        </TableBody>
-      </Table>
+                  <TableCell className="text-[13px]  font-semibold p-2">
+                    {item.PaymentPlans ? item.PaymentPlans : "Basic"}
+                  </TableCell>
+                  <TableCell className="text-right text-[16px] text-lightGreen cursor-pointer p-2">
+                    <ParentOptions email={item.email} dataId={item.id} />
+                  </TableCell>
+                </TableRow>
+              ))}
+          </TableBody>
+        </Table>
+      )}
     </div>
   );
 };
