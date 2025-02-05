@@ -1,6 +1,7 @@
 "use client";
 import React, { useState } from "react";
-import { useParams } from "next/navigation";
+import { useParams, useRouter } from "next/navigation";
+import { useSession } from "next-auth/react";
 import Image from "next/image";
 import { FaPhoneAlt } from "react-icons/fa";
 import {
@@ -330,6 +331,7 @@ const RenderedExam: React.FC<{
   setDialogOpen: React.Dispatch<React.SetStateAction<boolean>>;
   dialogOpen: boolean;
 }> = ({ exam, setDialogOpen, dialogOpen }) => {
+  
   return (
     <div className=" w-full flex items-center text-[14px] font-semibold text-slate-500">
       <div className=" flex-1 flex items-center text-black text-[14px] gap-1 ">
@@ -349,6 +351,8 @@ const RenderedExam: React.FC<{
         <div className=" flex-1 flex text-[11px] items-center justify-center">
           <p>{exam.grade}</p>
         </div>
+
+        
         <div className=" flex-1 flex text-[11px] items-center justify-center">
           <p>
             <RemoveExam sessionId={exam.id} setDialogOpen={setDialogOpen} />
@@ -480,6 +484,7 @@ const SingleSpecialSessionShow: React.FC<{ isTeacher: boolean }> = ({
       return result;
     },
   });
+  //console.log(data)
 
   // return loading while component is still loading
   if (isLoading) {

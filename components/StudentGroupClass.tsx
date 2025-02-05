@@ -271,7 +271,7 @@ const StudentGroupClass = () => {
       return result;
     },
   });
-  //console.log(data)
+  console.log(data)
 
   // State to manage expanded state of announcements
   const [isExpanded, setIsExpanded] = useState(false);
