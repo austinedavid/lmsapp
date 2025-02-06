@@ -1,5 +1,6 @@
 "use client";
 import React, { useState, useEffect, useRef } from "react";
+import { useSession } from "next-auth/react";
 import { useRouter } from "next/navigation";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { useForm } from "react-hook-form";
@@ -22,6 +23,7 @@ const StudentExam = () => {
   const searchParams = useSearchParams();
 
   const id = searchParams.get("examId");
+  const examType = searchParams.get("examType");
   const examStartedParam = searchParams.get("examStarted");
   const [examStarted, setExamStarted] = useState(examStartedParam === "true");
   const [remainingTime, setRemainingTime] = useState<number | null>(null);
@@ -33,6 +35,10 @@ const StudentExam = () => {
   const [isExamSubmitted, setIsExamSubmitted] = useState(false);
 
   const timerIdRef = useRef<NodeJS.Timeout | null>(null);
+
+  const { data: session } = useSession();
+  const studentId = session?.user?.id; 
+  console.log(studentId);
 
   const {
     register,
@@ -92,6 +98,19 @@ const StudentExam = () => {
     }
   }, [examStarted, remainingTime, isExamSubmitted]);
 
+
+  const getExamEndpoint = (type: string | null) => {
+    switch (type) {
+      case "one-on-one-sesssion":
+        return `/api/get-all-exams/one-on-one?studentId=${studentId}`;
+      case "special-request-session":
+        return `/api/get-all-exams/special-request?studentId=${studentId}`;
+      default:
+        return `/api/class-exam?examId=${id}`; // Default to group class exams
+    }
+  };
+  
+
   const {
     data,
     isLoading: queryLoading,
@@ -99,12 +118,15 @@ const StudentExam = () => {
   } = useQuery({
     queryKey: ["getStudentExams", id],
     queryFn: async () => {
-      const response = await fetch(`/api/class-exam?examId=${id}`);
+      const endpoint = getExamEndpoint(examType);
+      const response = await fetch(endpoint);
       if (!response.ok) throw new Error("Error fetching exam data");
       return response.json();
     },
     enabled: !!id,
   });
+
+  console.log(data)
 
   // When loading a new exam, reset the timer based on new data
   useEffect(() => {

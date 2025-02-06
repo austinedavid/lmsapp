@@ -388,11 +388,12 @@ const RemoveExam: React.FC<RemoveExamProps> = ({
 
 const RenderedExam: React.FC<{
   exam: any;
+  examType: string;
   isTeacher: boolean;
   setDialogOpen: React.Dispatch<React.SetStateAction<boolean>>;
   dialogOpen: boolean;
   specialRequest: boolean;
-}> = ({ exam, isTeacher, setDialogOpen, dialogOpen, specialRequest }) => {
+}> = ({ exam, examType, isTeacher, setDialogOpen, dialogOpen, specialRequest }) => {
   const { data } = useSession();
     const router = useRouter();
     
@@ -404,7 +405,7 @@ const RenderedExam: React.FC<{
       console.log(id);
       setExamStarted(true); // Set exam started to true
       router.push(
-        `/student-dashboard/sessions/start-exam/?examId=${id}&examStarted=true`
+        `/student-dashboard/sessions/start-exam/?examId=${id}&examType=${examType}&examStarted=true`
       );
       
     };
@@ -462,6 +463,7 @@ const RenderedExam: React.FC<{
 };
 const Exams: React.FC<{
   exams: any[];
+  
   isTeacher: boolean;
   sessionId: string;
   specialRequest: boolean;
@@ -519,6 +521,7 @@ const Exams: React.FC<{
             <RenderedExam
               key={index}
               exam={exam}
+              examType="one-on-one-session"
               isTeacher={isTeacher}
               setDialogOpen={setRemoveExamDialogOpen}
               dialogOpen={removeExamDialogOpen}
