@@ -82,3 +82,21 @@ payload==>{
 }
 comment ==> studentExamId is the id of the exam he is writing, the answeredTest
 array containing the answered object.
+
+NEW ENDPOINT
+06/02/25
+================================================================================================================
+endpoint for student to get a single one-on-one session exam and start answering.
+================================================================================================================
+route ==> /api/session-exam?examId=string
+method: GET,
+comment: This returns the single exam, the examId query id the id of the exam that belongs to student one on one session
+that we actually want to get.
+
+================================================================================================================
+endpoint for student to get a single special request exam and start answering.
+================================================================================================================
+route ==> /api/student-special-request/exams?examId=string
+method: GET,
+comment: This returns the single exam, the examId query id the id of the exam that belongs to student special request
+that we actually want to get.

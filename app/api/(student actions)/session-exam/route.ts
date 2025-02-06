@@ -6,7 +6,7 @@ import {
   onlyStudent,
   serverError,
 } from "@/prisma/utils/error";
-import { markExams } from "@/prisma/utils/utils";
+import { getQuery, markExams } from "@/prisma/utils/utils";
 import { serverSessionId, serverSessionRole } from "@/prisma/utils/utils";
 
 // make an update request here
@@ -49,6 +49,29 @@ export async function PUT(req: Request) {
       }),
       { status: 200 }
     );
+  } catch (error) {
+    return serverError();
+  }
+}
+
+// here we make provision to get a single exam for one on one session.
+export async function GET(req: Request) {
+  const userId = await serverSessionId();
+  if (!userId) return notAuthenticated();
+  const examId = getQuery(req.url, "examId");
+  try {
+    const singleExam = await prisma.studentExam.findUnique({
+      where: {
+        id: examId,
+      },
+    });
+    if (!singleExam) {
+      return new Response(
+        JSON.stringify({ message: "this exam does not exist" }),
+        { status: 404 }
+      );
+    }
+    return new Response(JSON.stringify(singleExam), { status: 200 });
   } catch (error) {
     return serverError();
   }
