@@ -316,7 +316,7 @@ const AllTutors = () => {
     <Container>
       {queryData.length < 1 ? (
         <div>
-          <Noitem desc="Wait has we update tutors" />
+          <Noitem desc="Please wait while we update our tutor listings." />
         </div>
       ) : (
         <div className=" w-full flex flex-col gap-3 mt-5">

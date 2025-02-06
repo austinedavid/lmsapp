@@ -6,7 +6,8 @@ import QueryProvider from "@/providers/QueryProvider";
 
 export const metadata: Metadata = {
   title: "SchooledAfrika",
-  description: "",
+  description:
+    "welcome to schooledafrika, experience the strong connection between student and teachers",
 };
 
 export default function RootLayout({

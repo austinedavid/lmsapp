@@ -9,10 +9,9 @@ import { IoIosArrowUp } from "react-icons/io";
 
 export const metadata: Metadata = {
   title: "SchooledAfrika",
-  description: "",
+  description:
+    "welcome to schooledafrika, experience the strong connection between student and teachers",
 };
-
-
 
 export default function RootLayout({
   children,
@@ -24,14 +23,14 @@ export default function RootLayout({
       <body className="">
         <AuthProvider>
           <QueryProvider>
-          <main className="bg-stone-100">
-            <Header />
-            {children}
-            <Footer />
-            <Link href="#">
-            <IoIosArrowUp className="text-[40px] scroll-smooth text-gray-900 right-[5px] fixed bottom-[5px] border-2 shadow-xl border-lightGreen hover:border-green-500 cursor-pointer rounded-full p-1 " />
-          </Link>
-          </main>
+            <main className="bg-stone-100">
+              <Header />
+              {children}
+              <Footer />
+              <Link href="#">
+                <IoIosArrowUp className="text-[40px] scroll-smooth text-gray-900 right-[5px] fixed bottom-[5px] border-2 shadow-xl border-lightGreen hover:border-green-500 cursor-pointer rounded-full p-1 " />
+              </Link>
+            </main>
           </QueryProvider>
         </AuthProvider>
       </body>

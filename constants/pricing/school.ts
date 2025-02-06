@@ -143,9 +143,9 @@ export const paymentMethods: Ipay[] = [
     desc: "Effortlessly pay with paystack, simplify your online transaction",
     image: "/paystack.png",
   },
-  {
-    title: "Flutter Wave",
-    desc: "Effortlessly pay with flutterwave, simplify your online transaction",
-    image: "/flutterwave.png",
-  },
+  // {
+  //   title: "Flutter Wave",
+  //   desc: "Effortlessly pay with flutterwave, simplify your online transaction",
+  //   image: "/flutterwave.png",
+  // },
 ];
