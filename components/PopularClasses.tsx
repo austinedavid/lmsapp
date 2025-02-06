@@ -366,7 +366,7 @@ const PopularClasses = () => {
       <div className="w-full  mx-auto px-4 pt-16 pb-6">
         {queryData.length < 1 ? (
           <div>
-            <Noitem desc="wait has we upload classes" />
+            <Noitem desc="Please wait while we upload the classes" />
           </div>
         ) : (
           <div className="grid  grid-cols-1 sm:grid-cols-2 md:grid-cols-3 items-center xl:grid-cols-3 gap-6  lgl:px-10">
