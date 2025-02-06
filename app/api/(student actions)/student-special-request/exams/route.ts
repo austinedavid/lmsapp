@@ -8,6 +8,7 @@ import {
   serverError,
 } from "@/prisma/utils/error";
 import {
+  getQuery,
   markExams,
   serverSessionId,
   serverSessionRole,
@@ -53,6 +54,28 @@ export async function PUT(req: Request) {
       }),
       { status: 200 }
     );
+  } catch (error) {
+    return serverError();
+  }
+}
+
+export async function GET(req: Request) {
+  const userId = await serverSessionId();
+  if (!userId) return notAuthenticated();
+  const examId = getQuery(req.url, "examId");
+  try {
+    const singleExam = await prisma.specialStudentExam.findUnique({
+      where: {
+        id: examId,
+      },
+    });
+    if (!singleExam) {
+      return new Response(
+        JSON.stringify({ message: "this exam does not exist" }),
+        { status: 404 }
+      );
+    }
+    return new Response(JSON.stringify(singleExam), { status: 200 });
   } catch (error) {
     return serverError();
   }
