@@ -38,6 +38,7 @@ export async function POST(req: Request) {
         title: exam.title,
         grade: exam.grade,
         subject: exam.subject,
+        duration: exam.duration,
       },
     });
     return new Response(

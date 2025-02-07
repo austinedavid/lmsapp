@@ -604,6 +604,7 @@ model StudentExam {
   title            String
   grade            Grade
   subject          String
+  duration         String
   // for one to many relationship between this model and appliedSection
   section          AppliedSection  @relation(fields: [appliedSectionId], references: [id])
   appliedSectionId String          @db.ObjectId
@@ -624,6 +625,7 @@ model SpecialStudentExam {
   title                  String
   grade                  Grade
   subject                String
+  duration               String
   // for one to many relationship between this model and appliedSection
   specialRequest         SpecialTeacherMerged @relation(fields: [specialTeacherMergedId], references: [id])
   specialTeacherMergedId String               @db.ObjectId
@@ -679,20 +681,21 @@ model StudentClassExam {
 // model for when a parents request for special teacher
 // an unmerged special teacher
 model SpecialTeacherUnmerged {
-  id            String   @id @default(auto()) @map("_id") @db.ObjectId
-  parent        Parents  @relation(fields: [parentsId], references: [id])
-  parentsId     String   @db.ObjectId
-  student       Student  @relation(fields: [studentId], references: [id])
-  studentId     String   @db.ObjectId
-  amt           Float
-  language      String
-  subject       String
-  grade         String
-  time          String
-  kindOfTeacher String
-  merged        Boolean  @default(false)
-  createdAt     DateTime @default(now())
-  updatedAt     DateTime @default(now())
+  id                   String                @id @default(auto()) @map("_id") @db.ObjectId
+  parent               Parents               @relation(fields: [parentsId], references: [id])
+  parentsId            String                @db.ObjectId
+  student              Student               @relation(fields: [studentId], references: [id])
+  studentId            String                @db.ObjectId
+  amt                  Float
+  language             String
+  subject              String
+  grade                String
+  time                 String
+  kindOfTeacher        String
+  merged               Boolean               @default(false)
+  createdAt            DateTime              @default(now())
+  updatedAt            DateTime              @default(now())
+  SpecialTeacherMerged SpecialTeacherMerged?
 }
 
 // this is created once the admin merges the special request 
@@ -712,8 +715,10 @@ model SpecialTeacherMerged {
   SpecialRequestMeeting    SpecialRequestMeeting?
   SpecialStudentExam       SpecialStudentExam[]
   resources                String[]                   @db.ObjectId
+  unMergedInfo             SpecialTeacherUnmerged     @relation(fields: [specialTeacherUnmergedId], references: [id])
   createdAt                DateTime                   @default(now())
   updatedAt                DateTime                   @default(now())
+  specialTeacherUnmergedId String                     @unique @db.ObjectId
 }
 
 // here we will create attendance model
