@@ -93,6 +93,7 @@ export async function PUT(req: Request) {
         language: theSpecialRequest.language,
         grade: theSpecialRequest.grade,
         time: theSpecialRequest.time,
+        specialTeacherUnmergedId: adminSessionId,
       },
     });
     // now we can update the database of the special request model
