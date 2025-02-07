@@ -1,6 +1,5 @@
 "use client";
 import React, { useState, useEffect, useRef } from "react";
-import { useSession } from "next-auth/react";
 import { useRouter } from "next/navigation";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { useForm } from "react-hook-form";
@@ -36,9 +35,7 @@ const StudentExam = () => {
 
   const timerIdRef = useRef<NodeJS.Timeout | null>(null);
 
-  const { data: session } = useSession();
-  const studentId = session?.user?.id; 
-  console.log(studentId);
+  
 
   const {
     register,
@@ -99,16 +96,30 @@ const StudentExam = () => {
   }, [examStarted, remainingTime, isExamSubmitted]);
 
 
-  const getExamEndpoint = (type: string | null) => {
+  const getExamEndpoint = (type: string | null, id: string | null) => {
+    if (!id) return null;
     switch (type) {
-      case "one-on-one-sesssion":
-        return `/api/get-all-exams/one-on-one?studentId=${studentId}`;
+      case "one-on-one-session":
+        return `/api/session-exam?examId=${id}`;
       case "special-request-session":
-        return `/api/get-all-exams/special-request?studentId=${studentId}`;
+        return `/api/student-special-request/exams?examId=${id}`;
       default:
         return `/api/class-exam?examId=${id}`; // Default to group class exams
     }
   };
+
+  const postExamEndpoint = (type: string | null, id: string | null) => {
+    if (!id) return null;
+    switch (type) {
+      case "one-on-one-session":
+        return `/api/session-exam`;
+      case "special-request-session":
+        return `/api/student-special-request/exams`;
+      default:
+        return `/api/class-examId`; // Default to group class exams
+    }
+  };
+  
   
 
   const {
@@ -118,7 +129,8 @@ const StudentExam = () => {
   } = useQuery({
     queryKey: ["getStudentExams", id],
     queryFn: async () => {
-      const endpoint = getExamEndpoint(examType);
+      const endpoint = getExamEndpoint(examType, id);
+      if (!endpoint) throw new Error("Invalid Exam ID");
       const response = await fetch(endpoint);
       if (!response.ok) throw new Error("Error fetching exam data");
       return response.json();
@@ -129,6 +141,19 @@ const StudentExam = () => {
   console.log(data)
 
   // When loading a new exam, reset the timer based on new data
+
+  // useEffect(() => {
+  //   if (data && data.duration && remainingTime === null) {
+  //     const durationInSeconds = parseInt(data.duration) * 60;
+  //     setRemainingTime(durationInSeconds);
+  //     saveRemainingTime(durationInSeconds);
+  //   } else {
+  //     // Set a fallback value or handle cases when the duration is missing
+  //     const defaultDuration = 60 * 60;  // For example, set to 1 hour
+  //     setRemainingTime(defaultDuration);
+  //     saveRemainingTime(defaultDuration);
+  //   }
+  // }, [data, remainingTime]);
   useEffect(() => {
     if (data && data.duration && remainingTime === null) {
       const durationInSeconds = parseInt(data.duration) * 60;
@@ -216,18 +241,35 @@ const StudentExam = () => {
 
   // Update the questions state with the fetched data. This logic is to handle possible errors that may arise from name convention. The getter query object "data.test" has an entry of "options" while the poster object "data.answeredExam" has an entry of "option", this is to transform the options to option so that it doesn't cause conflict in the backend.
 
-  useEffect(() => {
-    if (data && Array.isArray(data.test)) {
-      const transformedQuestions = data.test.map((question: any) => ({
-        question: question.question,
-        answer: question.answer || "",
-        studentAnswer: question.studentAnswer || "",
-        option: question.options,
-      }));
-      setQuestions(transformedQuestions);
-      setValue("answeredExam", transformedQuestions);
-    }
-  }, [data, setValue]);
+
+// For Session Exams (One-on-One or Special Request)
+useEffect(() => {
+  if (data && examType === "one-on-one-session" && Array.isArray(data.questions)) {
+    const transformedQuestions = data.questions.map((question: any) => ({
+      question: question.question,
+      answer: question.answer || "",
+      studentAnswer: question.studentAnswer || "",
+      option: question.options,
+    }));
+    setQuestions(transformedQuestions);
+    setValue("answeredExam", transformedQuestions);
+  }
+}, [data, examType, setValue]);
+
+// For Group Exams
+useEffect(() => {
+  if (data && examType === "group-class" && Array.isArray(data.test)) {
+    const transformedQuestions = data.test.map((question: any) => ({
+      question: question.question,
+      answer: question.answer || "",
+      studentAnswer: question.studentAnswer || "",
+      option: question.options,
+    }));
+    setQuestions(transformedQuestions);
+    setValue("answeredExam", transformedQuestions);
+  }
+}, [data, examType, setValue]);
+
 
   const handleCheckboxChange = (qIndex: number, oIndex: number) => {
     const updatedQuestions = [...questions];
