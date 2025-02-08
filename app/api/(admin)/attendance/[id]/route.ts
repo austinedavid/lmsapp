@@ -11,6 +11,7 @@ export async function GET(
   const year = getQuery(req.url, "year");
   const month = getQuery(req.url, "month");
   try {
+    // here, we find all the attendance of student under one on one session
     const sessionAttendance = await prisma.sessionAttendance.findMany({
       where: {
         teacherId: params.id,
@@ -63,6 +64,59 @@ export async function GET(
     const results =
       sessionAttendance && groupedArray.length > 0 ? groupedArray : [];
 
+    // handle the function that fetch attendance of all student in special requests
+    const specialAttendance = await prisma.specialRequestAttendance.findMany({
+      where: { teacherId: params.id },
+      include: {
+        session: {
+          select: {
+            student: {
+              select: {
+                name: true,
+                id: true,
+              },
+            },
+          },
+        },
+      },
+    });
+    const filteredSpecialAttendance = specialAttendance.filter((item) => {
+      const date = new Date(item.createdAt);
+      const Fmonth = date.getMonth();
+      const Fyear = date.getFullYear().toString();
+
+      return Fyear === year && Fmonth === Number(month);
+    });
+    const specialAttendanceMapped = filteredAttendance.map((item) => {
+      return {
+        name: item.session.student.name,
+        id: item.session.student.id,
+        duration: item.duration,
+        held: item.held,
+        classday: item.classday,
+      };
+    });
+    const specialGroupedByName = specialAttendanceMapped.reduce((acc, item) => {
+      const name = item.name || "unknown";
+      if (!acc[name]) {
+        acc[name] = [];
+      }
+      acc[name].push(item);
+      return acc;
+    }, {} as Record<string, typeof attendanceMapped>);
+    // Convert the object back to an array if necessary
+    const specialGroupedArray = Object.entries(specialGroupedByName).map(
+      ([name, items]) => ({
+        name,
+        items,
+      })
+    );
+    const specialresults =
+      specialAttendance && specialGroupedArray.length > 0
+        ? specialGroupedArray
+        : [];
+    const joinedAttendance = [...results, ...specialresults];
+    console.log(joinedAttendance);
     return new Response(JSON.stringify(results), { status: 200 });
   } catch (error) {
     return serverError();

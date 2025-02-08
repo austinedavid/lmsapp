@@ -29,12 +29,14 @@ import {
   PopoverTrigger,
 } from "@/components/ui/popover";
 import { toast } from "react-toastify";
+import { useConversion } from "@/data-access/conversion";
 
 interface AttendanceFormProps {
   showModel: boolean;
   setShowmodel: React.Dispatch<React.SetStateAction<boolean>>;
   sessionId: string;
   name: string;
+  url: string;
 }
 
 const AttendanceForm: React.FC<AttendanceFormProps> = ({
@@ -42,6 +44,7 @@ const AttendanceForm: React.FC<AttendanceFormProps> = ({
   setShowmodel,
   sessionId,
   name,
+  url,
 }) => {
   const [loading, setloading] = useState<boolean>(false);
   const [selectedDate, setSelectedDate] = useState<Date | undefined>(undefined);
@@ -50,6 +53,7 @@ const AttendanceForm: React.FC<AttendanceFormProps> = ({
   const [classHeld, setClassHeld] = useState<boolean>(false);
   const [classError, setClassError] = useState<boolean>(false);
   const [heldType, setHeldType] = useState<string>("");
+  const { makeSubstring } = useConversion();
   // useEffect to watch for field changes
   useEffect(() => {
     if (selectedDate) {
@@ -67,7 +71,7 @@ const AttendanceForm: React.FC<AttendanceFormProps> = ({
     mutationKey: ["post"],
     mutationFn: async () => {
       // console.log(data);
-      const result = await fetch("/api/sessions-attendance", {
+      const result = await fetch(url, {
         method: "POST",
         body: JSON.stringify({
           classday: selectedDate,
@@ -123,8 +127,10 @@ const AttendanceForm: React.FC<AttendanceFormProps> = ({
       <DialogContent className="sm:w-[500px]  w-[380px] font-subtext">
         <ScrollArea className=" w-full ">
           <DialogHeader>
-            <DialogTitle className="text-2xl font-bold">
-              Mark Attendance for {name}
+            <DialogTitle>
+              <div className=" font-bold flex items-center justify-center">
+                <p>Mark Attendance for {makeSubstring(name, 15)}</p>
+              </div>
             </DialogTitle>
           </DialogHeader>
 

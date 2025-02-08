@@ -153,7 +153,11 @@ const EachSession: React.FC<{ item: ISpecialRequest; isTeacher: boolean }> = ({
           sessionId={item.id}
         />
 
-        <HandleAttendance sessionId={item.id} name={item.student?.name} />
+        <HandleAttendance
+          url="/api/special-request-attendance"
+          sessionId={item.id}
+          name={item.student?.name}
+        />
       </div>
     </div>
   );

@@ -25,9 +25,20 @@ export async function GET(
             profilePhoto: true,
           },
         },
+        SpecialTeacherMerged: {
+          select: {
+            teacher: {
+              select: {
+                name: true,
+                email: true,
+                rating: true,
+                profilePhoto: true,
+              },
+            },
+          },
+        },
       },
     });
-    console.log(oneSpecialRequest);
     return new Response(JSON.stringify(oneSpecialRequest), { status: 200 });
   } catch (error) {
     return serverError();

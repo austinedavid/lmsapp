@@ -748,11 +748,12 @@ model SpecialRequestAttendance {
   id                     String               @id @default(auto()) @map("_id") @db.ObjectId
   classday               DateTime
   duration               Float
-  Held                   Boolean
+  held                   Boolean
   teacher                Teacher              @relation(fields: [teacherId], references: [id])
   session                SpecialTeacherMerged @relation(fields: [specialTeacherMergedId], references: [id])
   teacherId              String               @db.ObjectId
   specialTeacherMergedId String               @db.ObjectId
+  heldType               String
   createdAt              DateTime             @default(now())
   updatedAt              DateTime             @default(now())
 
