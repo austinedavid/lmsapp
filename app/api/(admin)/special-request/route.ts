@@ -34,7 +34,6 @@ export async function GET(req: Request) {
         },
       },
     });
-    console.log(allSession);
     return new Response(JSON.stringify(allSession), { status: 200 });
   } catch (error) {
     return serverError();
@@ -107,7 +106,49 @@ export async function PUT(req: Request) {
       { status: 200 }
     );
   } catch (error) {
-    console.log(error);
+    return serverError();
+  }
+}
+
+// here we will reassign a teacher to a particular student
+export async function POST(req: Request) {
+  // check for authentication
+  const userId = await serverSessionId();
+  const role = await serverSessionRole();
+  if (!userId) return notAuthenticated();
+  if (role !== "Admin") return onlyAdmin();
+  // get input from the client side;
+  const { adminSessionId, teacherSessionId } = await req.json();
+  try {
+    // get the created specialTeacher merged tha we want to update
+    const mergedRequest = await prisma.specialTeacherMerged.findFirst({
+      where: { specialTeacherUnmergedId: adminSessionId },
+      select: {
+        id: true,
+      },
+    });
+    //   now lets get the teacher id making use of their session Id provided
+    //   throw an error if this teacher does not exist
+    const teacherId = await prisma.oneOnOneSection.findFirst({
+      where: { sessionId: teacherSessionId },
+      select: { teacherId: true },
+    });
+    if (!teacherId)
+      return new Response(
+        JSON.stringify({ message: "Invalid teacher's session id provided" }),
+        { status: 404 }
+      );
+    // then change the teacher to the present teacher selected
+    await prisma.specialTeacherMerged.update({
+      where: { id: mergedRequest?.id },
+      data: {
+        teacherId: teacherId.teacherId,
+      },
+    });
+    return new Response(
+      JSON.stringify({ message: "session successfully updated" })
+    );
+  } catch (error) {
     return serverError();
   }
 }

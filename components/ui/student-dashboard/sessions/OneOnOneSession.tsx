@@ -368,7 +368,13 @@ const ViewDetails: React.FC<{
         />
       </div>
       <p>
-        {isTeacher && <HandleAttendance sessionId={sessionId} name={name} />}
+        {isTeacher && (
+          <HandleAttendance
+            url="/api/sessions-attendance"
+            sessionId={sessionId}
+            name={name}
+          />
+        )}
       </p>
     </div>
   );

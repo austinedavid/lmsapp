@@ -90,6 +90,30 @@ interface ISingleSession {
   StudentExam: [];
   SingleMeeting: IMeetingLink;
 }
+// component for updating the link for classes
+export const UpdateLink: React.FC<{
+  id: string;
+  uploadType: "class" | "specialReques" | "one-on-one";
+}> = ({ id, uploadType }) => {
+  const [showModel, setShowmodel] = useState<boolean>(false);
+  return (
+    <div>
+      <button
+        onClick={() => setShowmodel(true)}
+        className=" w-fit px-2 py-2 border border-green-900 text-[10px] rounded-md hover:bg-green-700 hover:text-white transition-all ease-in-out duration-700"
+      >
+        Edit class Link
+      </button>
+      <AddMettingModel
+        id={id as string}
+        showModel={showModel}
+        setShowmodel={setShowmodel}
+        uploadType="one-on-one"
+        isCreate={false}
+      />
+    </div>
+  );
+};
 
 // the top left session
 export const TopLeftSession: React.FC<{
@@ -101,7 +125,6 @@ export const TopLeftSession: React.FC<{
   teacherDesc: string;
   link: IMeetingLink;
 }> = ({ dp, name, grade, contact, isTeacher, teacherDesc, link }) => {
-  console.log(link);
   const { id } = useParams();
   const [showModel, setShowmodel] = useState<boolean>(false);
   return (
@@ -131,21 +154,7 @@ export const TopLeftSession: React.FC<{
         </div>
       )}
       {isTeacher && link && (
-        <div>
-          <button
-            onClick={() => setShowmodel(true)}
-            className=" w-fit px-2 py-2 border border-green-900 text-[10px] rounded-md hover:bg-green-700 hover:text-white transition-all ease-in-out duration-700"
-          >
-            Edit class Link
-          </button>
-          <AddMettingModel
-            id={id as string}
-            showModel={showModel}
-            setShowmodel={setShowmodel}
-            uploadType="one-on-one"
-            isCreate={false}
-          />
-        </div>
+        <UpdateLink id={id as string} uploadType="one-on-one" />
       )}
     </div>
   );

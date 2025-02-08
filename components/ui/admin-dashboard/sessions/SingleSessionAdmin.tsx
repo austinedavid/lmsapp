@@ -172,7 +172,7 @@ export const Approval: React.FC<{
 };
 
 // component to render teacher basic info
-const ShowTeacher: React.FC<{
+export const ShowTeacher: React.FC<{
   profilePhoto: string | null;
   email: string;
   name: string;

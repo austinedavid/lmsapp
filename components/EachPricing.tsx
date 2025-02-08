@@ -1,6 +1,5 @@
 import React, { useState } from "react";
 import { eachPrice } from "@/constants/pricing/school";
-import { pricingChange } from "./ui/Pricing-layout";
 import { CheckoutMain } from "./ui/PaymentShow";
 
 export interface IselectedDetails {

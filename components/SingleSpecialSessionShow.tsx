@@ -66,7 +66,7 @@ interface ISingleSession {
     disable: string;
   };
   StudentExam: any[];
-  SingleMeeting: IMeetingLink;
+  SpecialRequestMeeting: IMeetingLink;
 }
 
 // the top left session
@@ -210,7 +210,7 @@ export const TopSection: React.FC<{
         grade={infos.grade}
         contact={isTeacher ? infos.student.phoneNo! : infos.teacher.phoneNo!}
         isTeacher={isTeacher}
-        link={infos.SingleMeeting}
+        link={infos.SpecialRequestMeeting}
       />
       <TopMiddleSession
         grade={infos.grade}

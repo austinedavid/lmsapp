@@ -1,13 +1,24 @@
 "use client";
-import React from "react";
+import React, { useState } from "react";
 import { useQuery } from "@tanstack/react-query";
 import {
   LoadingSkeleton,
   ShowAllSessionProfile,
+  ShowTeacher,
   StudentInfos,
 } from "./SingleSessionAdmin";
 import { useParams, useSearchParams } from "next/navigation";
 import { ToastContainer } from "react-toastify";
+import TeacherInfo from "../../teacher-login/TeacherInfo";
+
+interface IspecialTeacher {
+  teacher: {
+    name: string;
+    email: string;
+    rating: null;
+    profilePhoto: string;
+  };
+}
 
 interface ISpecialRequest {
   id: string;
@@ -26,7 +37,74 @@ interface ISpecialRequest {
     email: string;
     profilePhoto: string;
   };
+  SpecialTeacherMerged: IspecialTeacher;
 }
+
+const ToggleSpecialBtn: React.FC<{
+  isMerged: boolean;
+  mergedTeacher: IspecialTeacher;
+}> = ({ isMerged, mergedTeacher }) => {
+  const [showTeacher, setShowTeacher] = useState<boolean>(true);
+  const searchParams = useSearchParams();
+  const switchBtn = (stype: "noreassign" | "reassign") => {
+    if (stype == "noreassign") {
+      return setShowTeacher(true);
+    } else {
+      return setShowTeacher(false);
+    }
+  };
+  return (
+    <div className=" flex flex-col gap-2">
+      {isMerged ? (
+        <div>
+          <div className=" flex items-center gap-2 w-full rounded-md border border-gray-500 p-1">
+            <button
+              onClick={() => switchBtn("noreassign")}
+              className={` font-bold flex-1 py-1 rounded-md text-[13px] ${
+                showTeacher
+                  ? "bg-green-700 text-white"
+                  : "bg-gray-200 text-black"
+              }`}
+            >
+              Merged tutor
+            </button>
+            <button
+              onClick={() => switchBtn("reassign")}
+              className={` font-bold flex-1 py-1 rounded-md text-[13px] ${
+                showTeacher
+                  ? "bg-gray-200 text-black"
+                  : "bg-green-700 text-white"
+              }`}
+            >
+              Reassign tutor
+            </button>
+          </div>
+          {showTeacher ? (
+            <ShowTeacher
+              email={mergedTeacher.teacher.email}
+              name={mergedTeacher.teacher.name}
+              profilePhoto={mergedTeacher.teacher.profilePhoto}
+              rating={mergedTeacher.teacher.rating!}
+              autoBtn={false}
+            />
+          ) : (
+            <ShowAllSessionProfile
+              isMerged={isMerged}
+              url="/api/special-request"
+            />
+          )}
+        </div>
+      ) : (
+        <div>
+          <ShowAllSessionProfile
+            isMerged={isMerged}
+            url="/api/special-request"
+          />
+        </div>
+      )}
+    </div>
+  );
+};
 
 const SingleSpecialRequest = () => {
   const { id } = useParams();
@@ -75,7 +153,10 @@ const SingleSpecialRequest = () => {
             kindofteacher={data?.kindOfTeacher!}
             specialRequest={true}
           />
-          <ShowAllSessionProfile isMerged={false} url="/api/special-request" />
+          <ToggleSpecialBtn
+            mergedTeacher={data?.SpecialTeacherMerged!}
+            isMerged={data?.merged!}
+          />
         </div>
       </div>
       <ToastContainer />

@@ -8,7 +8,8 @@ import { CiCalendarDate } from "react-icons/ci";
 export const HandleAttendance: React.FC<{
   sessionId: string;
   name: string;
-}> = ({ sessionId, name }) => {
+  url: string;
+}> = ({ sessionId, name, url }) => {
   const [showModel, setShowmodel] = useState<boolean>(false);
   return (
     <div>
@@ -24,6 +25,7 @@ export const HandleAttendance: React.FC<{
         name={name}
         showModel={showModel}
         setShowmodel={setShowmodel}
+        url={url}
       />
     </div>
   );

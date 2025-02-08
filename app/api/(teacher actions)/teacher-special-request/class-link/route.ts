@@ -1,5 +1,4 @@
 // here we will create a class link for the student to join for a class
-import SingleSpecialRequest from "@/components/ui/admin-dashboard/sessions/SingleSpecialRequest";
 import prisma from "@/prisma/prismaConnect";
 import {
   notAuthenticated,
@@ -10,7 +9,8 @@ import { serverSessionId, serverSessionRole } from "@/prisma/utils/utils";
 
 // lets create the class link
 export async function POST(req: Request) {
-  const { link, sessionId } = await req.json();
+  console.log("enteed");
+  const { link, id } = await req.json();
   // check for authentication of the teacher
   const teacherId = await serverSessionId();
   const role = await serverSessionRole();
@@ -20,7 +20,7 @@ export async function POST(req: Request) {
   // return error if it does not exist
   const checkSession = await prisma.specialTeacherMerged.findUnique({
     where: {
-      id: sessionId,
+      id,
     },
   });
   if (!checkSession) {
@@ -33,7 +33,7 @@ export async function POST(req: Request) {
     await prisma.specialRequestMeeting.create({
       data: {
         link,
-        specialTeacherMergedId: sessionId,
+        specialTeacherMergedId: id,
       },
     });
     return new Response(
@@ -41,6 +41,7 @@ export async function POST(req: Request) {
       { status: 200 }
     );
   } catch (error) {
+    console.log(error);
     return serverError();
   }
 }
@@ -49,13 +50,13 @@ export async function POST(req: Request) {
 export async function PUT(req: Request) {
   const user = await serverSessionId();
   const role = await serverSessionRole();
-  const { link, sessionId } = await req.json();
+  const { link, id } = await req.json();
 
   if (!user) return notAuthenticated();
   if (role !== "Teacher") return onlyTeacher();
 
   const checkClass = await prisma.specialRequestMeeting.findFirst({
-    where: { specialTeacherMergedId: sessionId },
+    where: { specialTeacherMergedId: id },
     select: { id: true },
   });
 
