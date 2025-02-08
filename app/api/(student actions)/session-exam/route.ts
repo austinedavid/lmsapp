@@ -45,7 +45,7 @@ export async function PUT(req: Request) {
     });
     return new Response(
       JSON.stringify({
-        message: `you have answered ${correctAnswer} correctly, check for corrections`,
+        message: ` ${correctAnswer}`,
       }),
       { status: 200 }
     );

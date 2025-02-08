@@ -334,7 +334,7 @@ const StudentGroupClass = () => {
         />
       </div>
       <div className=" w-full flex flex-col md:flex-row gap-3">
-        <Exams exams={classInfo.ClassExams} examType="group-class" />
+        <Exams exams={classInfo.ClassExams} examType="group-exam" />
         <Resources resourcesIds={classInfo.resourcesIds} />
       </div>
     </div>

@@ -14,7 +14,19 @@ import Container from "@/components/Container";
 import Backwards from "../../Backwards";
 import { GrFormNext, GrFormPrevious } from "react-icons/gr";
 
-export type IstudentExam = z.infer<typeof studentExamSchema>;
+//export type IstudentExam = z.infer<typeof studentExamSchema>;
+
+interface IQuestion {
+  question: string;
+  answer: string;
+  studentAnswer: string;
+  option: string[];
+}
+
+interface IstudentExam {
+  answeredExam?: IQuestion[];
+  answeredTest?: IQuestion[];
+}
 
 const StudentExam = () => {
   const router = useRouter();
@@ -35,8 +47,6 @@ const StudentExam = () => {
 
   const timerIdRef = useRef<NodeJS.Timeout | null>(null);
 
-  
-
   const {
     register,
     handleSubmit,
@@ -45,9 +55,13 @@ const StudentExam = () => {
     formState: { errors },
   } = useForm<IstudentExam>({
     resolver: zodResolver(studentExamSchema),
+    defaultValues:
+      examType === "group-exam"
+        ? { answeredExam: [] } // Correctly typed empty array
+        : { answeredTest: [] }, // Correctly typed empty array
   });
 
-  const [questions, setQuestions] = useState<IstudentExam["answeredExam"]>([]);
+  const [questions, setQuestions] = useState<IQuestion[]>([]);
 
   // Save and restore remaining time from localStorage
   useEffect(() => {
@@ -95,7 +109,6 @@ const StudentExam = () => {
     }
   }, [examStarted, remainingTime, isExamSubmitted]);
 
-
   const getExamEndpoint = (type: string | null, id: string | null) => {
     if (!id) return null;
     switch (type) {
@@ -107,20 +120,6 @@ const StudentExam = () => {
         return `/api/class-exam?examId=${id}`; // Default to group class exams
     }
   };
-
-  const postExamEndpoint = (type: string | null, id: string | null) => {
-    if (!id) return null;
-    switch (type) {
-      case "one-on-one-session":
-        return `/api/session-exam`;
-      case "special-request-session":
-        return `/api/student-special-request/exams`;
-      default:
-        return `/api/class-examId`; // Default to group class exams
-    }
-  };
-  
-  
 
   const {
     data,
@@ -138,22 +137,10 @@ const StudentExam = () => {
     enabled: !!id,
   });
 
-  console.log(data)
+  console.log(data);
 
   // When loading a new exam, reset the timer based on new data
 
-  // useEffect(() => {
-  //   if (data && data.duration && remainingTime === null) {
-  //     const durationInSeconds = parseInt(data.duration) * 60;
-  //     setRemainingTime(durationInSeconds);
-  //     saveRemainingTime(durationInSeconds);
-  //   } else {
-  //     // Set a fallback value or handle cases when the duration is missing
-  //     const defaultDuration = 60 * 60;  // For example, set to 1 hour
-  //     setRemainingTime(defaultDuration);
-  //     saveRemainingTime(defaultDuration);
-  //   }
-  // }, [data, remainingTime]);
   useEffect(() => {
     if (data && data.duration && remainingTime === null) {
       const durationInSeconds = parseInt(data.duration) * 60;
@@ -173,60 +160,87 @@ const StudentExam = () => {
   }, [isExamSubmitted, isTimeUp]);
 
   const mutation = useMutation({
-    mutationKey: ["postStudentExam"],
+    mutationKey: ["submitExam"],
     mutationFn: async (data: IstudentExam) => {
-      const response = await fetch("/api/class-exam", {
-        method: "POST",
-        body: JSON.stringify({
-          ...data,
-          examId: id,
-          answeredExam: data.answeredExam.map((exam) => ({
-            question: exam.question,
-            answer: exam.answer,
-            studentAnswer: exam.studentAnswer,
-            options: exam.option,
-          })),
-        }),
+      let method = examType === "group-exam" ? "POST" : "PUT";
+      let endpoint =
+        examType === "group-exam"
+          ? "/api/class-exam"
+          : examType === "one-on-one-session"
+          ? "/api/session-exam"
+          : "/api/student-special-request/exams";
+
+      // Correctly structure the exam data
+      const examData =
+        examType === "group-exam"
+          ? {
+              ...data,
+              examId: id,
+              answeredExam:
+                data.answeredExam?.map((exam) => ({
+                  question: exam.question,
+                  answer: exam.answer,
+                  studentAnswer: exam.studentAnswer ?? "", // Ensure string, not null
+                  options: exam.option,
+                })) ?? [],
+            }
+          : {
+              studentExamId: id,
+              answeredTest:
+                data.answeredTest?.map((exam) => ({
+                  question: exam.question,
+                  answer: exam.answer,
+                  studentAnswer: exam.studentAnswer ?? "", // Ensure string, not null
+                  options: exam.option,
+                })) ?? [],
+            };
+
+      const response = await fetch(endpoint, {
+        method,
+        body: JSON.stringify(examData),
+        headers: { "Content-Type": "application/json" },
       });
+
       if (!response.ok) throw new Error("Error submitting exam");
       return response.json();
     },
     onSuccess: (data) => {
       queryClient.invalidateQueries({ queryKey: ["getStudentExams"] });
-      const calculatedScore = data.message;
-      setScore(calculatedScore);
-      // Save the score to localStorage
-      localStorage.setItem("score", calculatedScore);
-      setIsExamSubmitted(true); // Set this after successful submission
+      setScore(data.message);
+      localStorage.setItem("score", data.message);
+      setIsExamSubmitted(true);
       reset();
-      saveRemainingTime(null); // Clear localStorage on successful submission
+      saveRemainingTime(null);
       toast.success("You have successfully submitted the exam!");
-      setLoading(false); // Reset loading state
+      setLoading(false);
     },
     onError: (error) => {
       console.error("Submission error:", error);
       toast.error("Error submitting exam.");
-      setLoading(false); // Reset loading state
+      setLoading(false);
     },
   });
 
-  // Handle exam submission
   const handleSubmitExam = () => {
     if (isExamSubmitted || loading) return; // Prevent multiple submissions
     clearInterval(timerIdRef.current!); // Clear the timer
     setRemainingTime(0);
 
-    const answeredQuestions = questions.filter((q) => q.studentAnswer);
+    const answeredQuestions = questions?.filter((q) => q.studentAnswer) ?? [];
 
-    const examData = {
-      answeredExam: answeredQuestions,
-      examId: id,
-    };
+    if (answeredQuestions.length === 0) {
+      toast.error("Please answer at least one question before submitting.");
+      return;
+    }
+
+    // Construct exam data based on type
+    const examData =
+      examType === "group-exam"
+        ? { examId: id ?? "", answeredExam: answeredQuestions }
+        : { studentExamId: id ?? "", answeredTest: answeredQuestions };
 
     saveRemainingTime(null); // Clear timer from localStorage
-
-    // Indicate that submission is in progress
-    setLoading(true);
+    setLoading(true); // Indicate that submission is in progress
 
     // Submit exam data
     mutation.mutate(examData);
@@ -241,49 +255,59 @@ const StudentExam = () => {
 
   // Update the questions state with the fetched data. This logic is to handle possible errors that may arise from name convention. The getter query object "data.test" has an entry of "options" while the poster object "data.answeredExam" has an entry of "option", this is to transform the options to option so that it doesn't cause conflict in the backend.
 
+  useEffect(() => {
+    if (
+      data &&
+      (examType === "one-on-one-session" ||
+        examType === "special-request-session") &&
+      Array.isArray(data.questions)
+    ) {
+      const transformedQuestions = (data?.questions ?? []).map(
+        (question: any) => ({
+          question: question.question || "",
+          answer: question.answer || "",
+          studentAnswer: question.studentAnswer || "",
+          option: question.options || ["", "", "", ""], // Ensure a default structure
+        })
+      );
+      setQuestions(transformedQuestions);
+      setValue("answeredTest", transformedQuestions);
+    }
+  }, [data, examType, setValue]);
 
-// For Session Exams (One-on-One or Special Request)
-useEffect(() => {
-  if (data && examType === "one-on-one-session" && Array.isArray(data.questions)) {
-    const transformedQuestions = data.questions.map((question: any) => ({
-      question: question.question,
-      answer: question.answer || "",
-      studentAnswer: question.studentAnswer || "",
-      option: question.options,
-    }));
-    setQuestions(transformedQuestions);
-    setValue("answeredExam", transformedQuestions);
-  }
-}, [data, examType, setValue]);
-
-// For Group Exams
-useEffect(() => {
-  if (data && examType === "group-class" && Array.isArray(data.test)) {
-    const transformedQuestions = data.test.map((question: any) => ({
-      question: question.question,
-      answer: question.answer || "",
-      studentAnswer: question.studentAnswer || "",
-      option: question.options,
-    }));
-    setQuestions(transformedQuestions);
-    setValue("answeredExam", transformedQuestions);
-  }
-}, [data, examType, setValue]);
-
+  useEffect(() => {
+    if (data && examType === "group-exam" && Array.isArray(data.test)) {
+      const transformedQuestions = (data?.test ?? []).map((question: any) => ({
+        question: question.question || "",
+        answer: question.answer || "",
+        studentAnswer: question.studentAnswer || "",
+        option: question.options || ["", "", "", ""], // Ensure a default structure
+      }));
+      setQuestions(transformedQuestions);
+      setValue("answeredExam", transformedQuestions);
+    }
+  }, [data, examType, setValue]);
 
   const handleCheckboxChange = (qIndex: number, oIndex: number) => {
-    const updatedQuestions = [...questions];
-    updatedQuestions[qIndex].studentAnswer =
-      updatedQuestions[qIndex].option[oIndex];
+    if (!questions || questions.length === 0) return; // Prevents undefined errors
 
-    // Update the answered questions count immediately
+    // Use map to create a new array instead of modifying the existing state
+    const updatedQuestions = questions.map((q, index) =>
+      index === qIndex ? { ...q, studentAnswer: q.option[oIndex] } : q
+    );
+
     const answeredCount = updatedQuestions.filter(
       (q) => q.studentAnswer
     ).length;
     setQuestionsAnswered(answeredCount);
+    setQuestions(updatedQuestions); // Ensures state updates correctly
 
-    setQuestions(updatedQuestions);
-    setValue("answeredExam", updatedQuestions);
+    // Ensure correct exam type is updated
+    if (examType === "group-exam") {
+      setValue("answeredExam", updatedQuestions, { shouldValidate: true });
+    } else {
+      setValue("answeredTest", updatedQuestions, { shouldValidate: true });
+    }
   };
 
   const handlePrev = (e: React.MouseEvent) => {
@@ -433,11 +457,11 @@ useEffect(() => {
                   </div>
                 )
               )}
-              {errors.answeredExam && (
-                <small className="text-red-600">
-                  Please complete all fields
-                </small>
-              )}
+              {/* {(errors.answeredExam || errors.answeredTest) && (
+  <small className="text-red-600">
+    Please complete all fields
+  </small>
+)} */}
             </div>
           </form>
         </div>

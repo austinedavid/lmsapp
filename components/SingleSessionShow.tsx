@@ -401,14 +401,17 @@ const RenderedExam: React.FC<{
       const [examStarted, setExamStarted] = useState(false);
   
     // lets push to the exam page for student to start exam
+
     const handleMoveToExam = (id: string) => {
       console.log(id);
       setExamStarted(true); // Set exam started to true
-      router.push(
-        `/student-dashboard/sessions/start-exam/?examId=${id}&examType=${examType}&examStarted=true`
-      );
-      
+      const basePath = specialRequest
+        ? "/student-dashboard/sessions/special-request/start-exam"
+        : "/student-dashboard/sessions/one-on-one-section/start-exam";
+    
+      router.push(`${basePath}/?examId=${id}&examType=${examType}&examStarted=true`);
     };
+    
     
   return (
     <div className=" w-full flex items-center text-[14px] font-semibold text-slate-500">
@@ -431,7 +434,7 @@ const RenderedExam: React.FC<{
         </div>
 
         <div className=" flex-1 flex text-[11px] items-center justify-center">
-          {!isTeacher && exam.completed || exam.score !== null ? (
+        {!isTeacher && (exam.completed || exam.score !== null) ? (
             <div className="max-ss:text-[12px] bg-slate-500 text-slate-300 rounded-md px-2 md:px-4 py-2 cursor-not-allowed">
               <p>Answered</p>
             </div>
@@ -468,6 +471,10 @@ const Exams: React.FC<{
   sessionId: string;
   specialRequest: boolean;
 }> = ({ exams, isTeacher, sessionId, specialRequest }) => {
+
+   // Determine the exam type dynamically
+   const examType = specialRequest ? "special-request-session" : "one-on-one-session";
+
   // state to toggle exam submission for this particular session
   const [dialogueOpen, setDialogOpen] = useState<boolean>(false);
   const [removeExamDialogOpen, setRemoveExamDialogOpen] =
@@ -521,7 +528,7 @@ const Exams: React.FC<{
             <RenderedExam
               key={index}
               exam={exam}
-              examType="one-on-one-session"
+              examType={examType}
               isTeacher={isTeacher}
               setDialogOpen={setRemoveExamDialogOpen}
               dialogOpen={removeExamDialogOpen}
