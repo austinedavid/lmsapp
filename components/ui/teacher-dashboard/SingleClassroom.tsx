@@ -1,6 +1,6 @@
 "use client";
 import React, { useState, useEffect } from "react";
-
+import { FaEye } from "react-icons/fa";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import Image from "next/image";
 import { FiEdit } from "react-icons/fi";
@@ -55,6 +55,7 @@ interface IndividualAnnouncementProps {
   dataId: string;
   title: string;
   content: string;
+  isTeacher: boolean;
 }
 
 interface EditAnnouncementProps {
@@ -139,13 +140,12 @@ export const AnnouncementsList: React.FC<AnnouncementsListProps> = ({
                   {makeSubstring(announcement.title, 10)}
                 </p>
                 {/* Show edit and delete options only if the user is a teacher */}
-                {isTeacher && (
-                  <IndividualAnnouncement
-                    dataId={announcement.id}
-                    title={announcement.title}
-                    content={announcement.desc}
-                  />
-                )}
+                <IndividualAnnouncement
+                  dataId={announcement.id}
+                  title={announcement.title}
+                  content={announcement.desc}
+                  isTeacher={isTeacher}
+                />
               </div>
               <p className="text-[12px]">
                 {makeSubstring(announcement.desc, 100)}
@@ -424,15 +424,66 @@ const RemoveAnnouncement: React.FC<RemoveAnnouncementProps> = ({
     </Dialog>
   );
 };
+// dialog to display a single announcement made
+const ShowAnnouncementDetails: React.FC<{
+  id: string;
+  setShowDetails: React.Dispatch<React.SetStateAction<boolean>>;
+  showDetails: boolean;
+}> = ({ id, setShowDetails, showDetails }) => {
+  const { data, isLoading, isError } = useQuery({
+    queryKey: ["get-one-announcement", id],
+    queryFn: async () => {
+      const response = await fetch(`/api/announcement/one?id=${id}`);
+      const result = await response.json();
+      return result;
+    },
+  });
+  if (isLoading) return <div>loading...</div>;
+  if (isError) return <div>something went wrong...</div>;
+  return (
+    <Dialog open={showDetails} onOpenChange={() => setShowDetails(false)}>
+      <DialogContent className="sm:w-[500px] w-[380px] font-subtext">
+        <DialogHeader>
+          <DialogTitle className="text-3xl font-bold">
+            Delete Announcement
+          </DialogTitle>
+        </DialogHeader>
+        <div className="grid gap-4 font-header py-4">
+          <div className="flex flex-1 items-center justify-center mx-auto gap-2">
+            <Image
+              src="/warn.png"
+              alt="warning"
+              width={200}
+              height={100}
+              className="w-[50px]"
+            />
+          </div>
+          <div className="grid  items-center font-header gap-4">
+            <p className="font-bold text-[18px]  ">
+              Are you sure you want to delete announcement?
+            </p>
+            <p className="text-sm">
+              This action can not be reversed, be sure you want to remove before
+              you confirm
+            </p>
+          </div>
+        </div>
+        <DialogFooter className=""></DialogFooter>
+      </DialogContent>
+    </Dialog>
+  );
+};
 
 // The Update and Delete Announcement options popover
 const IndividualAnnouncement = ({
   dataId,
   title,
   content,
+  isTeacher,
 }: IndividualAnnouncementProps) => {
   const [editDialogOpen, setEditDialogOpen] = useState<boolean>(false);
   const [deleteDialogOpen, setDeleteDialogOpen] = useState<boolean>(false);
+  const [showDetails, setShowDetails] = useState<boolean>(false);
 
   return (
     <Popover>
@@ -444,31 +495,50 @@ const IndividualAnnouncement = ({
       <PopoverContent className="w-40">
         <div className="grid gap-4 font-header">
           <div className="grid gap-2">
-            <div
-              onClick={() => setEditDialogOpen(true)}
-              className="flex cursor-pointer justify-start"
-            >
-              <EditAnnouncement
-                setDialogOpen={setEditDialogOpen}
-                dialogueOpen={editDialogOpen}
-                dataId={dataId}
-                title={title}
-                content={content}
+            {isTeacher && (
+              <div
+                onClick={() => setEditDialogOpen(true)}
+                className="flex cursor-pointer justify-start"
+              >
+                <EditAnnouncement
+                  setDialogOpen={setEditDialogOpen}
+                  dialogueOpen={editDialogOpen}
+                  dataId={dataId}
+                  title={title}
+                  content={content}
+                />
+              </div>
+            )}
+            {isTeacher && (
+              <div>
+                <hr className="bg-black" />
+                <div
+                  onClick={() => setDeleteDialogOpen(true)}
+                  className="flex justify-start"
+                >
+                  <RemoveAnnouncement
+                    setDialogOpen={setDeleteDialogOpen}
+                    dialogueOpen={deleteDialogOpen}
+                    dataId={dataId}
+                  />
+                </div>
+              </div>
+            )}
+            <hr className="bg-black" />
+            <div>
+              <div
+                onClick={() => setShowDetails(true)}
+                className=" flex items-center gap-2 text-[13px] "
+              >
+                <FaEye className="inline w-4 h-4 mr-2 ml-0 text-lightGreen " />
+                <p>View</p>
+              </div>
+              <ShowAnnouncementDetails
+                showDetails={showDetails}
+                setShowDetails={setShowDetails}
+                id={dataId}
               />
             </div>
-            <hr className="bg-black" />
-            <div
-              onClick={() => setDeleteDialogOpen(true)}
-              className="flex justify-start"
-            >
-              <RemoveAnnouncement
-                setDialogOpen={setDeleteDialogOpen}
-                dialogueOpen={deleteDialogOpen}
-                dataId={dataId}
-              />
-            </div>
-
-            <hr className="bg-black" />
           </div>
         </div>
       </PopoverContent>
