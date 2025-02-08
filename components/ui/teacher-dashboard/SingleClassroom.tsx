@@ -119,6 +119,7 @@ export const AnnouncementsList: React.FC<AnnouncementsListProps> = ({
   visibleItems,
   handleDate,
 }) => {
+  const { makeSubstring } = useConversion();
   return (
     <div
       className={`announcement-container bg-white px-4 py-2 rounded-md ${
@@ -134,7 +135,9 @@ export const AnnouncementsList: React.FC<AnnouncementsListProps> = ({
           {announcements.slice(0, visibleItems).map((announcement) => (
             <div key={announcement.id} className="mt-3">
               <div className="flex justify-between">
-                <p className="text-[13px] font-bold">{announcement.title}</p>
+                <p className="text-[13px] font-bold">
+                  {makeSubstring(announcement.title, 10)}
+                </p>
                 {/* Show edit and delete options only if the user is a teacher */}
                 {isTeacher && (
                   <IndividualAnnouncement
@@ -144,7 +147,9 @@ export const AnnouncementsList: React.FC<AnnouncementsListProps> = ({
                   />
                 )}
               </div>
-              <p className="text-[12px]">{announcement.desc}</p>
+              <p className="text-[12px]">
+                {makeSubstring(announcement.desc, 100)}
+              </p>
               <p className="text-[10px] text-slate-500">
                 Posted on: {handleDate(announcement.createdAt)}
               </p>

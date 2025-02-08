@@ -35,6 +35,7 @@ export async function GET(
           },
         },
         SpecialStudentExam: true,
+        SpecialRequestMeeting: true,
       },
     });
     if (!singleRequest) return;

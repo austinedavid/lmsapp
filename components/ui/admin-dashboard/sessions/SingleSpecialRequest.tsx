@@ -45,6 +45,7 @@ const ToggleSpecialBtn: React.FC<{
   mergedTeacher: IspecialTeacher;
 }> = ({ isMerged, mergedTeacher }) => {
   const [showTeacher, setShowTeacher] = useState<boolean>(true);
+  const searchParams = useSearchParams();
   const switchBtn = (stype: "noreassign" | "reassign") => {
     if (stype == "noreassign") {
       return setShowTeacher(true);
@@ -54,34 +55,52 @@ const ToggleSpecialBtn: React.FC<{
   };
   return (
     <div className=" flex flex-col gap-2">
-      <div className=" flex items-center gap-2 w-full rounded-md border border-gray-500 p-1">
-        <button
-          onClick={() => switchBtn("noreassign")}
-          className={` font-bold flex-1 py-1 rounded-md text-[13px] ${
-            showTeacher ? "bg-green-700 text-white" : "bg-gray-200 text-black"
-          }`}
-        >
-          Merged tutor
-        </button>
-        <button
-          onClick={() => switchBtn("reassign")}
-          className={` font-bold flex-1 py-1 rounded-md text-[13px] ${
-            showTeacher ? "bg-gray-200 text-black" : "bg-green-700 text-white"
-          }`}
-        >
-          Reassign tutor
-        </button>
-      </div>
-      {showTeacher ? (
-        <ShowTeacher
-          email={mergedTeacher.teacher.email}
-          name={mergedTeacher.teacher.name}
-          profilePhoto={mergedTeacher.teacher.profilePhoto}
-          rating={mergedTeacher.teacher.rating!}
-          autoBtn={false}
-        />
+      {isMerged ? (
+        <div>
+          <div className=" flex items-center gap-2 w-full rounded-md border border-gray-500 p-1">
+            <button
+              onClick={() => switchBtn("noreassign")}
+              className={` font-bold flex-1 py-1 rounded-md text-[13px] ${
+                showTeacher
+                  ? "bg-green-700 text-white"
+                  : "bg-gray-200 text-black"
+              }`}
+            >
+              Merged tutor
+            </button>
+            <button
+              onClick={() => switchBtn("reassign")}
+              className={` font-bold flex-1 py-1 rounded-md text-[13px] ${
+                showTeacher
+                  ? "bg-gray-200 text-black"
+                  : "bg-green-700 text-white"
+              }`}
+            >
+              Reassign tutor
+            </button>
+          </div>
+          {showTeacher ? (
+            <ShowTeacher
+              email={mergedTeacher.teacher.email}
+              name={mergedTeacher.teacher.name}
+              profilePhoto={mergedTeacher.teacher.profilePhoto}
+              rating={mergedTeacher.teacher.rating!}
+              autoBtn={false}
+            />
+          ) : (
+            <ShowAllSessionProfile
+              isMerged={isMerged}
+              url="/api/special-request"
+            />
+          )}
+        </div>
       ) : (
-        <ShowAllSessionProfile isMerged={isMerged} url="/api/special-request" />
+        <div>
+          <ShowAllSessionProfile
+            isMerged={isMerged}
+            url="/api/special-request"
+          />
+        </div>
       )}
     </div>
   );
