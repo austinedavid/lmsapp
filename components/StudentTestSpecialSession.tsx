@@ -18,7 +18,7 @@ interface Iexams {
 }
 
 
-const StudentTestSubject: React.FC<Iexams> = ({ id }) => {
+const StudentTestSpecialSession: React.FC<Iexams> = ({ id }) => {
   const { data, isFetching, isError, error } = useQuery({
     queryKey: ["singleExam", id],
     queryFn: async () => {
@@ -133,4 +133,4 @@ const StudentTestSubject: React.FC<Iexams> = ({ id }) => {
   );
 };
 
-export default StudentTestSubject;
+export default StudentTestSpecialSession;

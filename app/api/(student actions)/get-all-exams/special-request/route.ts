@@ -5,6 +5,7 @@ import { getQuery, serverSessionId } from "@/prisma/utils/utils";
 
 export async function GET(req: Request) {
   const studentId = getQuery(req.url, "studentId");
+  console.log("Student ID:", studentId); 
   const userId = await serverSessionId();
   if (!userId) return notAuthenticated();
   try {

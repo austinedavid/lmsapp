@@ -1,6 +1,7 @@
 "use client";
 import React, { useState } from "react";
-import { useParams } from "next/navigation";
+import { useParams, useRouter } from "next/navigation";
+import { useSession } from "next-auth/react";
 import Image from "next/image";
 import { FaPhoneAlt } from "react-icons/fa";
 import {
@@ -327,9 +328,27 @@ const RemoveExam: React.FC<RemoveExamProps> = ({
 
 const RenderedExam: React.FC<{
   exam: any;
+  examType: string;
+  isTeacher: boolean;
   setDialogOpen: React.Dispatch<React.SetStateAction<boolean>>;
   dialogOpen: boolean;
-}> = ({ exam, setDialogOpen, dialogOpen }) => {
+}> = ({ exam, examType, isTeacher, setDialogOpen, dialogOpen }) => {
+  // const { data } = useSession();
+  //     const router = useRouter();
+      
+  //     // New state to track if the exam should start
+  //       const [examStarted, setExamStarted] = useState(false);
+    
+  //     // lets push to the exam page for student to start exam
+  //     const handleMoveToExam = (id: string) => {
+  //       console.log(id);
+  //       setExamStarted(true); // Set exam started to true
+  //       router.push(
+  //         `/student-dashboard/sessions/start-exam/?examId=${id}&examType=${examType}&examStarted=true`
+  //       );
+        
+  //     };
+  
   return (
     <div className=" w-full flex items-center text-[14px] font-semibold text-slate-500">
       <div className=" flex-1 flex items-center text-black text-[14px] gap-1 ">
@@ -349,6 +368,23 @@ const RenderedExam: React.FC<{
         <div className=" flex-1 flex text-[11px] items-center justify-center">
           <p>{exam.grade}</p>
         </div>
+
+        {/* <div className=" flex-1 flex text-[11px] items-center justify-center">
+          {!isTeacher && exam.completed || exam.score !== null ? (
+            <div className="max-ss:text-[12px] bg-slate-500 text-slate-300 rounded-md px-2 md:px-4 py-2 cursor-not-allowed">
+              <p>Answered</p>
+            </div>
+          ) : (
+            <div
+              onClick={() => handleMoveToExam(exam.id)}
+              className="max-ss:text-[12px] bg-green-700 text-white px-2 md:px-4 py-2 rounded-md cursor-pointer"
+            >
+              <p>Start now</p>
+            </div>
+          )}
+        </div> */}
+
+        
         <div className=" flex-1 flex text-[11px] items-center justify-center">
           <p>
             <RemoveExam sessionId={exam.id} setDialogOpen={setDialogOpen} />
@@ -407,6 +443,8 @@ const Exams: React.FC<{
             <RenderedExam
               key={index}
               exam={exam}
+               examType="special-request-session"
+               isTeacher={isTeacher}
               setDialogOpen={setRemoveExamDialogOpen}
               dialogOpen={removeExamDialogOpen}
             />
@@ -480,6 +518,7 @@ const SingleSpecialSessionShow: React.FC<{ isTeacher: boolean }> = ({
       return result;
     },
   });
+  //console.log(data)
 
   // return loading while component is still loading
   if (isLoading) {

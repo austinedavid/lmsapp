@@ -67,7 +67,10 @@ interface IGroupClass {
 }
 
 // this component below shows the exam in the class
-export const Exams: React.FC<{ exams: IExam[] }> = ({ exams }) => {
+export const Exams: React.FC<{ exams: IExam[]; examType: string }> = ({
+  exams,
+  examType,
+}) => {
   const { getTimeAgo } = useConversion();
   const { data } = useSession();
   const router = useRouter();
@@ -78,7 +81,7 @@ export const Exams: React.FC<{ exams: IExam[] }> = ({ exams }) => {
   const handleMoveToExam = (id: string) => {
     setExamStarted(true); // Set exam started to true
     router.push(
-      `/student-dashboard/classroom/start-exam/?examId=${id}&examStarted=true`
+      `/student-dashboard/classroom/start-exam/?examId=${id}&examType=${examType}&examStarted=true`
     );
   };
   return (
@@ -265,7 +268,7 @@ const StudentGroupClass = () => {
       return result;
     },
   });
-  //console.log(data)
+  console.log(data);
 
   // State to manage expanded state of announcements
   const [isExpanded, setIsExpanded] = useState(false);
@@ -328,7 +331,7 @@ const StudentGroupClass = () => {
         />
       </div>
       <div className=" w-full flex flex-col md:flex-row gap-3">
-        <Exams exams={classInfo.ClassExams} />
+        <Exams exams={classInfo.ClassExams} examType="group-exam" />
         <div className=" flex-1">
           <Resources resourcesIds={classInfo.resourcesIds} />
         </div>
