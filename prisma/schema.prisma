@@ -568,6 +568,7 @@ model AnnouncementByTeacherClass {
   id        String   @id @default(auto()) @map("_id") @db.ObjectId
   title     String
   desc      String
+  viewedBy  String[] @db.ObjectId
   class     Classes  @relation(fields: [classesId], references: [id])
   classesId String   @db.ObjectId
   createdAt DateTime @default(now())

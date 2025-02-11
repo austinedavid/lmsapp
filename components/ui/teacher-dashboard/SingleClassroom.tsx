@@ -1,16 +1,13 @@
 "use client";
 import React, { useState, useEffect } from "react";
-
+import { FaEye } from "react-icons/fa";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import Image from "next/image";
-import { FiEdit } from "react-icons/fi";
 import { SiGoogleclassroom } from "react-icons/si";
 import Link from "next/link";
-import { BsBroadcast } from "react-icons/bs";
 import SingleClassTable from "./SingleClassTable";
 import { useParams } from "next/navigation";
 import { useConversion } from "@/data-access/conversion";
-import { TableSkeleton } from "@/components/TableSkeleton";
 import { useToast } from "@/components/ui/use-toast";
 import { SingleClassSkeleton } from "@/components/SingleClassroom";
 import {
@@ -26,11 +23,11 @@ import {
   DialogTitle,
   DialogTrigger,
 } from "@/components/ui/dialog";
+import { useSession } from "next-auth/react";
 
 import { toast, ToastContainer } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 import { FaEllipsisH, FaRegEdit } from "react-icons/fa";
-import { Iadd } from "./AddTest";
 import { Input } from "../input";
 import { Trash2 } from "lucide-react";
 import { Button } from "../button";
@@ -39,6 +36,7 @@ import {
   AddMettingModel,
   JoinClassLink,
 } from "../student-dashboard/sessions/OneOnOneSession";
+import { CircularProgress } from "@mui/material";
 
 interface studentProps {
   studentIds: string[];
@@ -49,12 +47,15 @@ interface Announcement {
   desc: string;
   classesId: string;
   createdAt: string;
+  viewedBy: string[];
 }
 
 interface IndividualAnnouncementProps {
   dataId: string;
   title: string;
   content: string;
+  isTeacher: boolean;
+  viewedBy: string[];
 }
 
 interface EditAnnouncementProps {
@@ -120,6 +121,7 @@ export const AnnouncementsList: React.FC<AnnouncementsListProps> = ({
   handleDate,
 }) => {
   const { makeSubstring } = useConversion();
+  const { data } = useSession();
   return (
     <div
       className={`announcement-container bg-white px-4 py-2 rounded-md ${
@@ -133,19 +135,19 @@ export const AnnouncementsList: React.FC<AnnouncementsListProps> = ({
       {announcements?.length > 0 ? (
         <>
           {announcements.slice(0, visibleItems).map((announcement) => (
-            <div key={announcement.id} className="mt-3">
+            <div key={announcement.id} className="mt-3 relative">
               <div className="flex justify-between">
                 <p className="text-[13px] font-bold">
                   {makeSubstring(announcement.title, 10)}
                 </p>
                 {/* Show edit and delete options only if the user is a teacher */}
-                {isTeacher && (
-                  <IndividualAnnouncement
-                    dataId={announcement.id}
-                    title={announcement.title}
-                    content={announcement.desc}
-                  />
-                )}
+                <IndividualAnnouncement
+                  dataId={announcement.id}
+                  title={announcement.title}
+                  content={announcement.desc}
+                  isTeacher={isTeacher}
+                  viewedBy={announcement.viewedBy}
+                />
               </div>
               <p className="text-[12px]">
                 {makeSubstring(announcement.desc, 100)}
@@ -153,7 +155,10 @@ export const AnnouncementsList: React.FC<AnnouncementsListProps> = ({
               <p className="text-[10px] text-slate-500">
                 Posted on: {handleDate(announcement.createdAt)}
               </p>
-
+              {!isTeacher &&
+                !announcement.viewedBy.includes(data?.user.id!) && (
+                  <div className=" w-3 aspect-square rounded-full bg-green-800 absolute right-2 bottom-2"></div>
+                )}
               <hr className="w-full my-3 font-semibold text-black" />
             </div>
           ))}
@@ -424,15 +429,88 @@ const RemoveAnnouncement: React.FC<RemoveAnnouncementProps> = ({
     </Dialog>
   );
 };
+// dialog to display a single announcement made
+interface ISingleAnnouncement {
+  title: string;
+  desc: string;
+  viewedBy: string[];
+  createdAt: string;
+}
+const ShowAnnouncementDetails: React.FC<{
+  id: string;
+  setShowDetails: React.Dispatch<React.SetStateAction<boolean>>;
+  showDetails: boolean;
+  viewedBy: string[];
+}> = ({ id, setShowDetails, showDetails, viewedBy }) => {
+  const { data: user } = useSession();
+  // get a single post
+  const queryClient = useQueryClient();
+  queryClient.invalidateQueries({ queryKey: ["StudentGroupClass"] });
+  const { data, isLoading, isError } = useQuery<ISingleAnnouncement>({
+    queryKey: ["get-one-announcement", id],
+    queryFn: async () => {
+      viewedBy.push(user?.user.id!);
+      const response = await fetch(`/api/get-single-anouncement?id=${id}`);
+      if (!response.ok) {
+        throw new Error("Network response was not ok");
+      }
+      const result = await response.json();
+      return result;
+    },
+  });
+  // mutation to
+  if (isLoading)
+    return (
+      <Dialog open={showDetails} onOpenChange={() => setShowDetails(false)}>
+        <DialogContent className="sm:w-[500px] w-[380px] flex flex-col gap-3 font-subtext">
+          <DialogHeader>
+            <DialogTitle className="text-3xl font-bold">
+              Announcement details
+            </DialogTitle>
+          </DialogHeader>
+          <div className=" w-full h-[300px] flex items-center justify-center">
+            <CircularProgress size={60} color="success" />
+          </div>
+          <DialogFooter className=""></DialogFooter>
+        </DialogContent>
+      </Dialog>
+    );
+  if (isError) return <div>something went wrong...</div>;
+  return (
+    <Dialog open={showDetails} onOpenChange={() => setShowDetails(false)}>
+      <DialogContent className="sm:w-[500px] w-[380px] font-subtext">
+        <DialogHeader>
+          <DialogTitle className="text-3xl font-bold">
+            <div className=" flex items-center justify-center">
+              <p>Announcement details</p>
+            </div>
+          </DialogTitle>
+        </DialogHeader>
+        <div className=" flex w-full flex-col gap-2">
+          <div className=" flex w-full  font-bold text-[16px]">
+            <p>{data?.title!}</p>
+          </div>
+          <div className=" text-[14px]">
+            <p>{data?.desc}</p>
+          </div>
+        </div>
+        <DialogFooter className=""></DialogFooter>
+      </DialogContent>
+    </Dialog>
+  );
+};
 
 // The Update and Delete Announcement options popover
 const IndividualAnnouncement = ({
   dataId,
   title,
   content,
+  isTeacher,
+  viewedBy,
 }: IndividualAnnouncementProps) => {
   const [editDialogOpen, setEditDialogOpen] = useState<boolean>(false);
   const [deleteDialogOpen, setDeleteDialogOpen] = useState<boolean>(false);
+  const [showDetails, setShowDetails] = useState<boolean>(false);
 
   return (
     <Popover>
@@ -444,31 +522,51 @@ const IndividualAnnouncement = ({
       <PopoverContent className="w-40">
         <div className="grid gap-4 font-header">
           <div className="grid gap-2">
-            <div
-              onClick={() => setEditDialogOpen(true)}
-              className="flex cursor-pointer justify-start"
-            >
-              <EditAnnouncement
-                setDialogOpen={setEditDialogOpen}
-                dialogueOpen={editDialogOpen}
-                dataId={dataId}
-                title={title}
-                content={content}
+            {isTeacher && (
+              <div
+                onClick={() => setEditDialogOpen(true)}
+                className="flex cursor-pointer justify-start"
+              >
+                <EditAnnouncement
+                  setDialogOpen={setEditDialogOpen}
+                  dialogueOpen={editDialogOpen}
+                  dataId={dataId}
+                  title={title}
+                  content={content}
+                />
+              </div>
+            )}
+            {isTeacher && (
+              <div>
+                <hr className="bg-black" />
+                <div
+                  onClick={() => setDeleteDialogOpen(true)}
+                  className="flex justify-start"
+                >
+                  <RemoveAnnouncement
+                    setDialogOpen={setDeleteDialogOpen}
+                    dialogueOpen={deleteDialogOpen}
+                    dataId={dataId}
+                  />
+                </div>
+              </div>
+            )}
+            <hr className="bg-black" />
+            <div>
+              <div
+                onClick={() => setShowDetails(true)}
+                className=" flex font-semibold items-center gap-2 text-[13px] cursor-pointer "
+              >
+                <FaEye className="inline w-4 h-4  ml-0 text-lightGreen " />
+                <p>View</p>
+              </div>
+              <ShowAnnouncementDetails
+                showDetails={showDetails}
+                setShowDetails={setShowDetails}
+                id={dataId}
+                viewedBy={viewedBy}
               />
             </div>
-            <hr className="bg-black" />
-            <div
-              onClick={() => setDeleteDialogOpen(true)}
-              className="flex justify-start"
-            >
-              <RemoveAnnouncement
-                setDialogOpen={setDeleteDialogOpen}
-                dialogueOpen={deleteDialogOpen}
-                dataId={dataId}
-              />
-            </div>
-
-            <hr className="bg-black" />
           </div>
         </div>
       </PopoverContent>
@@ -608,7 +706,7 @@ const SingleClassroom: React.FC<{ isTeacher: boolean }> = ({ isTeacher }) => {
           </div>
 
           <div className="grid font-subtext md:grid-cols-3 h-fit sm:grid-cols-2 grid-cols-1 gap-3 mt-6 mb-2">
-            <div className="bg-white py-6 rounded-md">
+            <div className="bg-white h-fit py-6 rounded-md">
               <div className="flex justify-between px-6 py-2  pb-1">
                 <p className="text-slate-500 text-[14px] mb-3 font-semibold">
                   Overview

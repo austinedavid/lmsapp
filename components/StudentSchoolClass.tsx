@@ -111,8 +111,10 @@ export const Exams: React.FC<{ exams: any[] }> = ({ exams }) => {
     </div>
   );
 };
-export const Resources: React.FC<{ resourcesIds: any[] }> = ({ resourcesIds }) => {
-   const { getTimeAgo} = useConversion();
+export const Resources: React.FC<{ resourcesIds: any[] }> = ({
+  resourcesIds,
+}) => {
+  const { getTimeAgo } = useConversion();
   const validResourcesIds = Array.isArray(resourcesIds) ? resourcesIds : [];
   const handleViewLink = (link: string) => {
     return (window.location.href = link);
@@ -131,8 +133,6 @@ export const Resources: React.FC<{ resourcesIds: any[] }> = ({ resourcesIds }) =
     })),
   });
 
-  
-
   // check if there is still any student we are fetching
   const checkFetching = queries.some((item) => item.isLoading);
   if (checkFetching) {
@@ -140,8 +140,9 @@ export const Resources: React.FC<{ resourcesIds: any[] }> = ({ resourcesIds }) =
   }
 
   const arrayOfResource = queries.map((item) => item.data);
-
-  
+  const AvaliableResources = arrayOfResource.filter(
+    (resource) => resource !== null
+  );
 
   return (
     <div className="flex-1 flex flex-col gap-2 bg-white rounded-md p-5">
@@ -159,26 +160,34 @@ export const Resources: React.FC<{ resourcesIds: any[] }> = ({ resourcesIds }) =
         </div>
       ) : (
         <div className="w-full flex flex-col gap-2">
-          {arrayOfResource.map((resource: any, index) => (
-            <div key={index} className="border flex justify-between  rounded-md p-3">
+          {AvaliableResources?.map((resource: any, index) => (
+            <div
+              key={index}
+              className="border flex justify-between  rounded-md p-3"
+            >
               <div className=" flex  flex-col">
-              <p className=" text-black font-bold text-[13px] md:text-[16px]">
-                  {resource.subject}
+                <p className=" text-black font-bold text-[13px] md:text-[16px]">
+                  {resource?.subject}
                 </p>
                 <p className=" text-black font-bold text-[12px] md:text-[14px]">
-                  {resource.title}
+                  {resource?.title}
                 </p>
-                <div className="text-black font-bold text-[12px] md:text-[13px]">{resource.grade}</div>
-               
-              
-              <p className=" text-slate-600  text-[12px]">
-                  {getTimeAgo(resource.createdAt)}
+                <div className="text-black font-bold text-[12px] md:text-[13px]">
+                  {resource?.grade}
+                </div>
+
+                <p className=" text-slate-600  text-[12px]">
+                  {getTimeAgo(resource?.createdAt)}
                 </p>
-                
               </div>
-             
-             <div  onClick={() => handleViewLink(resource?.sourceLink as string)} className="max-ss:text-[12px] my-auto bg-green-700 text-white  px-2 md:px-4 py-2 rounded-md cursor-pointer "> View Resource</div>
-             
+
+              <div
+                onClick={() => handleViewLink(resource?.sourceLink as string)}
+                className="max-ss:text-[12px] my-auto bg-green-700 text-white  px-2 md:px-4 py-2 rounded-md cursor-pointer "
+              >
+                {" "}
+                View Resource
+              </div>
             </div>
           ))}
         </div>
@@ -206,9 +215,8 @@ const StudentSchoolClass = () => {
       const result = await response.json();
       return result;
     },
-    
   });
-  
+
   //   checking if loading is true
   if (isFetching) {
     return (
@@ -220,7 +228,7 @@ const StudentSchoolClass = () => {
   if (isError) {
     return <div>{error.message}</div>;
   }
- 
+
   const items: IsingleClass = data;
   return (
     <div className=" mt-6 flex flex-col gap-3">
