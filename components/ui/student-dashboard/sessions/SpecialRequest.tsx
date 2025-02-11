@@ -207,7 +207,7 @@ const SessionHeading = () => {
 const SpecialRequest: React.FC<{ isTeacher: boolean }> = ({ isTeacher }) => {
     const { data: session } = useSession();
     const studentId = session?.user?.id; 
-    console.log(studentId);
+    //console.log(studentId);
   // here we can now fetch our session
   const { data, isLoading, isError, error } = useQuery({
     queryKey: ["getSpecialRequest"],
