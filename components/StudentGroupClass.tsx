@@ -33,8 +33,6 @@ export interface IExam {
   test: ITest[];
 }
 
-
-
 interface IclassLink {
   joinUrl: string;
   stillValid: boolean;
@@ -68,11 +66,9 @@ interface IGroupClass {
   ClassLink: IclassLink;
 }
 
-
-
 // this component below shows the exam in the class
 export const Exams: React.FC<{ exams: IExam[] }> = ({ exams }) => {
-  const { getTimeAgo} = useConversion();
+  const { getTimeAgo } = useConversion();
   const { data } = useSession();
   const router = useRouter();
 
@@ -135,8 +131,6 @@ export const Exams: React.FC<{ exams: IExam[] }> = ({ exams }) => {
     </div>
   );
 };
-
-
 
 // information about the class
 export const ClassInfo: React.FC<{
@@ -286,7 +280,7 @@ const StudentGroupClass = () => {
     setVisibleItems(2); // Show only the initial 3 items
     setIsExpanded(false); // Toggle expanded state to false
   };
-  
+
   //   check for loading
   if (isLoading) {
     return (
@@ -319,12 +313,12 @@ const StudentGroupClass = () => {
         {/* Announcements List */}
         <AnnouncementsList
           announcements={classInfo.AnnouncementByTeacherClass || []}
-          isTeacher={false}  // No editing options for students
+          isTeacher={false} // No editing options for students
           handleShowMore={handleShowMore}
           handleShowLess={handleShowLess}
           isExpanded={isExpanded}
           visibleItems={visibleItems}
-          handleDate={handleDate} 
+          handleDate={handleDate}
         />
         <ClassDetails
           subject={classInfo.subject}
@@ -335,7 +329,9 @@ const StudentGroupClass = () => {
       </div>
       <div className=" w-full flex flex-col md:flex-row gap-3">
         <Exams exams={classInfo.ClassExams} />
-        <Resources resourcesIds={classInfo.resourcesIds} />
+        <div className=" flex-1">
+          <Resources resourcesIds={classInfo.resourcesIds} />
+        </div>
       </div>
     </div>
   );
