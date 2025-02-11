@@ -140,6 +140,9 @@ export const Resources: React.FC<{ resourcesIds: any[] }> = ({
   }
 
   const arrayOfResource = queries.map((item) => item.data);
+  const AvaliableResources = arrayOfResource.filter(
+    (resource) => resource !== null
+  );
 
   return (
     <div className="flex-1 flex flex-col gap-2 bg-white rounded-md p-5">
@@ -157,7 +160,7 @@ export const Resources: React.FC<{ resourcesIds: any[] }> = ({
         </div>
       ) : (
         <div className="w-full flex flex-col gap-2">
-          {arrayOfResource?.map((resource: any, index) => (
+          {AvaliableResources?.map((resource: any, index) => (
             <div
               key={index}
               className="border flex justify-between  rounded-md p-3"

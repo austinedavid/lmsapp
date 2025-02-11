@@ -445,6 +445,7 @@ const ShowAnnouncementDetails: React.FC<{
   const { data: user } = useSession();
   // get a single post
   const queryClient = useQueryClient();
+  queryClient.invalidateQueries({ queryKey: ["StudentGroupClass"] });
   const { data, isLoading, isError } = useQuery<ISingleAnnouncement>({
     queryKey: ["get-one-announcement", id],
     queryFn: async () => {
