@@ -1,0 +1,21 @@
+new enpoint
+12/02/2025
+================================================================================================================
+endpoint for admin to get all get in touch with us
+================================================================================================================
+route ===> /api/get-intouch
+method ===> GET
+
+================================================================================================================
+endpoint for admin to get single get in touch with us
+================================================================================================================
+route ===> /api/get-intouch/id
+method ===> GET
+comment: the id in the url should be the id of the single get in touch with us you want
+
+================================================================================================================
+endpoint for admin to delete single get in touch with us
+================================================================================================================
+route ===> /api/get-intouch/id
+method ===> DELETE
+comment: the id in the url should be the id of the single get in touch with us you want to delete
