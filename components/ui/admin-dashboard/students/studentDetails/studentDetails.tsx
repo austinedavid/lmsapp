@@ -48,7 +48,6 @@ const StudentDetails = () => {
   };
 
   const { id } = useParams();
-  console.log(id);
   const { isLoading, isError, error, data } = useQuery({
     queryKey: ["SingleStudent"],
     queryFn: async () => {
@@ -57,6 +56,8 @@ const StudentDetails = () => {
       return result;
     },
   });
+
+  console.log(data)
 
   if (isLoading) {
     return <AdminStudentLoading />;
@@ -91,16 +92,7 @@ const StudentDetails = () => {
                 <p className="text-[12px] text-gray-500">{data.email}</p>
               </div>
               <hr />
-              <div className="py-5 pl-6">
-                <p className="font-bold text-[12px]">TOTAL BILL</p>
-                <span className="text-[16px] text-[#359C71] font-bold">
-                  Paid 19 USD
-                </span>
-                <p className="text-red-600 text-[12px] font-medium">
-                  Due 10 USD
-                </p>
-              </div>
-              <hr />
+              
               <div className="py-5 cursor-pointer">
                 <div
                   className={`flex items-center py-2 px-6 gap-3 mb-2 ${
@@ -128,12 +120,7 @@ const StudentDetails = () => {
                 </div>
               </div>
               <hr />
-              <div className="py-5 cursor-pointer pl-6">
-                <p className="font-bold text-[12px]">LAST LOGIN</p>
-                <span className="text-[16px] text-[#359C71] font-bold">
-                  16-03-2024 02:39pm
-                </span>
-              </div>
+              
             </div>
             <div className="flex-2 p-4">
               {activeComponent === "personalInfo" ? (

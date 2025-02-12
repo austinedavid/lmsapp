@@ -317,9 +317,9 @@ const StudentTestAndResources = () => {
           </div>
           <div className="flex-3 bg-[#FFFFFF] h-[70vh] rounded-[8px] p-5">
             {showexam ? (
-              <StudentTestSession id={id} />
+              <StudentTestSession id={id} sessionType="one-on-one" />
             ) : (
-              <StudentTestSpecialSession id={id} />
+              <StudentTestSpecialSession id={id} sessionType="special-request" />
             )}
           </div>
         </div>
