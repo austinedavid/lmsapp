@@ -27,6 +27,28 @@ interface SpecialExam {
   score: number;
 }
 
+interface IQuestions {
+  question: string;
+  answer: string;
+  studentAnswer: string;
+  options: string[];
+}
+
+interface ISessionExam {
+  questions: IQuestions[];
+  id: string;
+  completed: boolean;
+  score: number;
+  percentage: string;
+  title: string;
+  grade: string;
+  subject: string;
+  duration: string;
+  appliedSectionId: string;
+  createdAt: string;
+  updatedAt: string;
+}
+
 export interface modefiedExamType extends IStudentTest {
   createdAt: string;
   id: string;
@@ -72,7 +94,7 @@ const AllSession: React.FC<IallSession> = ({
 
   const { getTimeAgo, handleDate, handleTime } = useConversion();
   // here we get all the one-on-one session tests and exams
-  const { data, isLoading, isError, error } = useQuery({
+  const { data, isLoading, isError, error } = useQuery<ISessionExam[]>({
     queryKey: ["allSession", studentId],
     queryFn: async () => {
       if (!studentId) return [];
@@ -80,7 +102,6 @@ const AllSession: React.FC<IallSession> = ({
         `/api/get-all-exams/one-on-one?studentId=${studentId}`
       );
       const result = await response.json();
-      console.log("API Response:", result);
 
       return result;
     },
@@ -103,7 +124,7 @@ const AllSession: React.FC<IallSession> = ({
     } else {
       const firstId = Array.isArray(data) && data[0].id;
       if (!id) {
-        setId(firstId);
+        setId(firstId as string);
       }
     }
   }
@@ -134,7 +155,7 @@ const AllSession: React.FC<IallSession> = ({
             </div>
           ) : (
             <div className=" flex flex-col gap-2">
-              {data.map((exam: modefiedExamType, index) => (
+              {data.map((exam, index) => (
                 <div
                   onClick={() => handleChange(exam.id)}
                   key={index}

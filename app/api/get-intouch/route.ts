@@ -2,6 +2,8 @@
 // this should only be viewed by the school afrika
 // but can be created by anyone, maybe register or not registered members
 import prisma from "@/prisma/prismaConnect";
+import { notAuthenticated, onlyAdmin, serverError } from "@/prisma/utils/error";
+import { serverSessionId, serverSessionRole } from "@/prisma/utils/utils";
 
 // lets first create the get intouch messages
 export async function POST(req: Request) {
@@ -16,7 +18,7 @@ export async function POST(req: Request) {
   // proceed to creating the message
   // using try create then catch error if not successful
   try {
-    const createMessage = await prisma.getInTouch.create({
+    await prisma.getInTouch.create({
       data: {
         name,
         message,
@@ -40,22 +42,19 @@ export async function POST(req: Request) {
 // here, we create a get request,
 // making sure is only the school afrika teams that get this information
 export async function GET(req: Request) {
-  // TODO: use the nextauth method to get the id of the incoming user
-  // then use the id to check the role of the user
-  // if he is a admin, then proceed to give him the messages
-  // TODO: get the user and check if he is an admin first
+  const user = await serverSessionId();
+  const role = await serverSessionRole();
+  if (!user) return notAuthenticated();
+  if (role !== "Admin") return onlyAdmin();
   try {
-    const allMessages = await prisma.getInTouch.findMany();
+    const allMessages = await prisma.getInTouch.findMany({
+      orderBy: { createdAt: "desc" },
+    });
     return new Response(JSON.stringify(allMessages), {
       status: 200,
       statusText: "success",
     });
   } catch (error) {
-    console.log(error);
-    throw new Error(
-      JSON.stringify({
-        message: "something went wrong getting all the messages",
-      })
-    );
+    return serverError();
   }
 }

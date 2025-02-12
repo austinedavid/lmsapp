@@ -17,18 +17,18 @@ interface Iexams {
   id: string | undefined;
 }
 
-
 const StudentTestSpecialSession: React.FC<Iexams> = ({ id }) => {
   const { data, isFetching, isError, error } = useQuery({
-    queryKey: ["singleExam", id],
+    queryKey: ["singleExam-special", id],
     queryFn: async () => {
-      const response = await fetch(`/api/class-exam?examId=${id}`);
+      const response = await fetch(
+        `/api/get-all-exams/special-request/single-exam?examId=${id}`
+      );
       const result = await response.json();
       return result;
     },
     enabled: Boolean(id),
   });
-  console.log(data);
 
   if (isFetching) {
     return (
@@ -64,7 +64,7 @@ const StudentTestSpecialSession: React.FC<Iexams> = ({ id }) => {
     <section>
       <div className="flex items-center px-4 pt-3 pb-2 gap-3 ">
         <Image
-          src={`/${data?.subject ? data.subject.toLowerCase() : 'maths'}.png`}
+          src={`/${data?.subject ? data.subject.toLowerCase() : "maths"}.png`}
           width={30}
           height={30}
           alt="Calculator"
@@ -114,9 +114,7 @@ const StudentTestSpecialSession: React.FC<Iexams> = ({ id }) => {
             <p className="font-medium pb-4 text-[12px] md:text-[14px]">
               Exam Score
             </p>
-            <span className="font-bold text-[14px]">
-              {data?.score}
-            </span>
+            <span className="font-bold text-[14px]">{data?.score}</span>
           </div>
         </div>
 

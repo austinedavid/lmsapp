@@ -3,16 +3,21 @@
 // allow only school afrika to get this message
 
 import prisma from "@/prisma/prismaConnect";
+import { notAuthenticated, onlyAdmin } from "@/prisma/utils/error";
+import { serverSessionId, serverSessionRole } from "@/prisma/utils/utils";
 
-export async function GET(req: Request) {
-  // getting the id from the parameters
-  const url = new URL(req.url).pathname.split("/");
-  const id = url[url.length - 1];
-  //   using try and catch to get the particular message or throw an error
+export async function GET(
+  req: Request,
+  { params }: { params: { id: string } }
+) {
+  const user = await serverSessionId();
+  const role = await serverSessionRole();
+  if (!user) return notAuthenticated();
+  if (role !== "Admin") return onlyAdmin();
   try {
     const message = await prisma.getInTouch.findUnique({
       where: {
-        id,
+        id: params.id,
       },
     });
     return new Response(JSON.stringify(message), {
@@ -25,12 +30,14 @@ export async function GET(req: Request) {
 }
 
 // the school africka admin can delete this message here
-export async function DELETE(req: Request) {
-  // getting the id from the parameters
-  const url = new URL(req.url).pathname.split("/");
-  const id = url[url.length - 1];
+export async function DELETE(
+  req: Request,
+  { params }: { params: { id: string } }
+) {
   //   lets check if the message exist first before deleting
-  const message = await prisma.getInTouch.findUnique({ where: { id } });
+  const message = await prisma.getInTouch.findUnique({
+    where: { id: params.id },
+  });
   if (!message) {
     return new Response(
       JSON.stringify({ message: "this message no longer exists" }),
@@ -39,9 +46,9 @@ export async function DELETE(req: Request) {
   }
   //   try and catch using the function below
   try {
-    const deletedInfo = await prisma.getInTouch.delete({
+    await prisma.getInTouch.delete({
       where: {
-        id,
+        id: params.id,
       },
     });
     return new Response(
