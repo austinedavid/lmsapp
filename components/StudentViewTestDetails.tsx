@@ -11,7 +11,7 @@ export interface ViewTestDetailsProps {
   
 }
 
-const ParentViewTestDetails: React.FC<ViewTestDetailsProps> = ({
+const StudentViewTestDetails: React.FC<ViewTestDetailsProps> = ({
   onClickChange,
   data,
  
@@ -22,7 +22,7 @@ const ParentViewTestDetails: React.FC<ViewTestDetailsProps> = ({
         <div className="flex justify-between items-center mb-5">
           <span className="font-bold">Details</span>
           <Link
-            href="/parent-dashboard/assessment"
+            href="/student-dashboard/tests"
             className="cursor-pointer"
           >
             <Image src="/closeAlt.svg" alt="cancel" width={15} height={15} />
@@ -104,4 +104,4 @@ const ParentViewTestDetails: React.FC<ViewTestDetailsProps> = ({
   );
 };
 
-export default ParentViewTestDetails;
+export default StudentViewTestDetails;

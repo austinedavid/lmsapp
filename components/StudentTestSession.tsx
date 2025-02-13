@@ -15,14 +15,15 @@ import { Skeleton } from "@mui/material";
 
 interface Iexams {
   id: string | undefined;
+  sessionType: "one-on-one" | "special-request";
 }
 
-const StudentTestSession: React.FC<Iexams> = ({ id }) => {
+const StudentTestSession: React.FC<Iexams> = ({ id, sessionType }) => {
   const { data, isFetching, isError, error } = useQuery({
-    queryKey: ["singleExam-session", id],
+    queryKey: ["single-One-on-One-session-Exam", id],
     queryFn: async () => {
       const response = await fetch(
-        `/api/get-all-exams/one-on-one/single-exam?examId=${id}`
+        `/api/get-all-exams/${sessionType}/single-exam?examId=${id}`
       );
       const result = await response.json();
       return result;
@@ -119,7 +120,7 @@ const StudentTestSession: React.FC<Iexams> = ({ id }) => {
         </div>
 
         <Link
-          href={`/parents-dashboard/assessment/${data?.id}`}
+          href={`/student-dashboard/tests/${data?.id}?sessionType=${sessionType}`}
           className="ml-4"
         >
           <Button className="bg-secondary text-white text-[12px] py-3 mr-0 md:mr-6">
