@@ -16,6 +16,7 @@ export async function POST(request: Request) {
       role: true,
       email: true,
       CompletedProfile: true,
+      google: true,
     },
   });
   const fetchTeacher = await prisma.teacher.findUnique({
@@ -27,6 +28,7 @@ export async function POST(request: Request) {
       role: true,
       email: true,
       CompletedProfile: true,
+      google: true,
     },
   });
   const fetchParent = await prisma.parents.findUnique({
@@ -38,6 +40,7 @@ export async function POST(request: Request) {
       role: true,
       email: true,
       CompletedProfile: true,
+      google: true,
     },
   });
 

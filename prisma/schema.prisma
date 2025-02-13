@@ -9,57 +9,57 @@ datasource db {
 
 // creating the teachers model
 model Teacher {
-  id                   String            @id @default(auto()) @map("_id") @db.ObjectId
-  name                 String?
-  password             String?
-  email                String            @unique
-  teachingRole         TeachersRole      @default(EXTERNAL) //weather the teacher is schooledAfrika teacher or as an external teacher
-  subscriped           Boolean? //shows true if the subscription have not expired
-  subscriptionDuration BigInt? //stores date base on the subscription the teacher made
-  acceptanceVideo      String? // here we store the string for the video the teacher made for us to accept them
-  nationalIdFront      String? // front of the national id card the teacher submited
-  nationalIdBack       String? // back of the national id card the teacher submited
-  profilePhoto         String? // for setting profile picture
-  detail               String? // here the teacher submit brief description about them self not more than 300 words
-  TeachersArticle      TeachersArticle[]
-  rating               Float?
-  TeachersSubject      TeachersSubject[]
-  phoneNo              String?
-  Session              Session[]
-  pricing              Int?
-  role                 Role
-  gender               Gender?
-  address              String?
-  resume               String?
-  language             String[]
+  id                       String                     @id @default(auto()) @map("_id") @db.ObjectId
+  name                     String?
+  password                 String?
+  email                    String                     @unique
+  teachingRole             TeachersRole               @default(EXTERNAL) //weather the teacher is schooledAfrika teacher or as an external teacher
+  subscriped               Boolean? //shows true if the subscription have not expired
+  subscriptionDuration     BigInt? //stores date base on the subscription the teacher made
+  acceptanceVideo          String? // here we store the string for the video the teacher made for us to accept them
+  nationalIdFront          String? // front of the national id card the teacher submited
+  nationalIdBack           String? // back of the national id card the teacher submited
+  profilePhoto             String? // for setting profile picture
+  detail                   String? // here the teacher submit brief description about them self not more than 300 words
+  TeachersArticle          TeachersArticle[]
+  rating                   Float?
+  TeachersSubject          TeachersSubject[]
+  phoneNo                  String?
+  Session                  Session[]
+  pricing                  Int?
+  role                     Role
+  gender                   Gender?
+  google                   Boolean?
+  address                  String?
+  resume                   String?
+  language                 String[]
   // remember to change this subject later to arrays of subjects
-  subject              String[]
-  grade                String[]
-  sessionPrice         String?
-  homeWorkPrice        String?
-  bankName             String?
-  accountNo            String?
-  accountName          String?
-  preference           String[]
-  details              String?
-  hours                String?
+  subject                  String[]
+  grade                    String[]
+  sessionPrice             String?
+  homeWorkPrice            String?
+  bankName                 String?
+  accountNo                String?
+  accountName              String?
+  preference               String[]
+  details                  String?
+  hours                    String?
   // creating the many to many relationship between student and teacher
-  studentIDs           String[]          @db.ObjectId
-  students             Student[]         @relation(fields: [studentIDs], references: [id])
-  Classes              Classes[]
-  VacancyTeacher       VacancyTeacher[]
-  OneOnOneSection      OneOnOneSection?
-  Exams                Exams[]
-  CompletedProfile     Boolean           @default(false)
-  createdAt            DateTime          @default(now())
-  updatedAt            DateTime          @default(now())
-  kyc                  Kyc?
-  Ratting              Ratting[]
-  reviewers            String[]          @db.ObjectId
-  status               TeacherStatus     @default(Pending)
-  TeachersPlans        TeachersPlans?
-  Courses              Courses[]
-
+  studentIDs               String[]                   @db.ObjectId
+  students                 Student[]                  @relation(fields: [studentIDs], references: [id])
+  Classes                  Classes[]
+  VacancyTeacher           VacancyTeacher[]
+  OneOnOneSection          OneOnOneSection?
+  Exams                    Exams[]
+  CompletedProfile         Boolean                    @default(false)
+  createdAt                DateTime                   @default(now())
+  updatedAt                DateTime                   @default(now())
+  kyc                      Kyc?
+  Ratting                  Ratting[]
+  reviewers                String[]                   @db.ObjectId
+  status                   TeacherStatus              @default(Pending)
+  TeachersPlans            TeachersPlans?
+  Courses                  Courses[]
   Revenew                  Revenew[]
   TeacherPurchasedCourses  TeacherPurchasedCourses[]
   SpecialTeacherMerged     SpecialTeacherMerged[]
@@ -125,6 +125,7 @@ model Student {
   grade                   Grade?
   details                 String?
   disable                 Boolean?
+  google                  Boolean?
   // creating the many to many relationship between student and teacher
   // becasue the student can have many teachers
   teacherIDs              String[]                  @db.ObjectId
@@ -163,6 +164,7 @@ model Parents {
   gender                  Gender?
   phoneNo                 String?
   address                 String?
+  google                  Boolean?
   CompletedProfile        Boolean                   @default(false)
   createdAt               DateTime                  @default(now())
   updatedAt               DateTime                  @default(now())

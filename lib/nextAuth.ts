@@ -81,6 +81,7 @@ export const authOptions: NextAuthOptions = {
       session.user.id = result.id;
       session.user.image = result.profilePhoto;
       session.user.CompletedProfile = result.CompletedProfile;
+      session.user.google = result.google;
       return session;
     },
     async jwt({ token, session, trigger }) {

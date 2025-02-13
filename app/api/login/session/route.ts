@@ -20,6 +20,7 @@ export async function POST(req: Request) {
         role: true,
         profilePhoto: true,
         CompletedProfile: true,
+        google: true,
       },
     });
     if (checkStudents)
@@ -34,6 +35,7 @@ export async function POST(req: Request) {
         role: true,
         profilePhoto: true,
         CompletedProfile: true,
+        google: true,
       },
     });
     if (checkTeachers)
@@ -48,6 +50,7 @@ export async function POST(req: Request) {
         role: true,
         profilePhoto: true,
         CompletedProfile: true,
+        google: true,
       },
     });
     return new Response(JSON.stringify(checKParents), { status: 200 });

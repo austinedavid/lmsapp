@@ -53,6 +53,7 @@ export async function POST(request: Request) {
           password: hashPasword,
           role: "Student",
           studentId: generateId(),
+          google: false,
         },
         select: {
           id: true,
@@ -73,6 +74,7 @@ export async function POST(request: Request) {
           email: email,
           password: hashPasword,
           role: "Teacher",
+          google: false,
         },
         select: {
           id: true,
@@ -92,6 +94,7 @@ export async function POST(request: Request) {
           email: email,
           password: hashPasword,
           role: "Parents",
+          google: false,
         },
         select: {
           id: true,

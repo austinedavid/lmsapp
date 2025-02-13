@@ -105,6 +105,7 @@ export async function POST(request: Request) {
               name,
               role: "Student",
               studentId: generateId(),
+              google: true,
             },
             select: {
               id: true,
@@ -140,13 +141,14 @@ export async function POST(request: Request) {
         if (checkTeacher) {
           return new Response(JSON.stringify(checkTeacher), { status: 200 });
         } else {
-          // register student
+          // register teacher
           const teacher = await prisma.teacher.create({
             data: {
               email: email,
               profilePhoto: image,
               role: "Teacher",
               name,
+              google: true,
             },
             select: {
               id: true,
@@ -178,13 +180,14 @@ export async function POST(request: Request) {
         if (checkParents) {
           return new Response(JSON.stringify(checkParents), { status: 200 });
         } else {
-          // register student
+          // register parents
           const parents = await prisma.parents.create({
             data: {
               email: email,
               profilePhoto: image,
               name,
               role: "Parents",
+              google: true,
             },
             select: {
               id: true,

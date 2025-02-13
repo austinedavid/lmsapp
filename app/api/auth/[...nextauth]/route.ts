@@ -11,6 +11,7 @@ declare module "next-auth" {
       id: string;
       role: string;
       CompletedProfile: boolean;
+      google: boolean;
     };
   }
 }
