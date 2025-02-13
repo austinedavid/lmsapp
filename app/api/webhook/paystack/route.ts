@@ -37,7 +37,7 @@ export async function POST(req: Request) {
   const paymentFor = typePayArray[1];
   //   lets get the class first so that we can be able to push the new id
   if (paymentFor === "class") {
-    return await payForClass(classId, studentId);
+    return await payForClass(classId, studentId, amt);
   }
   // here we make payment for session for the parents and also child
   if (paymentFor === "session") {

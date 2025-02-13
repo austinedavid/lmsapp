@@ -2,7 +2,11 @@ import prisma from "../prismaConnect";
 import { serverError } from "./error";
 
 // here we make payment for classes
-export const payForClass = async (classId: string, studentId: string) => {
+export const payForClass = async (
+  classId: string,
+  studentId: string,
+  amt: any
+) => {
   const theclass = await prisma.classes.findUnique({
     where: { id: classId },
     select: { studentIDs: true },
@@ -37,6 +41,15 @@ export const payForClass = async (classId: string, studentId: string) => {
         id: studentId,
       },
       data: { classIDs: theStudent?.classIDs },
+    });
+    // Create the users transaction information
+    await prisma.transaction.create({
+      data: {
+        userId: studentId,
+        type: "class",
+        debit: true,
+        amount: amt,
+      },
     });
     return new Response(
       JSON.stringify({
@@ -94,14 +107,17 @@ export const sessionPaymentPaystack = async (paymentInfo: any) => {
   // lets check if the registraction is from the parents first,
   // if it is, then we get the childs id and use it for creating this session
   let wardId: string;
+  let parentsId: string;
   if (paymentInfo.byparents) {
     const student = await prisma.student.findFirst({
       where: { studentId: paymentInfo.studentId },
       select: {
         id: true,
+        parentsId: true,
       },
     });
     wardId = student?.id as string;
+    parentsId = student?.parentsId as string;
   }
   try {
     await prisma.adminSectionView.create({
@@ -122,6 +138,27 @@ export const sessionPaymentPaystack = async (paymentInfo: any) => {
         grade: paymentInfo.grade,
       },
     });
+    // create a transaction record for the user below
+    // check if the payment was made by the parents or student
+    if (paymentInfo.byparents) {
+      await prisma.transaction.create({
+        data: {
+          userId: parentsId!,
+          type: "session",
+          debit: true,
+          amount: Number(paymentInfo.price),
+        },
+      });
+    } else {
+      await prisma.transaction.create({
+        data: {
+          userId: paymentInfo.studentId,
+          type: "session",
+          debit: true,
+          amount: Number(paymentInfo.price),
+        },
+      });
+    }
     return new Response(JSON.stringify({ message: "successful" }), {
       status: 200,
     });
@@ -165,6 +202,15 @@ export const teachersPlan = async (payload: Iplans) => {
         dueDate: duedate,
         expireDate: expireIn,
         plan: payload.plan,
+      },
+    });
+    // we can go on and create the transaction records as required
+    await prisma.transaction.create({
+      data: {
+        type: "teacherplan",
+        amount: Number(payload.amt),
+        userId: payload.userId,
+        debit: true,
       },
     });
     return new Response(
@@ -226,7 +272,15 @@ export const coursePayment = async (payload: Icourses) => {
           },
         },
       });
-      console.log(item);
+      // create transaction records for the student
+      await prisma.transaction.create({
+        data: {
+          type: "courses",
+          amount: theCourse?.price,
+          debit: true,
+          userId: payload.payerId,
+        },
+      });
     } else if (payload.userType === "Parents") {
       const parents = await prisma.parentsPurchasedCourses.create({
         data: {
@@ -249,7 +303,15 @@ export const coursePayment = async (payload: Icourses) => {
           },
         },
       });
-      console.log(parents);
+      // create transaction records for the parents
+      await prisma.transaction.create({
+        data: {
+          type: "courses",
+          amount: theCourse?.price,
+          debit: true,
+          userId: payload.payerId,
+        },
+      });
     } else {
       const teacher = await prisma.teacherPurchasedCourses.create({
         data: {
@@ -272,7 +334,15 @@ export const coursePayment = async (payload: Icourses) => {
           },
         },
       });
-      console.log(teacher);
+      // create transaction records for the teacher
+      await prisma.transaction.create({
+        data: {
+          type: "courses",
+          amount: theCourse?.price,
+          debit: true,
+          userId: payload.payerId,
+        },
+      });
     }
     // now, update the course total sell by one
     await prisma.courses.update({
@@ -324,6 +394,15 @@ export const specialRequest = async (payload: ISpecialRequest) => {
         grade: payload.grade,
         time: payload.time,
         kindOfTeacher: payload.kindOfTeacher,
+      },
+    });
+    // create transaction records for the parent after paying for special request
+    await prisma.transaction.create({
+      data: {
+        type: "courses",
+        amount: Number(payload.amt),
+        debit: true,
+        userId: payload.parentsId,
       },
     });
     return new Response(JSON.stringify({ message: "successfull" }), {

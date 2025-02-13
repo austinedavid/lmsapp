@@ -761,6 +761,25 @@ model SpecialRequestAttendance {
   @@index([teacherId, specialTeacherMergedId], name: "special_request_attendance")
 }
 
+model Transaction {
+  id        String          @id @default(auto()) @map("_id") @db.ObjectId
+  type      TransactionType
+  debit     Boolean         @default(false)
+  amount    Int
+  userId    String          @db.ObjectId
+  updatedAt DateTime        @default(now())
+}
+
+// Enum for transactiontypes
+
+enum TransactionType {
+  class
+  session
+  teacherplan
+  courses
+  specialRequest
+}
+
 // this is enum for grades
 // TODO: check how many grade system we have
 enum Grade {
