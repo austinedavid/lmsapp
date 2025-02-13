@@ -32,7 +32,6 @@ export async function POST(req: Request) {
   // if is not approved, the send an error message to the user
   const doneKyc = await checkKyc(teacherId!);
   if (!doneKyc || doneKyc !== "APPROVED") {
-    console.log("entered here");
     return new Response(
       JSON.stringify({ message: "no kyc or kyc is not approved" }),
       { status: 401 }
@@ -45,7 +44,7 @@ export async function POST(req: Request) {
   const teacherPlan = await checkPlans(teacherId!);
   // add class creation restriction to just only one class for free plans
   // there by making other plans unlimitted
-  if (teacherPlan === "FREE" && allClasses! >= 1) {
+  if ((teacherPlan === "FREE" || !teacherPlan) && allClasses! >= 1) {
     return new Response(
       JSON.stringify({
         message: "You have hit your maximum class for this plan",
