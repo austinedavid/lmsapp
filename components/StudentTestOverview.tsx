@@ -2,29 +2,34 @@
 import React, { useState } from "react";
 
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
-import { useParams, useRouter } from "next/navigation";
+import { useParams, useSearchParams, useRouter } from "next/navigation";
 import { toast, ToastContainer } from "react-toastify";
 import { Skeleton } from "@mui/material";
-import ParentViewTestDetails from "./ParentViewTestDetails";
-import ParentViewQuestions from "./ParentViewQuestions";
+import StudentViewTestDetails from "./StudentViewTestDetails";
+import StudentViewQuestions from "./StudentViewQuestions";
 
-const ParentTestOverview = () => {
+const StudentTestOverview = () => {
   const { id } = useParams();
+  const searchParams = useSearchParams();
+  const sessionType = searchParams.get("sessionType");
   const [displayComponent, setDisplayComponent] = useState(true);
+
+  const examEndpoint = `/api/get-all-exams/${sessionType}/single-exam?examId=${id}`;
+
   const queryclient = useQueryClient();
   const router = useRouter();
   const handleDisplayComponent = () => {
     setDisplayComponent(false);
   };
   const { data, isFetching, error, isError } = useQuery({
-    queryKey: ["getingoneexam"],
+    queryKey: ["getingoneexam", id, sessionType],
     queryFn: async () => {
-      const response = await fetch(`/api/wards-all-assessment/${id}`);
+      const response = await fetch(examEndpoint);
       const result = await response.json();
       return result;
     },
   });
-  
+
   // return loading component if is fetching
   if (isFetching) {
     return (
@@ -49,12 +54,12 @@ const ParentTestOverview = () => {
   return (
     <div>
       {displayComponent ? (
-        <ParentViewTestDetails
+        <StudentViewTestDetails
           data={data}
           onClickChange={handleDisplayComponent}
         />
       ) : (
-        <ParentViewQuestions
+        <StudentViewQuestions
           data={data}
           onClickChange={handleDisplayComponent}
         />
@@ -64,4 +69,4 @@ const ParentTestOverview = () => {
   );
 };
 
-export default ParentTestOverview;
+export default StudentTestOverview;

@@ -4,6 +4,7 @@ import {
   MdOutlineCalendarMonth,
   MdOutlineSettings,
   MdOutlineDisplaySettings,
+  MdOutlineMessage,
 } from "react-icons/md";
 import { RiParentLine, RiAdminLine, RiSecurePaymentLine } from "react-icons/ri";
 import {
@@ -45,6 +46,7 @@ export const AdminSideBar: AdminSideBarType[] = [
   { path: "students", name: "Students", icon: LiaGraduationCapSolid },
   { path: "parents", name: "Parents", icon: RiParentLine },
   { path: "sessions", name: "Sessions", icon: IoRadioOutline },
+  { path: "messages", name: "Messages", icon: MdOutlineMessage },
   { path: "job-listing", name: "Job Listing", icon: GrGroup },
   { path: "admin-profile", name: "Admin Profile", icon: RiAdminLine },
   {

@@ -8,6 +8,7 @@ import {
   TableRow,
 } from "@/components/ui/table";
 import EditStudentDetails from "@/components/ui/admin-dashboard/students/editStudentDetails/editStudentDetails";
+import { useConversion } from "@/data-access/conversion";
 
 interface InfoStudent {
   studentData: {
@@ -15,8 +16,12 @@ interface InfoStudent {
     email: string;
     phoneNo: string;
     birthDate: string;
+    gender: string;
+    grade: string;
+    details: string;
     country: string;
     address: string;
+    createdAt: string;
     classes: {
       subject: string;
     };
@@ -24,6 +29,7 @@ interface InfoStudent {
 }
 
 const IndividualStudentTable: React.FC<InfoStudent> = ({ studentData }) => {
+   const { handleDate } = useConversion();
   return (
     <div>
       <div className="flex justify-between items-center">
@@ -57,16 +63,25 @@ const IndividualStudentTable: React.FC<InfoStudent> = ({ studentData }) => {
             <TableCell className="font-bold">{studentData.phoneNo}</TableCell>
           </TableRow>
           <TableRow className="text-[14px]">
-            <TableHead className="">Date of Birth</TableHead>
-            <TableCell className="font-bold">{studentData.birthDate}</TableCell>
+            <TableHead className="">Gender</TableHead>
+            <TableCell className="font-bold">{studentData.gender}</TableCell>
           </TableRow>
           <TableRow className="text-[14px]">
-            <TableHead className="">Nationality</TableHead>
-            <TableCell className="font-bold">{studentData.country}</TableCell>
+            <TableHead className="">Grade</TableHead>
+            <TableCell className="font-bold">{studentData.grade}</TableCell>
+          </TableRow>
+         
+          <TableRow className="text-[14px]">
+            <TableHead className="">Joined</TableHead>
+            <TableCell className="font-bold"> {handleDate(studentData?.createdAt)}</TableCell>
           </TableRow>
           <TableRow className="text-[14px]">
             <TableHead className="">Address</TableHead>
             <TableCell className="font-bold">{studentData.address}</TableCell>
+          </TableRow>
+          <TableRow className="text-[14px]">
+            <TableHead className="">Details</TableHead>
+            <TableCell className="font-bold">{studentData.details}</TableCell>
           </TableRow>
         </TableHeader>
       </Table>

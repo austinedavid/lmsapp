@@ -242,6 +242,11 @@ export const AdminNavbar: SchoolNavType[] = [
     path: "sessions",
   },
   {
+    title: "Messages",
+    description: "",
+    path: "messages",
+  },
+  {
     title: "Admin Profile",
     description: "",
     path: "admin-profile",
