@@ -37,7 +37,7 @@ const Transactions = () => {
   return (
     <div className="md:flex md:flex-row grid grid-cols-1 items-center mb-6 mx-auto text-[15px] gap-3 md:gap-2 rounded-md">
       <div className="flex md:flex-5 overflow-x-auto rounded-md flex-col">
-        <TransactionTable />
+        <TransactionTable text="Recent transactions" brief={true} />
       </div>
 
       <div className="flex md:mb-0 mb-6 py-6 px-2   rounded-md mt-6 bg-white flex-2">

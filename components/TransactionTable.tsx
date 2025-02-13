@@ -62,12 +62,18 @@ interface ITransaction {
   updatedAt: string;
 }
 
-export default function TransactionTable() {
+export default function TransactionTable({
+  text,
+  brief,
+}: {
+  text: string;
+  brief: boolean;
+}) {
   const { handleDate } = useConversion();
   const { data, isLoading, isError, error } = useQuery<ITransaction[]>({
     queryKey: ["transaction-show"],
     queryFn: async () => {
-      const response = await fetch("/api/transaction-info");
+      const response = await fetch(`/api/transaction-info?brief=${brief}`);
       const result = await response.json();
       return result;
     },
@@ -78,7 +84,7 @@ export default function TransactionTable() {
       <Table className="bg-white overflow-x-auto    rounded-md my-4">
         <TableCaption className="px-3  py-2 rounded-md bg-white">
           <div className="flex font-semibold  justify-between">
-            <p>Recent Transactions</p>
+            <p>{text}</p>
             <Link
               href="/"
               className="text-[11.5px] font-semibold text-right text-lightGreen "
@@ -106,7 +112,7 @@ export default function TransactionTable() {
     <Table className="bg-white overflow-x-auto    rounded-md my-4">
       <TableCaption className="px-3  py-2 rounded-md bg-white">
         <div className="flex font-semibold  justify-between">
-          <p>Recent Transactions</p>
+          <p>{text}</p>
           <Link
             href="/"
             className="text-[11.5px] font-semibold text-right text-lightGreen "
@@ -128,16 +134,22 @@ export default function TransactionTable() {
         {Array.isArray(data) &&
           data.map((tx, index) => (
             <TableRow key={index} className="py-2">
-              <TableCell className="font-semibold md:w-[200px]  text-[13px] py-2 flex  mr-1">
+              <TableCell className="font-semibold md:w-[200px]  text-[12px]  flex  mr-1">
                 {tx.id}
               </TableCell>
               <TableCell className="text-[12px] font-semibold">
                 {tx.type}
               </TableCell>
               <TableCell className="text-[12px]   font-semibold">
+                {handleDate(tx.updatedAt)}
+              </TableCell>
+              <TableCell
+                className={`${
+                  tx.debit ? "text-red-800" : "text-green-800"
+                } text-[12px] flex items-end justify-end`}
+              >
                 {tx.amount}
               </TableCell>
-              <TableCell className="">{handleDate(tx.updatedAt)}</TableCell>
             </TableRow>
           ))}
       </TableBody>

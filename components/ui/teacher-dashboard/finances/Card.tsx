@@ -64,7 +64,7 @@ const Card = () => {
             </div>
           </div>
           <div>
-            <TransactionTable />
+            <TransactionTable text="All Transactions" brief={false} />
           </div>
         </div>
 

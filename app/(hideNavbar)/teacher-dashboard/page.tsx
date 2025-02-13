@@ -2,15 +2,16 @@
 import Card from "@/components/ui/teacher-dashboard/card/card";
 import Chart from "@/components/ui/teacher-dashboard/chart/chart";
 import React from "react";
-import Transactions from "@/components/ui/teacher-dashboard/Transactions"
+import Transactions from "@/components/ui/teacher-dashboard/Transactions";
 
 const page = () => {
-  return <div className="mt-[100px]  md:mt-6">
-     <Card/>
-     <Chart/>
-     <Transactions/>
-     
-  </div>;
+  return (
+    <div className="mt-[100px]  md:mt-6">
+      <Card />
+      <Chart />
+      <Transactions />
+    </div>
+  );
 };
 
 export default page;
