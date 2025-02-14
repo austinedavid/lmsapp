@@ -2,8 +2,7 @@
 
 import React from "react";
 import Image from "next/image";
-import { Button } from "@/components/ui/button";
-import Link from "next/link";
+import { useRouter } from "next/navigation";
 import { BsBroadcast } from "react-icons/bs";
 import { useQuery } from "@tanstack/react-query";
 
@@ -127,6 +126,7 @@ const Ratting = () => {
 };
 
 const Card = () => {
+  const router = useRouter();
   return (
     <div className="w-full bg-stone-100">
       {/* Card section */}
@@ -137,17 +137,15 @@ const Card = () => {
         <Ratting />
         {/* Go Live */}
         <div className="flex flex-col space-y-3 flex-1 ">
-          <Button
-            asChild
-            className=" bg-dimOrange hover:bg-gold rounded-md text-white text-[14px] mt-3  ml-3 md:w-32 w-full mx-auto   py-2 text-center lg:block"
+          <div
+            onClick={() => router.push("/teacher-dashboard/classroom")}
+            className=" bg-dimOrange flex items-center justify-center py-4 cursor-pointer rounded-md text-white text-[14px] mt-3  ml-3 md:w-32 w-full mx-auto  "
           >
-            <Link href="/" className="inline">
-              <BsBroadcast className="inline mr-1" />
-              Go Live
-            </Link>
-          </Button>
-          <p className="text-[12.5px] text-center  font-normal">
-            Start a live session now!
+            <BsBroadcast className="inline mr-1" />
+            <p>Start class</p>
+          </div>
+          <p className="text-[10px] text-center  font-normal">
+            Create or start your class now!!!
           </p>
         </div>
       </div>

@@ -14,6 +14,7 @@ import { EyeOff } from "lucide-react";
 import { CommonDashboardContext } from "@/providers/Statecontext";
 import { useSession } from "next-auth/react";
 import "react-toastify/dist/ReactToastify.css";
+import { useConversion } from "@/data-access/conversion";
 
 export type IupdatingTeacher = z.infer<typeof teacherProfileSettingsSchema>;
 export type IupdatingPassword = z.infer<typeof teacherPasswordUpdateSchema>;
@@ -180,7 +181,7 @@ export const UpdatePassword = () => {
   const [oldPassword, setOldpassword] = useState<string>("");
   const [newPassword, setNewPassword] = useState<string>("");
   const [confirmNewPassword, setConfirmNewPassword] = useState<string>("");
-
+  const { data } = useSession();
   const togglePasswordTrue = (key: string) => {
     setShowPassword((prev) => {
       return { ...prev, [`${key}`]: true };
@@ -229,12 +230,27 @@ export const UpdatePassword = () => {
     if (oldPassword == "" || newPassword == "" || confirmNewPassword == "") {
       return toast.error("Please enter all field to update password");
     }
+    if (newPassword.length < 8) {
+      return toast.error("Password must be at least 8 characters");
+    }
     if (newPassword !== confirmNewPassword) {
       return toast.error("password does not match");
     }
     setloading(true);
     mutation.mutate();
   };
+
+  if (data?.user.google) {
+    return (
+      <div className=" flex flex-col bg-white text-black py-4 px-2 gap-3">
+        <p className=" text-slate-600 font-semibold">Security settings</p>
+        <div>
+          <p>registered using google</p>
+          <p>email: {data.user.email}</p>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="h-[55%] bg-[#FFFFFF] rounded-[5px] p-4 my-4">
@@ -336,106 +352,124 @@ export const UpdatePassword = () => {
   );
 };
 
-const TeacherSettings = () => {
+// component to display subscription information
+const SubscriptionView = () => {
   const { setShowPricing } = useContext(CommonDashboardContext);
+  const { handleDate } = useConversion();
+  // fetch the current plan the teacher is in
+  const { data } = useQuery<{ plan: string; expireDate: string }>({
+    queryKey: ["get-teacher-plans"],
+    queryFn: async () => {
+      const response = await fetch("/api/teacher-plans");
+      const result = await response.json();
+      return result;
+    },
+  });
+  // function to calculate if the plan has expired
+  const checkExpire = (value: string): boolean => {
+    const date = new Date().getTime();
+    const planDate = new Date(value).getTime();
+    return planDate > date ? false : true;
+  };
+  return (
+    <div className="flex flex-col justify-center outline-none rounded-[8px] w-full">
+      <p className="font-bold text-[14px] text-[#9F9F9F] mb-4">
+        Subscription Plan
+      </p>
+      <span className="font-bold pb-2">
+        Upgrade and get more out of Schooled Afrika
+      </span>
+      <div className="my-[20px]">
+        <p className="font-bold pb-2">Current Plan</p>
+        <div className="flex flex-col gap-4 mb-6">
+          <span className="text-[#359C71] underline font-bold text-[14px]">
+            {data?.plan && `${data.plan} Plan`}
+          </span>
+          {data?.expireDate && (
+            <span
+              className={`font-bold text-[14px] ${
+                checkExpire(data.expireDate)
+                  ? "text-red-700"
+                  : " text-green-700"
+              }`}
+            >
+              {checkExpire(data.expireDate) ? "Expired" : "Expires"}:{" "}
+              {handleDate(data.expireDate)}
+            </span>
+          )}
+        </div>
+        <Button
+          onClick={() => setShowPricing(true)}
+          className="bg-[#359C71] font-bold px-5"
+        >
+          <Image
+            src="/svgs/cash-plan.svg"
+            width={20}
+            height={20}
+            alt="View Plans"
+            className="mr-2"
+          />
+          View Plan
+        </Button>
+      </div>
+    </div>
+  );
+};
+
+const NoModificationDiv: React.FC<{ text: string | undefined }> = ({
+  text,
+}) => {
+  return (
+    <div className="outline-none font-semibold text-slate-500 p-3 rounded-[5px] border-2 w-full cursor-not-allowed">
+      <p>{text}</p>
+    </div>
+  );
+};
+
+interface IbankDetails {
+  bankName: string;
+  accountName: string;
+  accountNo: string;
+}
+const ShowBankDetails = () => {
+  const { data } = useQuery<IbankDetails>({
+    queryKey: ["get-bank-details"],
+    queryFn: async () => {
+      const response = await fetch("/api/teacher-get-bank");
+      const result = await response.json();
+      return result;
+    },
+  });
+  return (
+    <div className=" bg-[#FFFFFF] rounded-[5px] p-4">
+      <hr className="my-4" />
+      <div className="flex justify-between">
+        <label className="font-bold text-[#9F9F9F]">Banking Information</label>
+        <Image src="/svgs/colored-lock.svg" width={20} height={20} alt="Lock" />
+      </div>
+      <div className=" flex flex-col gap-2">
+        <NoModificationDiv text={data?.bankName} />
+        <NoModificationDiv text={data?.accountNo} />
+        <NoModificationDiv text={data?.accountName} />
+      </div>
+      <p className="text-[#359C71] text-center text-[12px]">
+        Contact <span className="font-bold">Support</span> to Change Your
+        Banking Information
+      </p>
+    </div>
+  );
+};
+
+const TeacherSettings = () => {
   return (
     <section className="flex flex-col md:flex-row mt-[100px] md:mt-[30px] gap-4">
       <div className="flex-5 bg-[#FFFFFF] rounded-[5px] p-5 h-[100vh] overflow-y-scroll scrollbar-hide">
         <hr className="my-4" />
         <UpdateProfile />
-
-        <div className="flex flex-col justify-center outline-none rounded-[8px] w-full">
-          <p className="font-bold text-[14px] text-[#9F9F9F] mb-4">
-            Subscription Plan
-          </p>
-          <span className="font-bold pb-2">
-            Upgrade and get more out of Schooled Afrika
-          </span>
-          {/* <p className="text-[14px] font-medium">
-            Lorem ipsum dolor sit amet, consectetuer adipiscing elit. Aenean
-            commodo.
-          </p> */}
-
-          <div className="my-[20px]">
-            <p className="font-bold pb-2">Current Plan</p>
-            <div className="flex items-center gap-4 mb-6">
-              <span className="text-[#359C71] underline font-bold text-[14px]">
-                Basic Plan
-              </span>
-              {/* <span className="font-bold text-[14px]">
-                Expires May 24, 2024
-              </span> */}
-            </div>
-            <Button
-              onClick={() => setShowPricing(true)}
-              className="bg-[#359C71] font-bold px-5"
-            >
-              <Image
-                src="/svgs/cash-plan.svg"
-                width={20}
-                height={20}
-                alt="View Plans"
-                className="mr-2"
-              />
-              View Plan
-            </Button>
-          </div>
-          <div className="my-5">
-            <p className="font-bold pb-2">Need Plan ?</p>
-            <p className="text-[14px] font-medium">
-              Lorem ipsum dolor sit amet, consectetuer adipiscing elit. Aenean
-              commodo.
-            </p>
-            <Button className="bg-transparent text-[#359C71] border border-[#359C71] mt-4 font-bold px-2">
-              <Image
-                src="/svgs/contact-support.svg"
-                width={20}
-                height={20}
-                alt="View Plans"
-                className="mr-2"
-              />
-              Contact Support
-            </Button>
-          </div>
-        </div>
+        <SubscriptionView />
       </div>
       <div className="flex-4 rounded-[5px]">
-        <div>
-          <form className="h-[55%] bg-[#FFFFFF] rounded-[5px] p-4">
-            <hr className="my-4" />
-            <div className="flex justify-between">
-              <label className="font-bold text-[#9F9F9F]">
-                Banking Information
-              </label>
-              <Image
-                src="/svgs/colored-lock.svg"
-                width={20}
-                height={20}
-                alt="Lock"
-              />
-            </div>
-            <input
-              type="text"
-              className="outline-none p-3 my-4 rounded-[5px] border-2 w-full"
-              placeholder="Bank Name"
-            />
-            <input
-              type="text"
-              className="outline-none p-3 mb-4 rounded-[5px] border-2 w-full"
-              placeholder="Account Number"
-            />
-            <input
-              type="text"
-              className="outline-none p-3 mb-4 rounded-[5px] border-2 w-full"
-              placeholder="Account Name"
-            />
-            <p className="text-[#359C71] text-center text-[12px]">
-              Contact <span className="font-bold">Support</span> to Change Your
-              Banking Information
-            </p>
-          </form>
-        </div>
-
+        <ShowBankDetails />
         <div>
           <UpdatePassword />
         </div>
