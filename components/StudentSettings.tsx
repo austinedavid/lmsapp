@@ -56,6 +56,7 @@ const UpdateProfile = () => {
       setValue("phoneNo", data.phoneNo);
       setValue("name", data.name);
       setValue("gender", data.gender as "Male" | "Female");
+      setValue("grade", data.grade!);
     }
   }, [data]);
   //   creating a post using mutation to the backend
@@ -127,74 +128,77 @@ const UpdateProfile = () => {
             )}
           </div>
         </div>
-        <div className="flex gap-[10px]">
-          <Controller
-            control={control}
-            name="grade"
-            render={({ field }) => (
-              <Select
-                value={getValues("grade") && getValues("grade")}
-                onValueChange={(value) => {
-                  field.onChange(value);
-                  clearErrors("grade");
-                }}
-              >
-                <SelectTrigger className=" w-full py-6">
-                  <SelectValue placeholder="Grade" />
-                </SelectTrigger>
+        <div className="flex gap-2 max-xs:flex-col">
+          <div className=" flex-1 flex flex-col gap-1">
+            <Controller
+              control={control}
+              name="grade"
+              render={({ field }) => (
+                <Select
+                  value={getValues("grade") && getValues("grade")}
+                  onValueChange={(value) => {
+                    field.onChange(value);
+                    clearErrors("grade");
+                  }}
+                >
+                  <SelectTrigger className=" w-full py-6">
+                    <SelectValue placeholder="Grade" />
+                  </SelectTrigger>
 
-                <SelectContent className=" font-subtext font-medium">
-                  <ScrollArea className="h-[200px] w-full ">
+                  <SelectContent className=" font-subtext font-medium">
+                    <ScrollArea className="h-[200px] w-full ">
+                      <SelectGroup>
+                        <SelectItem value="Grade1">Grade 1</SelectItem>
+                        <SelectItem value="Grade2">Grade 2</SelectItem>
+                        <SelectItem value="Grade3">Grade 3</SelectItem>
+                        <SelectItem value="Grade4">Grade 4</SelectItem>
+                        <SelectItem value="Grade5">Grade 5</SelectItem>
+                        <SelectItem value="Grade6">Grade 6</SelectItem>
+                        <SelectItem value="Grade7">Grade 7</SelectItem>
+                        <SelectItem value="Grade8">Grade 8</SelectItem>
+                        <SelectItem value="Grade9">Grade 9</SelectItem>
+                        <SelectItem value="Grade10">Grade 10</SelectItem>
+                        <SelectItem value="Grade11">Grade 11</SelectItem>
+                        <SelectItem value="Grade12">Grade 12</SelectItem>
+                      </SelectGroup>
+                    </ScrollArea>
+                  </SelectContent>
+                </Select>
+              )}
+            />
+            {errors.grade && (
+              <small className="text-red-600">{errors.grade.message}</small>
+            )}
+          </div>
+          <div className=" flex flex-col gap-1 flex-1">
+            <Controller
+              control={control}
+              name="gender"
+              render={({ field }) => (
+                <Select
+                  value={getValues("gender") && getValues("gender")}
+                  onValueChange={(value) => {
+                    field.onChange(value);
+                    clearErrors("gender");
+                  }}
+                >
+                  <SelectTrigger className=" w-full py-6">
+                    <SelectValue placeholder="Gender" />
+                  </SelectTrigger>
+
+                  <SelectContent className=" font-subtext font-medium">
                     <SelectGroup>
-                      <SelectItem value="Grade1">Grade 1</SelectItem>
-                      <SelectItem value="Grade2">Grade 2</SelectItem>
-                      <SelectItem value="Grade3">Grade 3</SelectItem>
-                      <SelectItem value="Grade4">Grade 4</SelectItem>
-                      <SelectItem value="Grade5">Grade 5</SelectItem>
-                      <SelectItem value="Grade6">Grade 6</SelectItem>
-                      <SelectItem value="Grade7">Grade 7</SelectItem>
-                      <SelectItem value="Grade8">Grade 8</SelectItem>
-                      <SelectItem value="Grade9">Grade 9</SelectItem>
-                      <SelectItem value="Grade10">Grade 10</SelectItem>
-                      <SelectItem value="Grade11">Grade 11</SelectItem>
-                      <SelectItem value="Grade12">Grade 12</SelectItem>
+                      <SelectItem value="Male">Male</SelectItem>
+                      <SelectItem value="Female">Female</SelectItem>
                     </SelectGroup>
-                  </ScrollArea>
-                </SelectContent>
-              </Select>
+                  </SelectContent>
+                </Select>
+              )}
+            />
+            {errors.gender && (
+              <small className="text-red-600">{errors.gender.message}</small>
             )}
-          />
-          {errors.grade && (
-            <small className="text-red-600">{errors.grade.message}</small>
-          )}
-
-          <Controller
-            control={control}
-            name="gender"
-            render={({ field }) => (
-              <Select
-                value={getValues("gender") && getValues("gender")}
-                onValueChange={(value) => {
-                  field.onChange(value);
-                  clearErrors("gender");
-                }}
-              >
-                <SelectTrigger className=" w-full py-6">
-                  <SelectValue placeholder="Gender" />
-                </SelectTrigger>
-
-                <SelectContent className=" font-subtext font-medium">
-                  <SelectGroup>
-                    <SelectItem value="Male">Male</SelectItem>
-                    <SelectItem value="Female">Female</SelectItem>
-                  </SelectGroup>
-                </SelectContent>
-              </Select>
-            )}
-          />
-          {errors.gender && (
-            <small className="text-red-600">{errors.gender.message}</small>
-          )}
+          </div>
         </div>
         <input
           id="email"
