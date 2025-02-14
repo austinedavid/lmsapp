@@ -17,7 +17,7 @@ import { serverSessionId, serverSessionRole } from "@/prisma/utils/utils";
 // together with the roles also
 
 export async function PUT(req: Request) {
-  const { updateData } = await req.json();
+  const updateData = await req.json();
   const id = await serverSessionId();
   const role = await serverSessionRole();
   //   checking if the user is authenticated before we continue

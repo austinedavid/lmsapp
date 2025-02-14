@@ -1,6 +1,6 @@
 "use client";
-import React, { useState, useContext } from "react";
-import { useMutation, useQueryClient } from "@tanstack/react-query";
+import React, { useState, useContext, useEffect } from "react";
+import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { SubmitHandler, useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
@@ -12,23 +12,49 @@ import { toast, ToastContainer } from "react-toastify";
 import { Eye } from "lucide-react";
 import { EyeOff } from "lucide-react";
 import { CommonDashboardContext } from "@/providers/Statecontext";
-
+import { useSession } from "next-auth/react";
 import "react-toastify/dist/ReactToastify.css";
 
 export type IupdatingTeacher = z.infer<typeof teacherProfileSettingsSchema>;
 export type IupdatingPassword = z.infer<typeof teacherPasswordUpdateSchema>;
+export interface IUserInfo {
+  name: string;
+  address: string;
+  phoneNo: string;
+  email: string;
+  grade?: string;
+  gender?: string;
+}
 
-const UpdateProfile = () => {
+export const UpdateProfile = () => {
   const [loading, setloading] = useState<boolean>(false);
-
+  const { data } = useSession();
+  console.log(data?.user.google);
+  // register hook from react hookform
   const {
     register,
     handleSubmit,
-    reset,
     formState: { errors },
+    setValue,
   } = useForm<IupdatingTeacher>({
     resolver: zodResolver(teacherProfileSettingsSchema),
   });
+  const { data: userInfo } = useQuery<IUserInfo>({
+    queryKey: ["get-user-info"],
+    queryFn: async () => {
+      const response = await fetch("/api/users-info");
+      const result = await response.json();
+      return result;
+    },
+  });
+  useEffect(() => {
+    if (userInfo) {
+      setValue("name", userInfo.name);
+      setValue("email", userInfo.email);
+      setValue("phoneNo", userInfo.phoneNo);
+      setValue("address", userInfo.address);
+    }
+  }, [userInfo]);
 
   //   instance of client
   const queryClient = useQueryClient();
@@ -36,7 +62,7 @@ const UpdateProfile = () => {
   const mutation = useMutation({
     mutationKey: ["updateTeacher"],
     mutationFn: async (data: IupdatingTeacher) => {
-      // console.log(data);
+      console.log(data);
       const result = await fetch("/api/modifyaccount", {
         method: "PUT",
         body: JSON.stringify({
@@ -51,7 +77,6 @@ const UpdateProfile = () => {
       if (result.ok) {
         const body = await result.json();
         setloading(false);
-        reset();
         return toast.success(body.message);
       } else {
         setloading(false);
@@ -62,7 +87,6 @@ const UpdateProfile = () => {
   // here we validate the datas in our form submission
   // only if there is data, before the mutation function is called
   const runSubmit: SubmitHandler<IupdatingTeacher> = async (data) => {
-    console.log(data);
     setloading(true);
     mutation.mutate(data);
   };
@@ -73,185 +97,242 @@ const UpdateProfile = () => {
         Personal Information
       </label>
       <br />
-      <div className="flex gap-[10px] pt-4">
+      <div className=" flex flex-col gap-2">
+        <div className="flex max-xs:flex-col gap-[10px] pt-4">
+          <div className=" flex-1 flex flex-col gap-1">
+            <input
+              id="name"
+              {...register("name")}
+              name="name"
+              type="text"
+              className="outline-none p-3 rounded-[5px]  border-2 w-full"
+              placeholder="Full Name"
+            />
+            {errors.name && (
+              <small className="text-red-600">{errors.name.message}</small>
+            )}
+          </div>
+          <div className=" flex-1 flex flex-col gap-1">
+            <input
+              id="phoneNo"
+              {...register("phoneNo")}
+              name="phoneNo"
+              type="text"
+              className="outline-none p-3 rounded-[5px] border-2 w-full"
+              placeholder="Phone Number"
+            />
+            {errors.phoneNo && (
+              <small className="text-red-600">{errors.phoneNo.message}</small>
+            )}
+          </div>
+        </div>
         <input
-          id="name"
-          {...register("name")}
-          name="name"
-          type="text"
-          className="outline-none p-3 rounded-[5px]  border-2 w-[50%]"
-          placeholder="Full Name"
+          id="email"
+          {...register("email")}
+          name="email"
+          type="email"
+          className="outline-none p-3 mb-4 rounded-[5px] border-2 w-full"
+          placeholder="Email Address"
         />
-        {errors.name && (
-          <small className="text-red-600">{errors.name.message}</small>
+        {errors.email && (
+          <small className="text-red-600">{errors.email.message}</small>
         )}
+        <hr className="my-4" />
+        <label className="font-bold text-[14px] text-[#9F9F9F] my-4">
+          Address Details
+        </label>
         <input
-          id="phoneNo"
-          {...register("phoneNo")}
-          name="phoneNo"
+          id="address"
+          {...register("address")}
+          name="address"
           type="text"
-          className="outline-none p-3 rounded-[5px] border-2 w-[50%]"
-          placeholder="Phone Number"
+          className="outline-none p-3 my-4 rounded-[5px] border-2 w-full"
+          placeholder="Permanent House Address"
         />
-        {errors.phoneNo && (
-          <small className="text-red-600">{errors.phoneNo.message}</small>
+        {errors.address && (
+          <small className="text-red-600">{errors.address.message}</small>
         )}
+        <hr className="my-4" />
+        <Button
+          type="submit"
+          className="bg-secondary w-full text-white text-[16px] py-7 my-3"
+          disabled={loading}
+        >
+          {loading ? "updating profile..." : "Update Profile"}
+        </Button>
       </div>
-      <br />
-      <input
-        id="email"
-        {...register("email")}
-        name="email"
-        type="email"
-        className="outline-none p-3 mb-4 rounded-[5px] border-2 w-full"
-        placeholder="Email Address"
-      />
-      {errors.email && (
-        <small className="text-red-600">{errors.email.message}</small>
-      )}
-      <hr className="my-4" />
-      <label className="font-bold text-[14px] text-[#9F9F9F] my-4">
-        Address Details
-      </label>
-      <input
-        id="address"
-        {...register("address")}
-        name="address"
-        type="text"
-        className="outline-none p-3 my-4 rounded-[5px] border-2 w-full"
-        placeholder="Permanent House Address"
-      />
-      {errors.address && (
-        <small className="text-red-600">{errors.address.message}</small>
-      )}
-      <hr className="my-4" />
-      <Button
-        type="submit"
-        className="bg-secondary w-full text-white text-[16px] py-7 my-3"
-        disabled={loading}
-      >
-        {loading ? "updating profile..." : "Update Profile"}
-      </Button>
     </form>
   );
 };
 
-const UpdatePassword = () => {
+interface TogglePasswords {
+  old: boolean;
+  new: boolean;
+  cnew: boolean;
+}
+export const UpdatePassword = () => {
   const [loading, setloading] = useState<boolean>(false);
-  const [showPassword, setShowPassword] = useState<boolean>(false);
-
-  const togglePasswordVisibility = () => {
-    setShowPassword(!showPassword);
-  };
-  const {
-    register,
-    handleSubmit,
-    reset,
-    formState: { errors },
-  } = useForm<IupdatingPassword>({
-    resolver: zodResolver(teacherPasswordUpdateSchema),
+  const [showPassword, setShowPassword] = useState<TogglePasswords>({
+    old: false,
+    new: false,
+    cnew: false,
   });
+  const [oldPassword, setOldpassword] = useState<string>("");
+  const [newPassword, setNewPassword] = useState<string>("");
+  const [confirmNewPassword, setConfirmNewPassword] = useState<string>("");
+
+  const togglePasswordTrue = (key: string) => {
+    setShowPassword((prev) => {
+      return { ...prev, [`${key}`]: true };
+    });
+  };
+
+  const togglePasswordFalse = (key: string) => {
+    setShowPassword((prev) => {
+      return { ...prev, [`${key}`]: false };
+    });
+  };
 
   //   instance of client
   const queryClient = useQueryClient();
   //   creating a post using mutation to the backend
   const mutation = useMutation({
     mutationKey: ["updatePassword"],
-    mutationFn: async (data: IupdatingPassword) => {
-      console.log(data);
+    mutationFn: async () => {
       const result = await fetch("/api/changepassword", {
         method: "PUT",
         body: JSON.stringify({
-          ...data,
+          oldPassword,
+          newPassword,
         }),
       });
-
       return result;
     },
     onSuccess: async (result) => {
       queryClient.invalidateQueries({ queryKey: ["updatePassword"] });
+      const body = await result.json();
       if (result.ok) {
-        const body = await result.json();
         setloading(false);
-        reset();
+        setOldpassword("");
+        setNewPassword("");
+        setConfirmNewPassword("");
         return toast.success(body.message);
       } else {
         setloading(false);
-        return toast.error("error updating password");
+        return toast.error(body.message);
       }
     },
   });
   // here we validate the datas in our form submission
   // only if there is data, before the mutation function is called
-  const runSubmit: SubmitHandler<IupdatingPassword> = async (data) => {
-    console.log(data);
+  const runSubmit = async () => {
+    if (oldPassword == "" || newPassword == "" || confirmNewPassword == "") {
+      return toast.error("Please enter all field to update password");
+    }
+    if (newPassword !== confirmNewPassword) {
+      return toast.error("password does not match");
+    }
     setloading(true);
-    mutation.mutate(data);
+    mutation.mutate();
   };
 
   return (
-    <form
-      onSubmit={handleSubmit(runSubmit)}
-      className="h-[55%] bg-[#FFFFFF] rounded-[5px] p-4 my-4"
-    >
+    <div className="h-[55%] bg-[#FFFFFF] rounded-[5px] p-4 my-4">
       <hr className="my-4" />
       <label className="font-bold text-[#9F9F9F] my-4">Security</label>
-      <div className="relative">
-        <input
-          id="name"
-          {...register("oldPassword")}
-          name="oldPassword"
-          type={showPassword ? "text" : "password"}
-          className="outline-none p-3 my-4 rounded-[5px] border-2 w-full"
-          placeholder="Current Password"
-        />
-        {errors.oldPassword && (
-          <small className="text-red-600">{errors.oldPassword.message}</small>
-        )}
-        <button
-          type="button"
-          onClick={togglePasswordVisibility}
-          className="absolute top-8 right-4 border-none bg-transparent cursor-pointer"
+      <div className=" flex flex-col gap-2">
+        {/* old password */}
+        <div className="relative h-[50px]">
+          <input
+            name="oldPassword"
+            type={showPassword.old ? "text" : "password"}
+            className="outline-none p-3 h-full rounded-[5px] border-2 w-full"
+            placeholder="Current Password"
+            onChange={(e) => setOldpassword(e.target.value)}
+            value={oldPassword}
+          />
+          <button
+            type="button"
+            className="absolute top-1/2 -translate-y-1/2  right-4 border-none bg-transparent cursor-pointer"
+          >
+            {!showPassword.old ? (
+              <EyeOff
+                onClick={() => togglePasswordTrue("old")}
+                className="text-lightGreen"
+              />
+            ) : (
+              <Eye
+                onClick={() => togglePasswordFalse("old")}
+                className="text-lightGreen"
+              />
+            )}
+          </button>
+        </div>
+        {/* new password */}
+        <div className="relative h-[50px]">
+          <input
+            name="newPassword"
+            type={showPassword.new ? "text" : "password"}
+            className="outline-none h-full p-3 rounded-[5px] border-2 w-full"
+            placeholder="New Password"
+            onChange={(e) => setNewPassword(e.target.value)}
+            value={newPassword}
+          />
+
+          <button
+            type="button"
+            className="absolute top-1/2 -translate-y-1/2 right-4 border-none bg-transparent cursor-pointer"
+          >
+            {!showPassword.new ? (
+              <EyeOff
+                onClick={() => togglePasswordTrue("new")}
+                className="text-lightGreen"
+              />
+            ) : (
+              <Eye
+                onClick={() => togglePasswordFalse("new")}
+                className="text-lightGreen"
+              />
+            )}
+          </button>
+        </div>
+        {/* confirm new password */}
+        <div className="relative h-[50px]">
+          <input
+            name="newPassword"
+            type={showPassword.cnew ? "text" : "password"}
+            className="outline-none  rounded-[5px] border-2 w-full h-full p-3"
+            placeholder="Confirm New Password"
+            onChange={(e) => setConfirmNewPassword(e.target.value)}
+            value={confirmNewPassword}
+          />
+
+          <button
+            type="button"
+            className="absolute top-1/2 -translate-y-1/2 right-4 border-none bg-transparent cursor-pointer"
+          >
+            {!showPassword.cnew ? (
+              <EyeOff
+                onClick={() => togglePasswordTrue("cnew")}
+                className="text-lightGreen"
+              />
+            ) : (
+              <Eye
+                onClick={() => togglePasswordFalse("cnew")}
+                className="text-lightGreen"
+              />
+            )}
+          </button>
+        </div>
+        <Button
+          onClick={runSubmit}
+          className="bg-secondary w-full text-white text-[16px] py-7 my-3"
+          disabled={loading}
         >
-          {showPassword ? (
-            <EyeOff className="text-lightGreen" />
-          ) : (
-            <Eye className="text-lightGreen" />
-          )}
-        </button>
+          {loading ? "changing password..." : "Change Password"}
+        </Button>
       </div>
-      <div className="relative">
-        <input
-          id="newPassword"
-          {...register("newPassword")}
-          name="newPassword"
-          type={showPassword ? "text" : "password"}
-          className="outline-none p-3 mb-4 rounded-[5px] border-2 w-full"
-          placeholder="New Password"
-        />
-        {errors.newPassword && (
-          <small className="text-red-600">{errors.newPassword.message}</small>
-        )}
-        <button
-          type="button"
-          onClick={togglePasswordVisibility}
-          className="absolute top-4 right-4 border-none bg-transparent cursor-pointer"
-        >
-          {showPassword ? (
-            <EyeOff className="text-lightGreen" />
-          ) : (
-            <Eye className="text-lightGreen" />
-          )}
-        </button>
-      </div>
-      <Button
-        type="submit"
-        className="bg-secondary w-full text-white text-[16px] py-7 my-3"
-        disabled={loading}
-      >
-        {loading ? "changing password..." : "Change Password"}
-      </Button>
-    </form>
+    </div>
   );
 };
 
