@@ -22,6 +22,12 @@ export async function POST(req: Request) {
         teacherId: userId,
       },
     });
+    // go ahead and create a wallet for the teacher
+    await prisma.ewallet.create({
+      data: {
+        teacherId: userId,
+      },
+    });
     return new Response(JSON.stringify({ message: "Successfully updated" }), {
       status: 200,
     });

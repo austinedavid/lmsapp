@@ -68,6 +68,8 @@ model Teacher {
   Vacancy                  Vacancy[]
   SessionAttendance        SessionAttendance[]
   SpecialRequestAttendance SpecialRequestAttendance[]
+  Ewallet                  Ewallet?
+  WithdrawRequest          WithdrawRequest[]
 }
 
 // here, we will store all the zoom information of a particular teacher here
@@ -203,6 +205,29 @@ model Ratting {
   studentId String   @db.ObjectId
   createdAt DateTime @default(now())
   updatedAt DateTime @default(now())
+}
+
+// wallet for teachers
+model Ewallet {
+  id        String   @id @default(auto()) @map("_id") @db.ObjectId
+  amt       Float    @default(0.00)
+  teacher   Teacher  @relation(fields: [teacherId], references: [id])
+  teacherId String   @unique @db.ObjectId
+  createdAt DateTime @default(now())
+  updatedAt DateTime @default(now())
+}
+
+// the model below will be submissions to admin
+// to review a withdrawal request and process 
+// by accepting or rejecting it
+model WithdrawRequest {
+  id        String     @id @default(auto()) @map("_id") @db.ObjectId
+  status    Withdrawal @default(PROCESSING)
+  amt       Float
+  teacher   Teacher    @relation(fields: [teacherId], references: [id])
+  teacherId String     @db.ObjectId
+  createdAt DateTime   @default(now())
+  updatedAt DateTime   @default(now())
 }
 
 // once a teacher is registered
@@ -866,6 +891,12 @@ enum Gender {
 enum VacancyStatus {
   PENDING
   ACCEPTED
+  REJECTED
+}
+
+enum Withdrawal {
+  PROCESSING
+  APPROVED
   REJECTED
 }
 

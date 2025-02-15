@@ -303,3 +303,6 @@ endpoint for getting single special request
 route:/api/teacher-special-request/single-special-request/id
 method:GET
 comment: id in the url is the single special request id
+
+
+/api/teacher-get-bank/e-wallet
