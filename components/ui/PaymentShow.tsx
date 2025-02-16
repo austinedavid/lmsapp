@@ -128,7 +128,6 @@ export const PayStackBtn: React.FC<{
   const { data } = useSession();
   const componentProps = {
     reference: new Date().getTime().toString(),
-    currency: "USD",
     email: data?.user.email as string,
     amount: amt * 100, //Amount is in the country's lowest currency. E.g Kobo, so 20000 kobo = N200
     publicKey: process.env.NEXT_PUBLIC_PAYSTACKPUBKEY!,

@@ -157,9 +157,6 @@ const KycCard: React.FC<IBalanceInfo> = ({ amt }) => {
 const Balance: React.FC<IBalanceInfo> = ({ amt }) => {
   const [showPayment, setShowPayment] = useState<boolean>(false);
   const handleShowPayment = () => {
-    if (amt! < 5000) {
-      return toast.error("minimum withdraw request is &#8358;5000 ");
-    }
     setShowPayment(true);
   };
   return (
