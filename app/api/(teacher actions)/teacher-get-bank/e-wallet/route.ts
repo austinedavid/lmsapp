@@ -47,13 +47,6 @@ export async function POST(req: Request) {
       },
       select: { amt: true, id: true },
     });
-    // check min withdrawable amout
-    if (amt < 10) {
-      return new Response(
-        JSON.stringify({ message: "less than mininum withdrawal" }),
-        { status: 400 }
-      );
-    }
     // check the withdrawable amt is less or equal to the balance in the ewallet
     if (amt > ewallet?.amt!) {
       return new Response(
@@ -76,6 +69,16 @@ export async function POST(req: Request) {
       data: {
         amt,
         teacherId: userId,
+      },
+    });
+    // create a transaction history below
+    await prisma.transaction.create({
+      data: {
+        type: "withdrawal",
+        debit: true,
+        amount: amt,
+        userId,
+        status: "PROCESSING",
       },
     });
 

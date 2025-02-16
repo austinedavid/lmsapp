@@ -13,8 +13,6 @@ import crypto from "crypto";
 // add student to the class after making payment
 export async function POST(req: Request) {
   const body = await req.json();
-  console.log("entered");
-  console.log(body);
   // lets first verify the signature and make sure the webhook is coming
   // from paystack it self
   const hash = crypto
@@ -37,7 +35,7 @@ export async function POST(req: Request) {
   const paymentFor = typePayArray[1];
   //   lets get the class first so that we can be able to push the new id
   if (paymentFor === "class") {
-    return await payForClass(classId, studentId, amt);
+    return await payForClass(classId, studentId);
   }
   // here we make payment for session for the parents and also child
   if (paymentFor === "session") {

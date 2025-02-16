@@ -95,3 +95,14 @@ export const generateId = (): string => {
   console.log(sessionId);
   return sessionId;
 };
+
+export const BalanceAddition = async (amt: number, teacherId: string) => {
+  const wallet = await prisma.ewallet.findFirst({ where: { teacherId } });
+  await prisma.ewallet.update({
+    where: { teacherId },
+    data: {
+      amt: wallet?.amt! + Number(amt),
+      updatedAt: new Date(),
+    },
+  });
+};

@@ -33,12 +33,7 @@ export const subjectList: string[] = [
   "Creative writing",
 ];
 // the preference array
-export const preferences = [
-  "HomeWork Support",
-  "1 on 1 Sessions",
-  "Open to Jobs",
-  "Group Sessions",
-];
+export const preferences = ["HomeWork Support", "1 on 1 Sessions"];
 // the language array
 export const teacherLang: string[] = [
   "English",

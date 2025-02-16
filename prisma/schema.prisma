@@ -794,7 +794,9 @@ model Transaction {
   debit     Boolean         @default(false)
   amount    Int
   userId    String          @db.ObjectId
+  status    Withdrawal      @default(APPROVED)
   updatedAt DateTime        @default(now())
+  createdAt DateTime        @default(now())
 }
 
 // Enum for transactiontypes
@@ -805,6 +807,7 @@ enum TransactionType {
   teacherplan
   courses
   specialRequest
+  withdrawal
 }
 
 // this is enum for grades

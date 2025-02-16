@@ -1,15 +1,12 @@
 import prisma from "../prismaConnect";
 import { serverError } from "./error";
+import { BalanceAddition } from "./utils";
 
 // here we make payment for classes
-export const payForClass = async (
-  classId: string,
-  studentId: string,
-  amt: any
-) => {
+export const payForClass = async (classId: string, studentId: string) => {
   const theclass = await prisma.classes.findUnique({
     where: { id: classId },
-    select: { studentIDs: true },
+    select: { studentIDs: true, teacherId: true, price: true },
   });
   // lets check if the student already exist in the class,
   // if it exists, we will return and not add the sudent
@@ -48,9 +45,11 @@ export const payForClass = async (
         userId: studentId,
         type: "class",
         debit: true,
-        amount: amt,
+        amount: theclass?.price!,
       },
     });
+    // now we update the wallet of the owner of the class as required
+    await BalanceAddition(Number(theclass?.price), theclass?.teacherId!);
     return new Response(
       JSON.stringify({
         message: "payment successful and student added in class",
@@ -239,6 +238,7 @@ export const coursePayment = async (payload: Icourses) => {
           name: true,
           profilePhoto: true,
           status: true,
+          id: true,
         },
       },
     },
@@ -251,7 +251,7 @@ export const coursePayment = async (payload: Icourses) => {
     // check if isStudent is true and buy the course for the student or
     // buy the course for the parents if the student is false
     if (payload.userType === "Student") {
-      const item = await prisma.studentPurchasedCourses.create({
+      await prisma.studentPurchasedCourses.create({
         data: {
           coursesId: payload.courseId,
           title: theCourse?.title,
@@ -281,8 +281,10 @@ export const coursePayment = async (payload: Icourses) => {
           userId: payload.payerId,
         },
       });
+      // add money to the teachers wallet
+      await BalanceAddition(theCourse.price, theCourse.teacherId);
     } else if (payload.userType === "Parents") {
-      const parents = await prisma.parentsPurchasedCourses.create({
+      await prisma.parentsPurchasedCourses.create({
         data: {
           coursesId: payload.courseId,
           title: theCourse?.title,
@@ -312,8 +314,10 @@ export const coursePayment = async (payload: Icourses) => {
           userId: payload.payerId,
         },
       });
+      // add money to the teachers wallet
+      await BalanceAddition(theCourse.price, theCourse.teacherId);
     } else {
-      const teacher = await prisma.teacherPurchasedCourses.create({
+      await prisma.teacherPurchasedCourses.create({
         data: {
           coursesId: payload.courseId,
           title: theCourse?.title,
@@ -343,6 +347,8 @@ export const coursePayment = async (payload: Icourses) => {
           userId: payload.payerId,
         },
       });
+      // add money to the teachers wallet
+      await BalanceAddition(theCourse.price, theCourse.teacherId);
     }
     // now, update the course total sell by one
     await prisma.courses.update({

@@ -26,10 +26,9 @@ export async function POST(req: Request) {
   const classArray = data.customer.name.split("-");
   const classId = classArray[0];
   const paymentFor = classArray[1];
-  const amt = 90;
   // check for the payment type and run it accordingly
   if (paymentFor == "class ") {
-    return await payForClass(classId, studentId, amt);
+    return await payForClass(classId, studentId);
   }
   // pay for session if is type if session
   if (paymentFor == "session ") {
