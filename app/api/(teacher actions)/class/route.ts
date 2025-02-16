@@ -8,6 +8,7 @@ import {
   checkKyc,
   checkPlans,
   checkTotalClass,
+  isInternal,
   serverSessionId,
   serverSessionRole,
 } from "@/prisma/utils/utils";
@@ -42,9 +43,14 @@ export async function POST(req: Request) {
   // here we will be able to tackle restrictions based on the class
   const allClasses = await checkTotalClass(teacherId!);
   const teacherPlan = await checkPlans(teacherId!);
+  const roleType = await isInternal(teacherId!);
   // add class creation restriction to just only one class for free plans
   // there by making other plans unlimitted
-  if ((teacherPlan === "FREE" || !teacherPlan) && allClasses! >= 1) {
+  if (
+    (teacherPlan === "FREE" || !teacherPlan) &&
+    allClasses! >= 1 &&
+    roleType !== "INTERNAL"
+  ) {
     return new Response(
       JSON.stringify({
         message: "You have hit your maximum class for this plan",

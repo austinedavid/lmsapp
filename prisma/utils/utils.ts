@@ -96,6 +96,7 @@ export const generateId = (): string => {
   return sessionId;
 };
 
+// add money to the ewallet
 export const BalanceAddition = async (amt: number, teacherId: string) => {
   const wallet = await prisma.ewallet.findFirst({ where: { teacherId } });
   await prisma.ewallet.update({
@@ -105,4 +106,17 @@ export const BalanceAddition = async (amt: number, teacherId: string) => {
       updatedAt: new Date(),
     },
   });
+};
+
+// here we allow internal teachers to do somethings
+export const isInternal = async (teacherId: string): Promise<string> => {
+  const authority = await prisma.teacher.findUnique({
+    where: {
+      id: teacherId,
+    },
+    select: {
+      teachingRole: true,
+    },
+  });
+  return authority?.teachingRole as string;
 };

@@ -173,18 +173,12 @@ const Balance: React.FC<IBalanceInfo> = ({ amt }) => {
           Your earnings will be sent to the account details provided.
           Please,confirm your account details before proceeding.
         </p>
-        <p className=" text-red-500 text-[10px]">
-          You can only make withdrawal from &#8358;5,000
-        </p>
-
-        {amt && amt >= 5000 && (
-          <div
-            className=" px-3 py-2 rounded-md text-white bg-green-800 w-fit cursor-pointer"
-            onClick={handleShowPayment}
-          >
-            Request withdrawal
-          </div>
-        )}
+        <div
+          className=" px-3 py-2 rounded-md text-white bg-green-800 w-fit cursor-pointer"
+          onClick={handleShowPayment}
+        >
+          Request withdrawal
+        </div>
         {showPayment && (
           <WithdrawDialog
             showPayment={showPayment}

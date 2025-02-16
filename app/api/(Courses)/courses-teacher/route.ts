@@ -8,6 +8,7 @@ import {
   checkKyc,
   checkPlans,
   getQuery,
+  isInternal,
   serverSessionId,
   serverSessionRole,
 } from "@/prisma/utils/utils";
@@ -31,16 +32,17 @@ export async function POST(req: Request) {
   const role = await serverSessionRole();
   //   check if the kyc is already approved
   const donekyc = await checkKyc(userId!);
+  const roleType = await isInternal(userId!);
   if (!userId) return notAuthenticated();
   if (role !== "Admin" && (!donekyc || donekyc !== "APPROVED")) {
     return new Response(
-      JSON.stringify({ message: "Please complete your kyc to proceed" }),
+      JSON.stringify({ message: "Kyc not submitted or pending" }),
       { status: 400 }
     );
   }
   // then lets check if the user is in paid plan or if the user is an admin before allowing to proceed with creating courses
   const teachersPlan = await checkPlans(userId!);
-  if (role !== "Admin" && teachersPlan === "FREE") {
+  if (role !== "Admin" && teachersPlan === "FREE" && roleType !== "INTERNAL") {
     return new Response(
       JSON.stringify({
         message: "Please upgrade to paid plans to create a course",

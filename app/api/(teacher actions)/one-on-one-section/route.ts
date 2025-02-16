@@ -9,6 +9,7 @@ import {
   serverSessionId,
   serverSessionRole,
   generateId,
+  isInternal,
 } from "@/prisma/utils/utils";
 
 // here we first make a post request
@@ -18,6 +19,7 @@ export async function POST(req: Request) {
   const teacherId = await serverSessionId();
   const role = await serverSessionRole();
   const payload = await req.json();
+  const roleType = await isInternal(teacherId!);
   if (!teacherId) return notAuthenticated();
   if (role !== "Teacher")
     return new Response(
@@ -36,7 +38,7 @@ export async function POST(req: Request) {
   }
   // check if the user is in free plan, and prevent him from creating a section profile
   const teacherPlan = await checkPlans(teacherId!);
-  if (teacherPlan === "FREE") {
+  if (teacherPlan === "FREE" && roleType !== "INTERNAL") {
     return new Response(
       JSON.stringify({ message: "subscribe for a plans, to create a section" }),
       { status: 402 }
