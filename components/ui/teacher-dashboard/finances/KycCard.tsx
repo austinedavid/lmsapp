@@ -37,6 +37,7 @@ const WithdrawDialog: React.FC<{
       const result = await response.json();
       if (response.ok) {
         queryClient.invalidateQueries({ queryKey: ["get-account-balance"] });
+        queryClient.invalidateQueries({ queryKey: ["transaction-show"] });
         toast.success(result.message);
         setShowPayment(false);
       } else {

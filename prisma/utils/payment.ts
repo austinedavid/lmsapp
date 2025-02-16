@@ -39,12 +39,21 @@ export const payForClass = async (classId: string, studentId: string) => {
       },
       data: { classIDs: theStudent?.classIDs },
     });
-    // Create the users transaction information
+    // Create the users transaction information for student
     await prisma.transaction.create({
       data: {
         userId: studentId,
         type: "class",
         debit: true,
+        amount: theclass?.price!,
+      },
+    });
+    // Create the users transaction information for teacher
+    await prisma.transaction.create({
+      data: {
+        userId: theclass?.teacherId!,
+        type: "class",
+        debit: false,
         amount: theclass?.price!,
       },
     });
@@ -281,6 +290,15 @@ export const coursePayment = async (payload: Icourses) => {
           userId: payload.payerId,
         },
       });
+      // Create the users transaction information for teacher
+      await prisma.transaction.create({
+        data: {
+          userId: theCourse.teacherId,
+          type: "class",
+          debit: false,
+          amount: theCourse?.price,
+        },
+      });
       // add money to the teachers wallet
       await BalanceAddition(theCourse.price, theCourse.teacherId);
     } else if (payload.userType === "Parents") {
@@ -314,6 +332,15 @@ export const coursePayment = async (payload: Icourses) => {
           userId: payload.payerId,
         },
       });
+      // Create the users transaction information for teacher
+      await prisma.transaction.create({
+        data: {
+          userId: theCourse.teacherId,
+          type: "class",
+          debit: false,
+          amount: theCourse?.price,
+        },
+      });
       // add money to the teachers wallet
       await BalanceAddition(theCourse.price, theCourse.teacherId);
     } else {
@@ -345,6 +372,15 @@ export const coursePayment = async (payload: Icourses) => {
           amount: theCourse?.price,
           debit: true,
           userId: payload.payerId,
+        },
+      });
+      // Create the users transaction information for teacher
+      await prisma.transaction.create({
+        data: {
+          userId: theCourse.teacherId,
+          type: "class",
+          debit: false,
+          amount: theCourse?.price,
         },
       });
       // add money to the teachers wallet
