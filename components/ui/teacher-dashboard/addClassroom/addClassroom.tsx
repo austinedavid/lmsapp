@@ -461,7 +461,7 @@ const AddClassroom: React.FC<{
 
                   <div className=" w-[50px] cursor-pointer font-bold aspect-square rounded-full flex items-center justify-center">
                     <Image
-                      src="/usflag.png"
+                      src="/nairasign.webp"
                       alt="usflag"
                       width={100}
                       height={100}

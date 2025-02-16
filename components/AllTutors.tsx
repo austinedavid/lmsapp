@@ -217,7 +217,6 @@ const MobileArrayDesc: React.FC<{ subjects: string[]; lang: string[] }> = ({
 const SingleSession: React.FC<{
   item: ISessionShow;
 }> = ({ item }) => {
-  const [showBooking, setShowBooking] = useState<boolean>(false);
   return (
     <div className=" w-full max-ss:flex-col flex  gap-3 bg-white shadow-md md:px-10 md:py-8 rounded-lg p-4">
       <div className=" flex flex-8 gap-6">
@@ -281,15 +280,7 @@ const AllTutors = () => {
     return response.json();
   };
 
-  const {
-    data,
-    status,
-    error,
-    isError,
-    fetchNextPage,
-    isFetchingNextPage,
-    hasNextPage,
-  } = useInfiniteQuery({
+  const { data, status, fetchNextPage } = useInfiniteQuery({
     queryKey: ["infiniteSession"],
     queryFn: getItems,
     initialPageParam: 1,

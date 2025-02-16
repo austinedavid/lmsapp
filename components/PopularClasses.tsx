@@ -82,7 +82,7 @@ export const PopularClassesCard = ({ item }: { item: Iclass }) => {
           )}
         </div>
         <p className="text-right mr-6 font-bold text-lightGreen">
-          &#36;{item.price.toFixed(2)}
+          &#8358;{item.price.toFixed(2)}
         </p>
         <div className="flex flex-col gap-3 mb-8 justify-center mx-4 ">
           <div className=" flex items-center justify-between">

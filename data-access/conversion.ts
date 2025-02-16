@@ -105,19 +105,19 @@ export const useConversion = () => {
     // Calculate total payment based on selected days
     switch (selectedDays.length) {
       case 1:
-        totalAmt = baseRate * hours * multiplier;
+        totalAmt = baseRate;
         break;
       case 2:
-        totalAmt = baseRate * 2 * multiplier * hours - 5 * multiplier;
+        totalAmt = baseRate;
         break;
       case 3:
-        totalAmt = baseRate * 3 * multiplier * hours - 10 * multiplier;
+        totalAmt = baseRate;
         break;
       case 4:
-        totalAmt = baseRate * 4 * multiplier * hours - 20 * multiplier;
+        totalAmt = baseRate;
         break;
       default:
-        totalAmt = baseRate * 5 * multiplier * hours - 20 * multiplier;
+        totalAmt = baseRate;
         break;
     }
 

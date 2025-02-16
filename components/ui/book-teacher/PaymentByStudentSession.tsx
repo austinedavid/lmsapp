@@ -1,22 +1,13 @@
 import { ISessionStudentSub } from "./StudentBookDetails";
-import { ScrollArea } from "@/components/ui/scroll-area";
-import Link from "next/link";
 import Image from "next/image";
 import { MdVerified } from "react-icons/md";
 import { paymentMethods } from "@/constants/pricing/school";
 import { useConversion } from "@/data-access/conversion";
 
 const PaymentByStudentSession: React.FC<ISessionStudentSub> = ({
-  register,
-  errors,
-  control,
-  watch,
-  clearErrors,
-  setValue,
   method,
   setmethod,
   getValues,
-  totalAmt,
   tutorImg,
   tutorLang,
   tutorName,
@@ -111,7 +102,7 @@ const PaymentByStudentSession: React.FC<ISessionStudentSub> = ({
             <div className="flex justify-between mt-3 font-semibold">
               <p className="text-[17px] font-bold">Total</p>
               <p className="text-[15px] text-lightGreen">
-                $
+                &#8358;
                 {totalSessionPayment(
                   getValues("days"),
                   getValues("length"),
