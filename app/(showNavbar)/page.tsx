@@ -28,7 +28,7 @@ export default function Home() {
       <PrivateSession />
       <HomeworkSupport />
       <ParentalControl />
-      <SampleCourses />
+      {/* <SampleCourses /> */}
       <PreviewInternalTeachers />
       <Testimonials />
       <GetStarted />
