@@ -448,21 +448,22 @@ const RenderedExam: React.FC<{
         <div className=" flex-1 flex text-[11px] items-center justify-center">
           <p>{exam.grade}</p>
         </div>
-
-        <div className=" flex-1 flex text-[11px] items-center justify-center">
-          {!isTeacher && (exam.completed || exam.score !== null) ? (
-            <div className="max-ss:text-[12px] bg-slate-500 text-slate-300 rounded-md px-2 md:px-4 py-2 cursor-not-allowed">
-              <p>Answered</p>
-            </div>
-          ) : (
-            <div
-              onClick={() => handleMoveToExam(exam.id)}
-              className="max-ss:text-[12px] bg-green-700 text-white px-2 md:px-4 py-2 rounded-md cursor-pointer"
-            >
-              <p>Start now</p>
-            </div>
-          )}
-        </div>
+        {!isTeacher && (
+          <div className="flex-1 flex text-[11px] items-center justify-center">
+            {exam.completed || exam.score !== null ? (
+              <div className="max-ss:text-[12px] bg-slate-500 text-slate-300 rounded-md px-2 md:px-4 py-2 cursor-not-allowed">
+                <p>Answered</p>
+              </div>
+            ) : (
+              <div
+                onClick={() => handleMoveToExam(exam.id)}
+                className="max-ss:text-[12px] bg-green-700 text-white px-2 md:px-4 py-2 rounded-md cursor-pointer"
+              >
+                <p>Start now</p>
+              </div>
+            )}
+          </div>
+        )}
 
         {isTeacher && (
           <div className=" flex-1 flex text-[11px] items-center justify-center">
