@@ -46,7 +46,7 @@ const ViewMessage: React.FC<messageProps> = ({
         </DialogTrigger>
         <DialogContent
           onClick={(e) => e.stopPropagation()}
-          className="sm:w-[60%] w-[400px] px-0 bg-stone-100 font-subtext"
+          className="sm:w-[60%] w-[400px] px-3 bg-stone-100 font-subtext"
         >
           <ScrollArea className="h-[200px] w-full px-4 ">
             <div className="grid gap-4 font-header py-4">
